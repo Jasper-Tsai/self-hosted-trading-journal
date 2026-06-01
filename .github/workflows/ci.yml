@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm
@@ -41,31 +41,57 @@ jobs:
         env:
           APP_PORT: 3003
           JOURNAL_USERNAME: admin
-          JOURNAL_PASSWORD: change-me-now
-          JOURNAL_SESSION_SECRET: ci-session-secret
+          JOURNAL_PASSWORD: ci-test-password
+          JOURNAL_SESSION_SECRET: ci-session-secret-0123456789
+          JOURNAL_SECURE_COOKIES: "false"
         run: |
+          set -euo pipefail
           docker compose up -d --build
-          for i in $(seq 1 30); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3003/login)
+          trap 'docker compose logs' ERR
+
+          code="000"
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3003/api/auth/me || true)
             if [ "$code" = "200" ]; then
-              curl -fsS http://localhost:3003/api/auth/me >/dev/null
-              curl -fsS -c /tmp/stj-cookies.txt \
-                -H 'Content-Type: application/json' \
-                -d '{"username":"admin","password":"change-me-now"}' \
-                http://localhost:3003/api/auth/login >/dev/null
-              curl -fsS -b /tmp/stj-cookies.txt http://localhost:3003/api/products >/dev/null
-              exit 0
+              break
             fi
             sleep 1
           done
-          docker compose logs
-          exit 1
+          if [ "$code" != "200" ]; then
+            echo "Application did not become ready. Last /api/auth/me status: $code"
+            exit 1
+          fi
+
+          anon_code=$(curl -sS -o /tmp/stj-anon.out -w '%{http_code}' http://localhost:3003/api/products || true)
+          if [ "$anon_code" != "401" ]; then
+            echo "Expected unauthenticated /api/products to return 401, got $anon_code"
+            cat /tmp/stj-anon.out
+            exit 1
+          fi
+
+          login_code=$(curl -sS -c /tmp/stj-cookies.txt -o /tmp/stj-login.out -w '%{http_code}' \
+            -H 'Content-Type: application/json' \
+            -d '{"username":"admin","password":"ci-test-password"}' \
+            http://localhost:3003/api/auth/login)
+          if [ "$login_code" != "200" ]; then
+            echo "Expected login to return 200, got $login_code"
+            cat /tmp/stj-login.out
+            exit 1
+          fi
+
+          authed_code=$(curl -sS -b /tmp/stj-cookies.txt -o /tmp/stj-products.out -w '%{http_code}' http://localhost:3003/api/products)
+          if [ "$authed_code" != "200" ]; then
+            echo "Expected authenticated /api/products to return 200, got $authed_code"
+            cat /tmp/stj-products.out
+            exit 1
+          fi
 
       - name: Stop Docker Compose
         if: always()
         env:
           APP_PORT: 3003
           JOURNAL_USERNAME: admin
-          JOURNAL_PASSWORD: change-me-now
-          JOURNAL_SESSION_SECRET: ci-session-secret
+          JOURNAL_PASSWORD: ci-test-password
+          JOURNAL_SESSION_SECRET: ci-session-secret-0123456789
+          JOURNAL_SECURE_COOKIES: "false"
         run: docker compose down
