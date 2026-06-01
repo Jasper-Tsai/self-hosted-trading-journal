@@ -1,0 +1,373 @@
+@import "tailwindcss";
+
+:root {
+  /* ============================
+     Linear Design System Tokens
+     ============================ */
+
+  /* Deep Space Color Palette */
+  --background: #050506;
+  --background-deep: #020203;
+  --background-elevated: #0a0a0c;
+  --foreground: #EDEDEF;
+  --foreground-muted: #8A8F98;
+
+  --card: rgba(255, 255, 255, 0.05);
+  --card-foreground: #EDEDEF;
+  --popover: rgba(10, 10, 12, 0.95);
+  --popover-foreground: #EDEDEF;
+
+  /* Accent: Linear Indigo */
+  --primary: #5E6AD2;
+  --primary-foreground: #ffffff;
+  --accent: rgba(94, 106, 210, 0.10);
+  --accent-foreground: #c7d2fe;
+  --ring: #5E6AD2;
+
+  /* Surfaces */
+  --secondary: rgba(255, 255, 255, 0.05);
+  --secondary-foreground: #EDEDEF;
+  --muted: rgba(255, 255, 255, 0.04);
+  --muted-foreground: #8A8F98;
+
+  /* Borders — nearly invisible 6-10% white */
+  --border: rgba(255, 255, 255, 0.06);
+  --input: rgba(255, 255, 255, 0.06);
+
+  /* Destructive */
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  /* Extended Tokens */
+  --accent-bright: #6872D9;
+  --accent-glow: rgba(94, 106, 210, 0.30);
+  --surface: rgba(255, 255, 255, 0.05);
+  --surface-hover: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.10);
+  --border-accent: rgba(94, 106, 210, 0.30);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ============================
+   Base Styles
+   ============================ */
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', 'Geist Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ============================
+   Background System: Layered Ambient Lighting
+   ============================ */
+
+/* Layer 1 — Base radial gradient for vertical depth */
+.ambient-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at top, #0a0a0f 0%, #050506 50%, #020203 100%);
+}
+
+/* Layer 2 — Noise texture for tactile quality */
+.ambient-canvas::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* Layer 3 — Grid overlay for technical precision */
+.ambient-canvas::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.02;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, .06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .06) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+/* Layer 4 — Animated gradient blobs */
+@keyframes blob-float-1 {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(1deg);
+  }
+}
+
+@keyframes blob-float-2 {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-15px) rotate(-1deg);
+  }
+}
+
+@keyframes blob-float-3 {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-12px) rotate(0.5deg);
+  }
+}
+
+@keyframes blob-pulse {
+
+  0%,
+  100% {
+    opacity: 0.10;
+  }
+
+  50% {
+    opacity: 0.16;
+  }
+}
+
+.ambient-blob {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+
+/* Primary blob — top center, largest, accent color */
+.ambient-blob-primary {
+  width: 900px;
+  height: 1400px;
+  top: -30%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(94, 106, 210, 0.25) 0%, transparent 70%);
+  filter: blur(150px);
+  animation: blob-float-1 10s ease-in-out infinite;
+}
+
+/* Secondary blob — left side, purple/pink */
+.ambient-blob-secondary {
+  width: 600px;
+  height: 800px;
+  top: 20%;
+  left: -10%;
+  background: radial-gradient(ellipse, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+  filter: blur(120px);
+  animation: blob-float-2 8s ease-in-out infinite;
+}
+
+/* Tertiary blob — right side, indigo/blue */
+.ambient-blob-tertiary {
+  width: 500px;
+  height: 700px;
+  top: 50%;
+  right: -10%;
+  background: radial-gradient(ellipse, rgba(79, 70, 229, 0.12) 0%, transparent 70%);
+  filter: blur(100px);
+  animation: blob-float-3 9s ease-in-out infinite;
+}
+
+/* Bottom accent blob — pulsing */
+.ambient-blob-bottom {
+  width: 800px;
+  height: 400px;
+  bottom: -10%;
+  left: 30%;
+  background: radial-gradient(ellipse, rgba(94, 106, 210, 0.10) 0%, transparent 70%);
+  filter: blur(120px);
+  animation: blob-pulse 8s ease-in-out infinite;
+}
+
+/* Mouse spotlight */
+.mouse-spotlight {
+  position: fixed;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(94, 106, 210, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  transition: left 0.15s ease-out, top 0.15s ease-out, opacity 0.3s ease-out;
+  will-change: left, top;
+  opacity: 0;
+}
+
+.mouse-spotlight.active {
+  opacity: 1;
+}
+
+/* ============================
+   Animation Tokens
+   ============================ */
+
+/* Expo-out easing */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Utility animation classes */
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* ============================
+   Premium Scrollbar
+   ============================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Selection */
+::selection {
+  background: rgba(94, 106, 210, 0.3);
+  color: #ffffff;
+}
+
+/* ============================
+   Reduced Motion Support
+   ============================ */
+@media (prefers-reduced-motion: reduce) {
+
+  .ambient-blob,
+  .mouse-spotlight {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .animate-fade-in-up,
+  .animate-scale-in,
+  .animate-shimmer {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <!-- Background subtle gradient -->
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#070A12"/>
+      <stop offset="1" stop-color="#0B1020"/>
+    </linearGradient>
+    <!-- Neon stroke gradient (blue/cyan) -->
+    <linearGradient id="neonBlue" x1="16" y1="20" x2="112" y2="108" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7AA7FF"/>
+      <stop offset="0.55" stop-color="#4FD7FF"/>
+      <stop offset="1" stop-color="#73B4FF"/>
+    </linearGradient>
+    <!-- Outer ring gradient -->
+    <linearGradient id="ringGrad" x1="10" y1="8" x2="118" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6E7BFF" stop-opacity="0.85"/>
+      <stop offset="0.5" stop-color="#46E2FF" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#B06CFF" stop-opacity="0.65"/>
+    </linearGradient>
+    <!-- Glow filter for icon strokes -->
+    <filter id="neonGlow" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2.2" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.65 0" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Subtle outer ring glow -->
+    <filter id="ringGlow" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="2.6" result="blur"/>
+      <feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.55 0" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Soft shadow for depth -->
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feOffset dy="2" />
+      <feGaussianBlur stdDeviation="3.2" result="shadow"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.45 0"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Purple EMA glow -->
+    <filter id="emaGlow" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.8" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.70 0" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Rounded-square base -->
+  <g filter="url(#softShadow)">
+    <rect x="8" y="8" width="112" height="112" rx="28" fill="url(#bgGrad)"/>
+  </g>
+
+  <!-- Outer ring (micro glow) -->
+  <g filter="url(#ringGlow)">
+    <rect x="9.5" y="9.5" width="109" height="109" rx="27" stroke="url(#ringGrad)" stroke-width="1.6" opacity="0.65"/>
+  </g>
+
+  <!-- Monogram MN as "K-line / chart" geometry -->
+  <g filter="url(#neonGlow)" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Main MN polyline (acts like a trend line) -->
+    <path d="M30 86 L30 44 L46 66 L62 44 L62 86 L62 86 L74 54 L92 86 L92 44" stroke="url(#neonBlue)" stroke-width="5.6"/>
+    <!-- Candlestick-like vertical wicks (subtle, to feel like K-lines) -->
+    <path d="M30 38 L30 50" stroke="url(#neonBlue)" stroke-width="3.2" opacity="0.85"/>
+    <path d="M46 58 L46 76" stroke="url(#neonBlue)" stroke-width="3.2" opacity="0.65"/>
+    <path d="M62 38 L62 52" stroke="url(#neonBlue)" stroke-width="3.2" opacity="0.85"/>
+    <path d="M74 46 L74 62" stroke="url(#neonBlue)" stroke-width="3.2" opacity="0.70"/>
+    <path d="M92 38 L92 50" stroke="url(#neonBlue)" stroke-width="3.2" opacity="0.85"/>
+  </g>
+
+  <!-- Purple EMA curve crossing the monogram -->
+  <g filter="url(#emaGlow)">
+    <path d="M24 72 C38 64, 48 78, 60 70 C72 62, 82 74, 104 58" stroke="#B06CFF" stroke-width="3.2" stroke-linecap="round" opacity="0.95"/>
+  </g>
+
+  <!-- Tiny highlight dots (optional, adds premium fintech feel) -->
+  <circle cx="30" cy="44" r="1.6" fill="#4FD7FF" opacity="0.95"/>
+  <circle cx="62" cy="44" r="1.6" fill="#4FD7FF" opacity="0.95"/>
+  <circle cx="92" cy="44" r="1.6" fill="#4FD7FF" opacity="0.95"/>
+</svg>

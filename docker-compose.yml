@@ -1,0 +1,28 @@
+services:
+  trading-journal:
+    build:
+      context: .
+    image: self-hosted-trading-journal:latest
+    container_name: trading-journal
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - APP_BRAND_NAME=${APP_BRAND_NAME:-Self-Hosted Trading Journal}
+      - JOURNAL_USERNAME=${JOURNAL_USERNAME:-admin}
+      - JOURNAL_PASSWORD=${JOURNAL_PASSWORD:?Set JOURNAL_PASSWORD in .env before starting}
+      - JOURNAL_SESSION_SECRET=${JOURNAL_SESSION_SECRET:?Set JOURNAL_SESSION_SECRET in .env before starting}
+      - JOURNAL_SECURE_COOKIES=${JOURNAL_SECURE_COOKIES:-false}
+      - DB_PATH=/app/data/db.sqlite
+      - UPLOADS_DIR=/app/uploads
+      - NEXT_PUBLIC_USD_TWD_RATE=${NEXT_PUBLIC_USD_TWD_RATE:-31.5}
+    volumes:
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/auth/me"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

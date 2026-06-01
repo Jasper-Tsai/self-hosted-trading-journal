@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit dependencies
+        run: npm audit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+      - name: Build Docker image
+        run: docker build -t self-hosted-trading-journal:ci .
+
+      - name: Smoke test Docker Compose
+        env:
+          APP_PORT: 3003
+          JOURNAL_USERNAME: admin
+          JOURNAL_PASSWORD: change-me-now
+          JOURNAL_SESSION_SECRET: ci-session-secret
+        run: |
+          docker compose up -d --build
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3003/login)
+            if [ "$code" = "200" ]; then
+              curl -fsS http://localhost:3003/api/auth/me >/dev/null
+              curl -fsS -c /tmp/stj-cookies.txt \
+                -H 'Content-Type: application/json' \
+                -d '{"username":"admin","password":"change-me-now"}' \
+                http://localhost:3003/api/auth/login >/dev/null
+              curl -fsS -b /tmp/stj-cookies.txt http://localhost:3003/api/products >/dev/null
+              exit 0
+            fi
+            sleep 1
+          done
+          docker compose logs
+          exit 1
+
+      - name: Stop Docker Compose
+        if: always()
+        env:
+          APP_PORT: 3003
+          JOURNAL_USERNAME: admin
+          JOURNAL_PASSWORD: change-me-now
+          JOURNAL_SESSION_SECRET: ci-session-secret
+        run: docker compose down

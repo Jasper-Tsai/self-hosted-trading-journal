@@ -1,0 +1,238 @@
+/**
+ * Server actions for products (DB-driven CRUD)
+ * 取代原本 src/lib/products.ts 的靜態 PRODUCTS 常數
+ * 只能在 server components、API routes、server actions 中呼叫
+ */
+import { db } from '@/lib/db';
+import { products, trades, broker_fees } from '@/lib/db/schema';
+import { eq, asc, and } from 'drizzle-orm';
+
+// ─── Types ───────────────────────────────────────────────────
+
+export interface ProductRow {
+  symbol: string;
+  name: string;
+  name_zh: string;
+  tick_size: number;
+  point_value: number;
+  price_step: number;
+  owner_only: boolean;
+  enabled: boolean;
+  sort_order: number;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface CreateProductInput {
+  symbol: string;
+  name: string;
+  name_zh: string;
+  tick_size: number;
+  point_value: number;
+  price_step: number;
+  owner_only?: boolean;
+  enabled?: boolean;
+  sort_order?: number;
+}
+
+export interface UpdateProductInput {
+  name?: string;
+  name_zh?: string;
+  tick_size?: number;
+  point_value?: number;
+  price_step?: number;
+  owner_only?: boolean;
+  enabled?: boolean;
+  sort_order?: number;
+}
+
+// ─── Fallback（DB 為空時）────────────────────────────────────
+
+const FALLBACK_SYMBOLS = ['MNQ', 'NQ', 'SIL'];
+
+const FALLBACK_PRODUCTS: ProductRow[] = [
+  { symbol: 'MNQ', name: 'Micro E-mini NASDAQ', name_zh: '微型那斯達克', tick_size: 0.25, point_value: 2, price_step: 0.25, owner_only: false, enabled: true, sort_order: 1, created_at: null, updated_at: null },
+  { symbol: 'NQ', name: 'E-mini NASDAQ', name_zh: '那斯達克', tick_size: 0.25, point_value: 20, price_step: 0.25, owner_only: false, enabled: true, sort_order: 2, created_at: null, updated_at: null },
+  { symbol: 'SIL', name: 'Micro Silver', name_zh: '微白銀', tick_size: 0.5, point_value: 10, price_step: 0.5, owner_only: true, enabled: true, sort_order: 3, created_at: null, updated_at: null },
+];
+
+// ─── Read ────────────────────────────────────────────────────
+
+/** 取得所有商品（owner 用）或過濾 ownerOnly（viewer 用）*/
+export async function listProducts({ ownerOnly }: { ownerOnly?: boolean } = {}): Promise<ProductRow[]> {
+  try {
+    const rows = await db
+      .select()
+      .from(products)
+      .where(
+        ownerOnly === false
+          ? and(eq(products.enabled, true), eq(products.owner_only, false))
+          : eq(products.enabled, true)
+      )
+      .orderBy(asc(products.sort_order));
+    if (rows.length === 0) return FALLBACK_PRODUCTS.filter(p => ownerOnly === false ? !p.owner_only : true);
+    return rows;
+  } catch {
+    return FALLBACK_PRODUCTS.filter(p => ownerOnly === false ? !p.owner_only : true);
+  }
+}
+
+/** 取得所有商品（含停用），owner 管理頁用 */
+export async function listAllProducts(): Promise<ProductRow[]> {
+  try {
+    const rows = await db
+      .select()
+      .from(products)
+      .orderBy(asc(products.sort_order));
+    if (rows.length === 0) return FALLBACK_PRODUCTS;
+    return rows;
+  } catch {
+    return FALLBACK_PRODUCTS;
+  }
+}
+
+export async function getProductBySymbol(symbol: string): Promise<ProductRow | null> {
+  try {
+    const [row] = await db
+      .select()
+      .from(products)
+      .where(eq(products.symbol, symbol))
+      .limit(1);
+    return row ?? null;
+  } catch {
+    return FALLBACK_PRODUCTS.find(p => p.symbol === symbol) ?? null;
+  }
+}
+
+/** 取得所有商品 symbol 清單（owner 用）*/
+export async function getAllSymbols(): Promise<string[]> {
+  try {
+    const rows = await db
+      .select({ symbol: products.symbol })
+      .from(products)
+      .where(eq(products.enabled, true))
+      .orderBy(asc(products.sort_order));
+    if (rows.length === 0) return FALLBACK_SYMBOLS;
+    return rows.map(r => r.symbol);
+  } catch {
+    return FALLBACK_SYMBOLS;
+  }
+}
+
+/** 取得 Viewer 可見的 symbol 清單（排除 ownerOnly）*/
+export async function getViewerSymbols(): Promise<string[]> {
+  try {
+    const rows = await db
+      .select({ symbol: products.symbol })
+      .from(products)
+      .where(and(eq(products.enabled, true), eq(products.owner_only, false)))
+      .orderBy(asc(products.sort_order));
+    if (rows.length === 0) return FALLBACK_SYMBOLS.filter(s => s !== 'SIL');
+    return rows.map(r => r.symbol);
+  } catch {
+    return FALLBACK_SYMBOLS.filter(s => s !== 'SIL');
+  }
+}
+
+/** 檢查商品是否為 Owner 專用 */
+export async function isOwnerOnlySymbol(symbol: string): Promise<boolean> {
+  try {
+    const [row] = await db
+      .select({ owner_only: products.owner_only })
+      .from(products)
+      .where(eq(products.symbol, symbol))
+      .limit(1);
+    if (!row) return false;
+    return row.owner_only;
+  } catch {
+    return FALLBACK_PRODUCTS.find(p => p.symbol === symbol)?.owner_only ?? false;
+  }
+}
+
+// ─── Write ───────────────────────────────────────────────────
+
+export async function createProduct(
+  input: CreateProductInput
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const now = new Date().toISOString();
+    await db.insert(products).values({
+      symbol: input.symbol.trim().toUpperCase(),
+      name: input.name.trim(),
+      name_zh: input.name_zh.trim(),
+      tick_size: input.tick_size,
+      point_value: input.point_value,
+      price_step: input.price_step,
+      owner_only: input.owner_only ?? false,
+      enabled: input.enabled ?? true,
+      sort_order: input.sort_order ?? 0,
+      created_at: now,
+      updated_at: now,
+    });
+    return { success: true };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (msg.includes('UNIQUE') || msg.includes('unique')) {
+      return { success: false, error: '商品代號已存在' };
+    }
+    return { success: false, error: msg };
+  }
+}
+
+export async function updateProduct(
+  symbol: string,
+  input: UpdateProductInput
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const now = new Date().toISOString();
+    const updateData: Record<string, unknown> = { updated_at: now };
+    if (input.name !== undefined) updateData.name = input.name;
+    if (input.name_zh !== undefined) updateData.name_zh = input.name_zh;
+    if (input.tick_size !== undefined) updateData.tick_size = input.tick_size;
+    if (input.point_value !== undefined) updateData.point_value = input.point_value;
+    if (input.price_step !== undefined) updateData.price_step = input.price_step;
+    if (input.owner_only !== undefined) updateData.owner_only = input.owner_only;
+    if (input.enabled !== undefined) updateData.enabled = input.enabled;
+    if (input.sort_order !== undefined) updateData.sort_order = input.sort_order;
+
+    await db.update(products).set(updateData).where(eq(products.symbol, symbol));
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
+/**
+ * 刪除商品
+ * 若有 trades.symbol 或 broker_fees.symbol 指向它，阻擋刪除
+ */
+export async function deleteProduct(
+  symbol: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // 檢查 trades
+    const usedTrades = await db
+      .select({ id: trades.id })
+      .from(trades)
+      .where(eq(trades.symbol, symbol))
+      .limit(1);
+    if (usedTrades.length > 0) {
+      return { success: false, error: `無法刪除：已有交易紀錄使用商品「${symbol}」` };
+    }
+
+    // 檢查 broker_fees
+    const usedFees = await db
+      .select({ id: broker_fees.id })
+      .from(broker_fees)
+      .where(eq(broker_fees.symbol, symbol))
+      .limit(1);
+    if (usedFees.length > 0) {
+      return { success: false, error: `無法刪除：已有券商手續費設定使用商品「${symbol}」，請先刪除相關費率設定` };
+    }
+
+    await db.delete(products).where(eq(products.symbol, symbol));
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  }
+}
