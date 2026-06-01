@@ -1,0 +1,39 @@
+name: Broker CSV format request
+description: Request support for a broker/export format using synthetic sample data
+title: "[CSV]: "
+labels: ["csv-import", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use synthetic data only. Do not upload real broker exports.
+  - type: input
+    id: broker
+    attributes:
+      label: Broker or platform
+      placeholder: Example Broker
+    validations:
+      required: true
+  - type: textarea
+    id: columns
+    attributes:
+      label: CSV columns
+      description: Paste the header row and 2-3 fake rows.
+      render: csv
+      placeholder: |
+        date,symbol,side,qty,entry_price,exit_price
+        2026-01-01,MNQ,LONG,1,21000,21040
+    validations:
+      required: true
+  - type: textarea
+    id: mapping
+    attributes:
+      label: Desired mapping
+      description: Explain which columns should map to trade fields.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Format notes
+      description: Include timezone, fees, multi-entry/multi-exit behavior, or realized P&L details if relevant.

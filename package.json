@@ -2,6 +2,27 @@
   "name": "self-hosted-trading-journal",
   "version": "0.1.0",
   "private": false,
+  "description": "Privacy-first self-hosted trading journal for futures and active traders.",
+  "license": "MIT",
+  "author": "Jasper Tsai",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jasper-Tsai/self-hosted-trading-journal.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Jasper-Tsai/self-hosted-trading-journal/issues"
+  },
+  "homepage": "https://github.com/Jasper-Tsai/self-hosted-trading-journal#readme",
+  "keywords": [
+    "trading-journal",
+    "self-hosted",
+    "sqlite",
+    "nextjs",
+    "docker",
+    "nas",
+    "privacy",
+    "futures-trading"
+  ],
   "engines": {
     "node": "20"
   },
