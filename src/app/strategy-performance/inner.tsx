@@ -8,6 +8,7 @@ import { StrategyEquityCurves } from '@/components/ui/strategy-performance/strat
 import { StrategyRRScatter } from '@/components/ui/strategy-performance/strategy-rr-scatter';
 import { StrategyTimeHeatmap } from '@/components/ui/strategy-performance/strategy-time-heatmap';
 import { StrategyPnLDistribution } from '@/components/ui/strategy-performance/strategy-pnl-distribution';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function StrategyPerformanceInner() {
   const {
@@ -20,6 +21,7 @@ export function StrategyPerformanceInner() {
     drilldownCache,
     fetchDrilldowns,
   } = useStrategyPerformance();
+  const { t } = useLanguage();
 
   const rows = data?.rangeStats ?? [];
   const allStrategyNames = rows.map(r => r.strategy);
@@ -29,10 +31,10 @@ export function StrategyPerformanceInner() {
       {/* Header */}
       <div>
         <h1 className="text-2xl md:text-3xl font-semibold tracking-tight bg-gradient-to-b from-white via-white/95 to-white/70 bg-clip-text text-transparent">
-          strategy performance
+          {t('strategyPerformanceTitle')}
         </h1>
         <p className="text-[#8A8F98] mt-1">
-          {data?.rangeLabel ? `${data.rangeLabel} · ` : ''}Total profit and loss of each strategy, R:R, PF, MaxDD control
+          {data?.rangeLabel ? `${data.rangeLabel} · ` : ''}{t('strategyPerformanceDescription')}
         </p>
       </div>
 
@@ -46,7 +48,7 @@ export function StrategyPerformanceInner() {
       {/* Error */}
       {error && (
         <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-          Loading failed: {error}
+          {t('loadingFailed')}: {error}
         </div>
       )}
 
@@ -121,7 +123,7 @@ export function StrategyPerformanceInner() {
 
       {!loading && !error && rows.length === 0 && (
         <div className="flex items-center justify-center h-40 text-[#8A8F98]">
-          No strategy performance data yet
+          {t('noStrategyData')}
         </div>
       )}
     </div>

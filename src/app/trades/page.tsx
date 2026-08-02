@@ -8,10 +8,12 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { getTodayString, parseDateString } from '@/lib/utils';
 import { Trade } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { AccessDenied } from '@/components/access-denied';
 
 function TradesContent() {
   const { isViewer } = useAuth();
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const dateFromUrl = searchParams.get('date');
   const [selectedDate, setSelectedDate] = useState(dateFromUrl || getTodayString());
@@ -60,14 +62,14 @@ function TradesContent() {
     const today = getTodayString();
 
     if (dateString === today) {
-      return 'Trades';
+      return t('trades');
     }
 
     const parts = parseDateString(dateString);
-    if (!parts) return `Trades - ${dateString}`;
+    if (!parts) return `${t('trades')} - ${dateString}`;
     const month = parts.month;
     const day = parts.day;
-    return `Trades - ${month}/${day}`;
+    return `${t('trades')} - ${month}/${day}`;
   };
 
   return (
@@ -78,7 +80,7 @@ function TradesContent() {
             {formatDateTitle(selectedDate)}
           </h1>
           <p className="text-muted-foreground">
-            Create and manage trades. P&L and statistics are calculated automatically.
+            {t('tradesPageDescription')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -107,8 +109,10 @@ function TradesContent() {
 }
 
 export default function TradesPage() {
+  const { t } = useLanguage();
+
   return (
-    <Suspense fallback={<div className="text-muted-foreground">Load trades page...</div>}>
+    <Suspense fallback={<div className="text-muted-foreground">{t('loading')}</div>}>
       <TradesContent />
     </Suspense>
   );

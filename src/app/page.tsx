@@ -3,23 +3,25 @@
 import { useState } from 'react';
 import { DashboardOverview } from '@/components/dashboard-overview';
 import { DatePicker } from '@/components/ui/date-picker';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { getTodayString, parseDateString } from '@/lib/utils';
 
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState(getTodayString());
+  const { t } = useLanguage();
 
   const formatDateTitle = (dateString: string) => {
     const today = getTodayString();
 
     if (dateString === today) {
-      return "Today's Overview";
+      return t('todayOverview');
     }
 
     const parts = parseDateString(dateString);
     if (!parts) return dateString;
     const month = parts.month;
     const day = parts.day;
-    return `${month}/${day} Overview`;
+    return t('dateOverview', { month, day });
   };
 
   return (
@@ -30,7 +32,7 @@ export default function Home() {
             {formatDateTitle(selectedDate)}
           </h1>
           <p className="text-muted-foreground">
-            View trading performance and statistics
+            {t('dashboardDescription')}
           </p>
         </div>
         <DatePicker

@@ -6,61 +6,71 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { LanguageToggle } from '@/components/language-toggle';
+import { useLanguage } from '@/contexts/LanguageContext';
+import type { TranslationKey } from '@/lib/i18n';
 import type { PageKey } from '@/config/features';
 
-const ALL_NAV_ITEMS = [
+interface NavItem {
+  href: string;
+  pageKey?: PageKey;
+  labelKey: TranslationKey;
+  descriptionKey: TranslationKey;
+}
+
+const ALL_NAV_ITEMS: NavItem[] = [
   {
     href: '/',
-    pageKey: 'dashboard' as PageKey,
-    label: "Today's Overview",
-    description: "View today's trading statistics and charts"
+    pageKey: 'dashboard',
+    labelKey: 'todayOverview',
+    descriptionKey: 'dashboardDescription',
   },
   {
     href: '/trades',
-    pageKey: 'trades' as PageKey,
-    label: 'Trades',
-    description: 'Create and manage trades'
+    pageKey: 'trades',
+    labelKey: 'trades',
+    descriptionKey: 'tradesDescription',
   },
   {
     href: '/review',
-    pageKey: 'review' as PageKey,
-    label: 'Review',
-    description: 'Weekly/monthly reports and performance analysis'
+    pageKey: 'review',
+    labelKey: 'review',
+    descriptionKey: 'reviewDescription',
   },
   {
     href: '/calendar',
-    pageKey: 'calendar' as PageKey,
-    label: 'Trading Calendar',
-    description: 'Monthly P&L calendar'
+    pageKey: 'calendar',
+    labelKey: 'calendar',
+    descriptionKey: 'calendarDescription',
   },
   {
     href: '/csv',
-    pageKey: 'csv' as PageKey,
-    label: 'CSV',
-    description: 'Import and export trade data'
+    pageKey: 'csv',
+    labelKey: 'csv',
+    descriptionKey: 'csvDescription',
   },
 ];
 
-const OWNER_ONLY_NAV_ITEMS = [
+const OWNER_ONLY_NAV_ITEMS: NavItem[] = [
   {
     href: '/strategy-performance',
-    label: 'Strategy Performance',
-    description: 'Total/range performance by strategy, R:R, PF, MaxDD',
+    labelKey: 'strategyPerformance',
+    descriptionKey: 'strategyPerformanceDescription',
   },
   {
     href: '/strategies',
-    label: 'Strategy Manager',
-    description: 'Manage trading strategies and defaults',
+    labelKey: 'strategyManager',
+    descriptionKey: 'strategyManagerDescription',
   },
   {
     href: '/brokers',
-    label: 'Broker Manager',
-    description: 'Manage brokers and per-contract fees',
+    labelKey: 'brokerManager',
+    descriptionKey: 'brokerManagerDescription',
   },
   {
     href: '/products',
-    label: 'Product Manager',
-    description: 'Manage trading products (MNQ, NQ, SIL, etc.)',
+    labelKey: 'productManager',
+    descriptionKey: 'productManagerDescription',
   },
 ];
 
@@ -73,11 +83,12 @@ export function Navigation({ brandName = 'Self-Hosted Trading Journal', enabledP
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isOwner, isUsingDefaultPassword, signOut } = useAuth();
+  const { t } = useLanguage();
 
   // according to feature flags Filter navigation items
   const enabledSet = enabledPages ? new Set(enabledPages) : null;
   const navItems = ALL_NAV_ITEMS.filter(item =>
-    enabledSet === null || enabledSet.has(item.pageKey)
+    enabledSet === null || (item.pageKey !== undefined && enabledSet.has(item.pageKey))
   );
 
   return (
@@ -114,7 +125,7 @@ export function Navigation({ brandName = 'Self-Hosted Trading Journal', enabledP
                     : 'text-[#8A8F98] hover:text-[#EDEDEF] hover:bg-white/[0.05]'
                 )}
               >
-                {item.label}
+                {t(item.labelKey)}
                 {pathname === item.href && (
                   <span className="absolute -bottom-[9px] left-1/2 -translate-x-1/2 w-6 h-[2px] bg-[#5E6AD2] rounded-full" />
                 )}
@@ -131,7 +142,7 @@ export function Navigation({ brandName = 'Self-Hosted Trading Journal', enabledP
                     : 'text-[#8A8F98] hover:text-[#EDEDEF] hover:bg-white/[0.05]'
                 )}
               >
-                {item.label}
+                {t(item.labelKey)}
                 {pathname === item.href && (
                   <span className="absolute -bottom-[9px] left-1/2 -translate-x-1/2 w-6 h-[2px] bg-[#5E6AD2] rounded-full" />
                 )}
@@ -140,22 +151,23 @@ export function Navigation({ brandName = 'Self-Hosted Trading Journal', enabledP
           </nav>
 
           <div className="flex items-center gap-3">
+            <LanguageToggle />
             {isUsingDefaultPassword && (
               <span className="hidden xl:inline-flex rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-xs text-amber-300">
-                Change default password
+                {t('changeDefaultPassword')}
               </span>
             )}
             <button
               onClick={() => void signOut()}
               className="hidden sm:inline-flex rounded-lg px-3 py-1.5 text-sm font-medium text-[#8A8F98] transition-colors duration-200 hover:bg-white/[0.05] hover:text-[#EDEDEF]"
             >
-              Sign out
+              {t('signOut')}
             </button>
             {/* Mobile Menu Button */}
             <button
               className="lg:hidden p-2 hover:bg-white/[0.05] rounded-lg transition-colors duration-200"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
+              aria-label={t('toggleMenu')}
             >
               <svg
                 className="w-5 h-5 text-[#8A8F98]"
@@ -199,8 +211,8 @@ export function Navigation({ brandName = 'Self-Hosted Trading Journal', enabledP
                       : 'text-[#8A8F98] hover:text-[#EDEDEF] hover:bg-white/[0.04]'
                   )}
                 >
-                  <div className="font-medium text-sm">{item.label}</div>
-                  <div className="text-xs text-white/30 mt-0.5">{item.description}</div>
+                  <div className="font-medium text-sm">{t(item.labelKey)}</div>
+                  <div className="text-xs text-white/30 mt-0.5">{t(item.descriptionKey)}</div>
                 </Link>
               ))}
               {isOwner && OWNER_ONLY_NAV_ITEMS.map((item) => (
@@ -215,20 +227,20 @@ export function Navigation({ brandName = 'Self-Hosted Trading Journal', enabledP
                       : 'text-[#8A8F98] hover:text-[#EDEDEF] hover:bg-white/[0.04]'
                   )}
                 >
-                  <div className="font-medium text-sm">{item.label}</div>
-                  <div className="text-xs text-white/30 mt-0.5">{item.description}</div>
+                  <div className="font-medium text-sm">{t(item.labelKey)}</div>
+                  <div className="text-xs text-white/30 mt-0.5">{t(item.descriptionKey)}</div>
                 </Link>
               ))}
               {isUsingDefaultPassword && (
                 <div className="px-3 py-2 text-xs text-amber-300">
-                  Change the default password before exposing this app.
+                  {t('changeDefaultPassword')}
                 </div>
               )}
               <button
                 onClick={() => void signOut()}
                 className="px-3 py-2.5 text-left text-sm font-medium text-[#8A8F98] transition-colors duration-200 hover:text-[#EDEDEF]"
               >
-                Sign out
+                {t('signOut')}
               </button>
 
             </nav>

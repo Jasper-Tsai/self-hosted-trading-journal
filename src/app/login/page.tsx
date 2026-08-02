@@ -8,11 +8,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
+import { LanguageToggle } from '@/components/language-toggle';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { authConfigured, refresh } = useAuth();
+  const { t } = useLanguage();
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +36,7 @@ function LoginForm() {
 
     setLoading(false);
     if (!res.ok) {
-      setError(res.status === 503 ? 'Authentication is not configured. Set JOURNAL_PASSWORD and JOURNAL_SESSION_SECRET first.' : 'Invalid username or password');
+      setError(res.status === 503 ? t('authNotConfigured') : t('invalidCredentials'));
       return;
     }
 
@@ -42,21 +45,24 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="relative min-h-screen flex items-center justify-center px-4">
+      <div className="absolute right-4 top-4">
+        <LanguageToggle />
+      </div>
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Sign in</CardTitle>
-          <CardDescription>Use the local admin account to access your trading journal</CardDescription>
+          <CardTitle>{t('login')}</CardTitle>
+          <CardDescription>{t('loginDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           {!authConfigured && (
             <div className="mb-4 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-200">
-              Production mode requires `JOURNAL_PASSWORD` and `JOURNAL_SESSION_SECRET`.
+              {t('authNotConfigured')}
             </div>
           )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username">{t('username')}</Label>
               <Input
                 id="username"
                 value={username}
@@ -65,7 +71,7 @@ function LoginForm() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('password')}</Label>
               <Input
                 id="password"
                 type="password"
@@ -77,7 +83,7 @@ function LoginForm() {
             </div>
             {error && <p className="text-sm text-red-400">{error}</p>}
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? t('signingIn') : t('login')}
             </Button>
           </form>
         </CardContent>
