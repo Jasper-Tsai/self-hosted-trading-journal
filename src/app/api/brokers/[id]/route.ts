@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { brokers, broker_fees, trades } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
-// PATCH /api/brokers/[id] — 更新券商（含 fees）
+// PATCH /api/brokers/[id] — Update brokerage (Contains fees)
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -12,20 +12,20 @@ export async function PATCH(
   try {
     const { role } = await verifyRequest(req);
     if (role !== 'owner') {
-      return NextResponse.json({ error: '無寫入權限' }, { status: 403 });
+      return NextResponse.json({ error: 'No write permission' }, { status: 403 });
     }
 
     const { id } = await params;
     const body = await req.json();
     const now = new Date().toISOString();
 
-    // 確認券商存在
+    // Confirm the existence of the brokerage
     const [existing] = await db.select().from(brokers).where(eq(brokers.id, id));
     if (!existing) {
-      return NextResponse.json({ error: '找不到券商' }, { status: 404 });
+      return NextResponse.json({ error: 'Brokerage not found' }, { status: 404 });
     }
 
-    // 更新券商基本資料
+    // Update basic information of brokerage firm
     const updateData: Record<string, unknown> = { updated_at: now };
     if (body.name !== undefined) updateData.name = body.name;
     if (body.enabled !== undefined) updateData.enabled = body.enabled;
@@ -36,22 +36,22 @@ export async function PATCH(
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes('UNIQUE') || msg.includes('unique')) {
-        return NextResponse.json({ error: '券商名稱已存在' }, { status: 409 });
+        return NextResponse.json({ error: 'The brokerage name already exists' }, { status: 409 });
       }
       throw err;
     }
 
-    // 更新 fees（若有提供）
+    // renew fees (If provided)
     if (body.fees && typeof body.fees === 'object') {
       for (const [symbol, fee] of Object.entries(body.fees)) {
         if (typeof fee !== 'number') continue;
         if (fee < 0) {
-          // 負值視為刪除該筆
+          // A negative value is regarded as deleting the pen
           await db
             .delete(broker_fees)
             .where(and(eq(broker_fees.broker_id, id), eq(broker_fees.symbol, symbol)));
         } else {
-          // upsert：先刪後插
+          // upsert: Delete first then insert
           await db
             .delete(broker_fees)
             .where(and(eq(broker_fees.broker_id, id), eq(broker_fees.symbol, symbol)));
@@ -77,13 +77,13 @@ export async function PATCH(
     return NextResponse.json({ ...updated, fees: feesMap });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    if (msg === '無寫入權限') return NextResponse.json({ error: msg }, { status: 403 });
-    if (msg === '未登入' || msg === '無權限') return NextResponse.json({ error: msg }, { status: 401 });
+    if (msg === 'No write permission') return NextResponse.json({ error: msg }, { status: 403 });
+    if (msg === 'Not logged in' || msg === 'No permission') return NextResponse.json({ error: msg }, { status: 401 });
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
-// DELETE /api/brokers/[id] — 刪除券商（若有 trades 指向此券商 name 則阻擋）
+// DELETE /api/brokers/[id] — Delete broker (If so trades Point to this brokerage name then block)
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -91,18 +91,18 @@ export async function DELETE(
   try {
     const { role } = await verifyRequest(req);
     if (role !== 'owner') {
-      return NextResponse.json({ error: '無寫入權限' }, { status: 403 });
+      return NextResponse.json({ error: 'No write permission' }, { status: 403 });
     }
 
     const { id } = await params;
 
-    // 確認券商存在
+    // Confirm the existence of the brokerage
     const [existing] = await db.select().from(brokers).where(eq(brokers.id, id));
     if (!existing) {
-      return NextResponse.json({ error: '找不到券商' }, { status: 404 });
+      return NextResponse.json({ error: 'Brokerage not found' }, { status: 404 });
     }
 
-    // 檢查是否有 trades 使用此券商 name
+    // Check if there is trades Use this broker name
     const usedTrades = await db
       .select({ id: trades.id })
       .from(trades)
@@ -111,20 +111,20 @@ export async function DELETE(
 
     if (usedTrades.length > 0) {
       return NextResponse.json(
-        { error: `無法刪除：已有交易紀錄使用券商「${existing.name}」，請先修改相關交易` },
+        { error: `cannot be deleted: Already have trades using a broker${existing.name}, Please modify the relevant transactions first` },
         { status: 409 }
       );
     }
 
-    // 刪除 fees 再刪 broker
+    // delete fees Delete again broker
     await db.delete(broker_fees).where(eq(broker_fees.broker_id, id));
     await db.delete(brokers).where(eq(brokers.id, id));
 
     return NextResponse.json({ success: true });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    if (msg === '無寫入權限') return NextResponse.json({ error: msg }, { status: 403 });
-    if (msg === '未登入' || msg === '無權限') return NextResponse.json({ error: msg }, { status: 401 });
+    if (msg === 'No write permission') return NextResponse.json({ error: msg }, { status: 403 });
+    if (msg === 'Not logged in' || msg === 'No permission') return NextResponse.json({ error: msg }, { status: 401 });
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

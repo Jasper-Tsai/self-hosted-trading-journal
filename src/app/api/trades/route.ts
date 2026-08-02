@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const { role } = await verifyRequest(req);
-    if (role !== 'owner') return NextResponse.json({ error: '無寫入權限' }, { status: 403 });
+    if (role !== 'owner') return NextResponse.json({ error: 'No write permission' }, { status: 403 });
 
     const data = await req.json();
     const now = new Date().toISOString();

@@ -74,13 +74,13 @@ export function getPointValue(symbol?: Symbol): number {
 }
 
 /**
- * 取得每口手續費（同步版，使用 hardcoded fallback）
- * 注意：正確的費率應從 broker_fees 表（DB）查詢。
- * 此函數僅作為 client component 的快速 fallback，
- * 若 broker_fees 表有設定，應優先使用 trade.fee 欄位。
+ * Obtain fee per contracts (Synchronous version, use hardcoded fallback)
+ * Notice: The correct rate should be from broker_fees surface (DB)Query.
+ * This function is only used as client component fast fallback,
+ * like broker_fees Table has settings, should be used first trade.fee field.
  */
 export function getFeeByBroker(broker: string, symbol?: Symbol): number {
-  // fallback fees map — 與 broker_fees DB 資料應保持一致
+  // fallback fees map — and broker_fees DB Data should be consistent
   const FALLBACK_FEES: Record<string, Record<string, number>> = {
     Manual: { MNQ: 0, NQ: 0, SIL: 0 },
   };
@@ -105,7 +105,7 @@ export function formatDate(date: string | Date): string {
   }
 
   const d = typeof date === 'string' ? new Date(date) : date;
-  return new Intl.DateTimeFormat('zh-TW', {
+  return new Intl.DateTimeFormat('en-US', {
     timeZone: CHICAGO_TIME_ZONE,
     year: 'numeric',
     month: '2-digit',
@@ -115,7 +115,7 @@ export function formatDate(date: string | Date): string {
 
 export function formatTime(time: string | Date): string {
   const d = typeof time === 'string' ? (parseTaipeiDateTime(time) ?? new Date(time)) : time;
-  return new Intl.DateTimeFormat('zh-TW', {
+  return new Intl.DateTimeFormat('en-US', {
     timeZone: TAIPEI_TIME_ZONE,
     hour: '2-digit',
     minute: '2-digit',
@@ -125,7 +125,7 @@ export function formatTime(time: string | Date): string {
 
 export function formatDateTime(dateTime: string | Date): string {
   const d = typeof dateTime === 'string' ? (parseTaipeiDateTime(dateTime) ?? new Date(dateTime)) : dateTime;
-  return new Intl.DateTimeFormat('zh-TW', {
+  return new Intl.DateTimeFormat('en-US', {
     timeZone: TAIPEI_TIME_ZONE,
     year: 'numeric',
     month: '2-digit',
@@ -167,8 +167,8 @@ export function getChicagoDateString(daysOffset: number = 0): string {
   return formatDateInTimeZone(now, CHICAGO_TIME_ZONE);
 }
 
-export function getWeekdayInChinese(date: Date | string): string {
-  const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+export function getWeekdayLabel(date: Date | string): string {
+  const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   if (typeof date === 'string') {
     const parts = parseDateString(date);
     if (parts) {
@@ -195,9 +195,9 @@ export function calculatePnL(trade: Trade): number {
 
 export function calculatePnLAmount(pnL: number, fee: number = 0, symbol?: Symbol): number {
   const pointValue = getPointValue(symbol);
-  const grossAmount = pnL * pointValue; // 點數 * 每點價值
-  const netAmount = grossAmount - fee; // 扣除手續費
-  return Math.round(netAmount * 100) / 100; // 四捨五入到小數點後兩位
+  const grossAmount = pnL * pointValue; // Points * value per point
+  const netAmount = grossAmount - fee; // Deduction of fee
+  return Math.round(netAmount * 100) / 100; // Round to two decimal places
 }
 
 export function calculateHoldTime(entryTime: string, exitTime?: string): number {
@@ -214,15 +214,15 @@ export function calculateHoldTime(entryTime: string, exitTime?: string): number 
 
 export function formatHoldTime(minutes: number): string {
   if (minutes < 60) {
-    return `${minutes}分`;
+    return `${minutes}point`;
   }
 
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
 
   return remainingMinutes > 0
-    ? `${hours}時${remainingMinutes}分`
-    : `${hours}時`;
+    ? `${hours}h ${remainingMinutes}m`
+    : `${hours}h`;
 }
 
 export function calculateRMultiple(trade: Trade): number | null {
@@ -241,14 +241,14 @@ export function calculateRMultiple(trade: Trade): number | null {
 
 // Price formatting
 export function formatPrice(price: number): string {
-  return price.toLocaleString('zh-TW', {
+  return price.toLocaleString('en-US', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
 }
 
 export function formatPnL(pnl: number): string {
-  const formatted = pnl.toLocaleString('zh-TW', {
+  const formatted = pnl.toLocaleString('en-US', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
     signDisplay: 'always'
@@ -258,7 +258,7 @@ export function formatPnL(pnl: number): string {
 }
 
 export function formatPnLAmount(amount: number): string {
-  const formatted = amount.toLocaleString('zh-TW', {
+  const formatted = amount.toLocaleString('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,
@@ -278,8 +278,8 @@ export function formatPnLAmount(amount: number): string {
 export function formatPnLAmountWithTwd(usdAmount: number, usdTwdRate: number): string {
   const usd = formatPnLAmount(usdAmount);
   const twd = Math.round(Math.abs(usdAmount) * usdTwdRate);
-  const twdFormatted = twd.toLocaleString('zh-TW', {
-    signDisplay: 'never' // Don't show +/- in parentheses
+  const twdFormatted = twd.toLocaleString('en-US', {
+    signDisplay: 'never' // Do not show +/- in parentheses
   });
   const twdSign = usdAmount < 0 ? '-' : '';
 

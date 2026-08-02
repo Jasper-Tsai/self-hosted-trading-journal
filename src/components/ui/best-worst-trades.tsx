@@ -48,7 +48,7 @@ export function BestWorstTrades({ className, usdTwdRate = 31.5 }: BestWorstTrade
       setBestTrades(response.bestTrades as TradeWithPnL[]);
       setWorstTrades(response.worstTrades as TradeWithPnL[]);
     } catch (err) {
-      setError('載入交易排行失敗');
+      setError('Failed to load trade rankings');
       console.error('Error fetching best/worst trades:', err);
     } finally {
       setLoading(false);
@@ -62,7 +62,7 @@ export function BestWorstTrades({ className, usdTwdRate = 31.5 }: BestWorstTrade
   const formatValue = (trade: TradeWithPnL): string => {
     const value = viewMode === 'points' ? trade.pnl : trade.amount;
     if (viewMode === 'points') {
-      return `${value >= 0 ? '+' : ''}${value.toFixed(2)} 點`;
+      return `${value >= 0 ? '+' : ''}${value.toFixed(2)} point`;
     } else {
       return formatPnLAmountWithTwd(value, usdTwdRate);
     }
@@ -80,7 +80,7 @@ export function BestWorstTrades({ className, usdTwdRate = 31.5 }: BestWorstTrade
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
             <Badge variant={trade.side === 'LONG' ? 'default' : 'secondary'}>
-              {trade.side === 'LONG' ? '多' : '空'}
+              {trade.side === 'LONG' ? 'many' : 'null'}
             </Badge>
             <div className={`px-2 py-0.5 rounded text-xs font-medium ${trade.symbol === 'NQ'
                 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400'
@@ -129,10 +129,10 @@ export function BestWorstTrades({ className, usdTwdRate = 31.5 }: BestWorstTrade
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-green-600 dark:text-green-400">
-                🏆 最佳交易 Best Trades
+                🏆 best deal Best Trades
               </CardTitle>
               <CardDescription>
-                表現最好的交易記錄 ({days}天)
+                Best trades ({days} days)
               </CardDescription>
             </div>
           </div>
@@ -142,14 +142,14 @@ export function BestWorstTrades({ className, usdTwdRate = 31.5 }: BestWorstTrade
               size="sm"
               onClick={() => setViewMode('points')}
             >
-              點數
+              Points
             </Button>
             <Button
               variant={viewMode === 'amount' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('amount')}
             >
-              金額
+              Amount
             </Button>
           </div>
           <div className="flex items-center gap-2">
@@ -158,28 +158,28 @@ export function BestWorstTrades({ className, usdTwdRate = 31.5 }: BestWorstTrade
               size="sm"
               onClick={() => setDays(7)}
             >
-              7天
+              7 days
             </Button>
             <Button
               variant={days === 30 ? 'default' : 'outline'}
               size="sm"
               onClick={() => setDays(30)}
             >
-              30天
+              30 days
             </Button>
             <Button
               variant={days === 90 ? 'default' : 'outline'}
               size="sm"
               onClick={() => setDays(90)}
             >
-              90天
+              90 days
             </Button>
           </div>
         </CardHeader>
         <CardContent>
           {loading && (
             <div className="h-40 flex items-center justify-center">
-              <div className="text-muted-foreground">載入中...</div>
+              <div className="text-muted-foreground">loading...</div>
             </div>
           )}
 
@@ -191,7 +191,7 @@ export function BestWorstTrades({ className, usdTwdRate = 31.5 }: BestWorstTrade
 
           {!loading && !error && bestTrades.length === 0 && (
             <div className="h-40 flex items-center justify-center">
-              <div className="text-muted-foreground">暫無獲利交易</div>
+              <div className="text-muted-foreground">No profitable trades yet</div>
             </div>
           )}
 
@@ -211,10 +211,10 @@ export function BestWorstTrades({ className, usdTwdRate = 31.5 }: BestWorstTrade
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-red-600 dark:text-red-400">
-                📉 最差交易 Worst Trades
+                📉 Worst deal Worst Trades
               </CardTitle>
               <CardDescription>
-                需要改進的交易記錄 ({days}天)
+                Trades to review ({days} days)
               </CardDescription>
             </div>
           </div>
@@ -224,14 +224,14 @@ export function BestWorstTrades({ className, usdTwdRate = 31.5 }: BestWorstTrade
               size="sm"
               onClick={() => setViewMode('points')}
             >
-              點數
+              Points
             </Button>
             <Button
               variant={viewMode === 'amount' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('amount')}
             >
-              金額
+              Amount
             </Button>
           </div>
           <div className="flex items-center gap-2">
@@ -240,28 +240,28 @@ export function BestWorstTrades({ className, usdTwdRate = 31.5 }: BestWorstTrade
               size="sm"
               onClick={() => setDays(7)}
             >
-              7天
+              7 days
             </Button>
             <Button
               variant={days === 30 ? 'default' : 'outline'}
               size="sm"
               onClick={() => setDays(30)}
             >
-              30天
+              30 days
             </Button>
             <Button
               variant={days === 90 ? 'default' : 'outline'}
               size="sm"
               onClick={() => setDays(90)}
             >
-              90天
+              90 days
             </Button>
           </div>
         </CardHeader>
         <CardContent>
           {loading && (
             <div className="h-40 flex items-center justify-center">
-              <div className="text-muted-foreground">載入中...</div>
+              <div className="text-muted-foreground">loading...</div>
             </div>
           )}
 
@@ -273,7 +273,7 @@ export function BestWorstTrades({ className, usdTwdRate = 31.5 }: BestWorstTrade
 
           {!loading && !error && worstTrades.length === 0 && (
             <div className="h-40 flex items-center justify-center">
-              <div className="text-muted-foreground">暫無虧損交易</div>
+              <div className="text-muted-foreground">No losing trades yet</div>
             </div>
           )}
 

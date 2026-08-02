@@ -96,18 +96,18 @@ export function StrategyRRScatter({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>R:R 散點圖</CardTitle>
-        <CardDescription>風險 vs 損益（有 SL 的 group）</CardDescription>
+        <CardTitle>R:R Scatter plot</CardTitle>
+        <CardDescription>risk vs profit and loss (have SL of group)</CardDescription>
       </CardHeader>
       <CardContent>
         {loading && (
           <div className="h-[380px] flex items-center justify-center">
-            <div className="text-[#8A8F98] text-sm">載入中...</div>
+            <div className="text-[#8A8F98] text-sm">loading...</div>
           </div>
         )}
         {!loading && points.length === 0 && (
           <div className="h-[380px] flex items-center justify-center">
-            <div className="text-[#8A8F98] text-sm">暫無含 SL 的交易資料</div>
+            <div className="text-[#8A8F98] text-sm">Not included yet SL trade data</div>
           </div>
         )}
         {!loading && points.length > 0 && (
@@ -179,7 +179,7 @@ export function StrategyRRScatter({
               <text x={toSvgX(maxRisk)} y={PAD.top + plotH + 10} fontSize="2.5" fill="#8A8F98" textAnchor="middle">
                 {maxRisk.toFixed(0)}pts
               </text>
-              <text x={50} y={PAD.top + plotH + 18} fontSize="2.5" fill="#8A8F98" textAnchor="middle">風險（點）</text>
+              <text x={50} y={PAD.top + plotH + 18} fontSize="2.5" fill="#8A8F98" textAnchor="middle">risk (point)</text>
 
               {/* Y axis labels */}
               <text x={PAD.left - 3} y={toSvgY(yMax)} fontSize="2.5" fill="#8A8F98" textAnchor="end">{yMax.toFixed(0)}</text>
@@ -198,9 +198,9 @@ export function StrategyRRScatter({
                 </div>
                 <div className="text-[#8A8F98]">{tooltip.point.date}</div>
                 <div className="text-[#EDEDEF]">R:R {tooltip.point.rr.toFixed(2)}</div>
-                <div className="text-[#8A8F98]">風險 {tooltip.point.riskPoints.toFixed(1)} 點</div>
+                <div className="text-[#8A8F98]">risk {tooltip.point.riskPoints.toFixed(1)} point</div>
                 <div className={tooltip.point.pnlPoints >= 0 ? 'text-green-400' : 'text-red-400'}>
-                  損益 {tooltip.point.pnlPoints.toFixed(1)} 點
+                  profit and loss {tooltip.point.pnlPoints.toFixed(1)} point
                 </div>
                 <div className="text-[#8A8F98]">qty {tooltip.point.qty}</div>
               </div>

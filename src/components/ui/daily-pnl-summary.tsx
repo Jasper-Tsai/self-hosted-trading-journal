@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './card';
 import { Button } from './button';
 import { getTradesInRange } from '@/lib/actions/trades';
-import { formatPnL, formatPnLAmountWithTwd, getPnLColor, getPointValue, getFeeByBroker, getTodayString, getWeekdayInChinese, parseDateString } from '@/lib/utils';
+import { formatPnL, formatPnLAmountWithTwd, getPnLColor, getPointValue, getFeeByBroker, getTodayString, getWeekdayLabel, parseDateString } from '@/lib/utils';
 import { classifyByPointsPerContract, computeWinRate } from '@/lib/win-rate';
 
 interface DailyPnL {
@@ -34,7 +34,7 @@ export function DailyPnLSummary({ className, usdTwdRate = 31.5 }: DailyPnLSummar
       setLoading(true);
       setError(null);
 
-      // 獲取該月的所有交易數據
+      // Get all trade data for this month
       const year = parseInt(selectedMonth.split('-')[0]);
       const month = parseInt(selectedMonth.split('-')[1]);
 
@@ -44,9 +44,9 @@ export function DailyPnLSummary({ className, usdTwdRate = 31.5 }: DailyPnLSummar
 
       const trades = await getTradesInRange(startDateStr, endDateStr);
 
-      // 按日期分組並計算每日盈虧（group 層級）
+      // Group by date and calculate daily profit and loss (group Hierarchy)
       const dailyMap = new Map<string, DailyPnL>();
-      // 先累積每個 group 的 P&L
+      // Accumulate each group of P&L
       const groupPnL = new Map<string, { date: string; amount: number; points: number; qty: number }>();
 
       trades.forEach(trade => {
@@ -71,12 +71,12 @@ export function DailyPnLSummary({ className, usdTwdRate = 31.5 }: DailyPnLSummar
 
         const dayData = dailyMap.get(date)!;
         const pointValue = getPointValue(trade.symbol);
-        // 強制重新計算Manual的手續費，因為之前可能用錯誤的費率儲存
+        // force recalculationManualfee, Because it may have been stored with the wrong rate before
         const broker = trade.broker || 'Manual';
         const actualFee = broker === 'Manual'
           ? getFeeByBroker(broker, trade.symbol) * trade.qty
           : (trade.fee ?? (getFeeByBroker(broker, trade.symbol) * trade.qty));
-        const amount = (pnl * pointValue) - actualFee; // 根據商品計算金額並扣除手續費
+        const amount = (pnl * pointValue) - actualFee; // Calculate the amount Based on the product and deduct the fee
 
         dayData.totalPnL += pnl;
         dayData.totalPnLAmount += amount;
@@ -90,11 +90,11 @@ export function DailyPnLSummary({ className, usdTwdRate = 31.5 }: DailyPnLSummar
         groupPnL.set(groupKey, g);
       });
 
-      // Count wins/losses at group level（|每口平均點數| ≤ 5 算平局，平局排除分母）
+      // Count wins/losses at group level (|Average points per bite| ≤ 5 Calculate a draw, Tie excludes denominator)
       for (const g of groupPnL.values()) {
         const dayData = dailyMap.get(g.date);
         if (!dayData) continue;
-        if (g.qty <= 0) continue; // 尚未出場的 group 不計入
+        if (g.qty <= 0) continue; // Not yet available group Not counted
         dayData.tradeCount += 1;
         const outcome = classifyByPointsPerContract(g.points, g.qty);
         if (outcome === 'win') dayData.winCount += 1;
@@ -102,14 +102,14 @@ export function DailyPnLSummary({ className, usdTwdRate = 31.5 }: DailyPnLSummar
         dayData.winRate = computeWinRate(dayData.winCount, dayData.lossCount);
       }
 
-      // 轉換為陣列並排序
+      // Convert to array and sort
       const sortedData = Array.from(dailyMap.values()).sort((a, b) =>
         b.date.localeCompare(a.date)
       );
 
       setDailyData(sortedData);
     } catch (err) {
-      setError('載入每日盈虧資料失敗');
+      setError('Failed to load daily profit and loss data');
       console.error('Error fetching daily PnL:', err);
     } finally {
       setLoading(false);
@@ -125,7 +125,7 @@ export function DailyPnLSummary({ className, usdTwdRate = 31.5 }: DailyPnLSummar
     if (!parts) return dateString;
     const month = parts.month;
     const day = parts.day;
-    const weekday = getWeekdayInChinese(dateString).replace('週', '');
+    const weekday = getWeekdayLabel(dateString);
     return `${month}/${day} (${weekday})`;
   };
 
@@ -134,11 +134,11 @@ export function DailyPnLSummary({ className, usdTwdRate = 31.5 }: DailyPnLSummar
     const todayParts = parseDateString(getTodayString());
     if (!todayParts) return options;
 
-    // 生成過去12個月的選項
+    // generate past12month options
     for (let i = 0; i < 12; i++) {
       const date = new Date(Date.UTC(todayParts.year, todayParts.month - 1 - i, 1));
       const value = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
-      const label = `${date.getUTCFullYear()}年${date.getUTCMonth() + 1}月`;
+      const label = `${date.getUTCFullYear()}/${date.getUTCMonth() + 1}`;
       options.push({ value, label });
     }
 
@@ -156,7 +156,7 @@ export function DailyPnLSummary({ className, usdTwdRate = 31.5 }: DailyPnLSummar
     return (
       <Card className={className}>
         <CardContent className="h-64 flex items-center justify-center">
-          <div className="text-muted-foreground">載入中...</div>
+          <div className="text-muted-foreground">loading...</div>
         </CardContent>
       </Card>
     );
@@ -177,9 +177,9 @@ export function DailyPnLSummary({ className, usdTwdRate = 31.5 }: DailyPnLSummar
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>每日盈虧總覽</CardTitle>
+            <CardTitle>Daily profit and loss overview</CardTitle>
             <CardDescription>
-              依日期顯示的交易盈虧統計
+              Trading profit and loss statistics displayed by date
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
@@ -199,14 +199,14 @@ export function DailyPnLSummary({ className, usdTwdRate = 31.5 }: DailyPnLSummar
               size="sm"
               onClick={() => setViewMode('points')}
             >
-              點數
+              Points
             </Button>
             <Button
               variant={viewMode === 'amount' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('amount')}
             >
-              金額
+              Amount
             </Button>
           </div>
         </div>
@@ -214,39 +214,39 @@ export function DailyPnLSummary({ className, usdTwdRate = 31.5 }: DailyPnLSummar
       <CardContent>
         {dailyData.length === 0 ? (
           <div className="h-32 flex items-center justify-center">
-            <div className="text-muted-foreground">該月份暫無交易資料</div>
+            <div className="text-muted-foreground">There is no trade data for this month</div>
           </div>
         ) : (
           <div className="space-y-6">
-            {/* 月度統計摘要 */}
+            {/* Monthly Statistics Summary */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 p-4 bg-muted rounded-lg">
               <div className="text-center">
                 <div className={`text-lg font-bold ${getPnLColor(viewMode === 'points' ? totalPnL : totalPnLAmount)}`}>
                   {viewMode === 'points' ? formatPnL(totalPnL) : formatPnLAmountWithTwd(totalPnLAmount, usdTwdRate)}
                 </div>
-                <div className="text-xs text-muted-foreground">月度總盈虧</div>
+                <div className="text-xs text-muted-foreground">Total monthly profit and loss</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-bold">{totalTrades}</div>
-                <div className="text-xs text-muted-foreground">總交易筆數</div>
+                <div className="text-xs text-muted-foreground">Total trades</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-bold">{tradingDays}</div>
-                <div className="text-xs text-muted-foreground">交易天數</div>
+                <div className="text-xs text-muted-foreground">Trading days</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-bold text-green-600">{profitableDays}</div>
-                <div className="text-xs text-muted-foreground">獲利天數</div>
+                <div className="text-xs text-muted-foreground">profit days</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-bold">
                   {tradingDays > 0 ? ((profitableDays / tradingDays) * 100).toFixed(1) : 0}%
                 </div>
-                <div className="text-xs text-muted-foreground">獲利天數比</div>
+                <div className="text-xs text-muted-foreground">Profitable days ratio</div>
               </div>
             </div>
 
-            {/* 每日盈虧列表 */}
+            {/* Daily profit and loss list */}
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {dailyData.map((dayData, index) => {
                 const displayPnL = viewMode === 'points' ? dayData.totalPnL : dayData.totalPnLAmount;
@@ -261,13 +261,13 @@ export function DailyPnLSummary({ className, usdTwdRate = 31.5 }: DailyPnLSummar
                         {formatDate(dayData.date)}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {dayData.tradeCount}筆交易
+                        {dayData.tradeCount} trades
                       </div>
                     </div>
 
                     <div className="flex items-center gap-4">
                       <div className="text-xs text-muted-foreground">
-                        {dayData.winCount}勝 {dayData.lossCount}敗 ({dayData.winRate.toFixed(0)}%)
+                        {dayData.winCount} wins, {dayData.lossCount} losses ({dayData.winRate.toFixed(0)}%)
                       </div>
                       <div className={`text-sm font-bold text-right min-w-[80px] ${getPnLColor(displayPnL)}`}>
                         {viewMode === 'points' ? formatPnL(displayPnL) : formatPnLAmountWithTwd(displayPnL, usdTwdRate)}

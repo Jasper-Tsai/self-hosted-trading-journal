@@ -14,22 +14,22 @@ interface FilterBarProps {
 
 const RANGE_OPTIONS = [
   { value: 'mtd', label: 'MTD' },
-  { value: '30', label: '30天' },
-  { value: '90', label: '90天' },
-  { value: '180', label: '180天' },
+  { value: '30', label: '30 days' },
+  { value: '90', label: '90 days' },
+  { value: '180', label: '180 days' },
   { value: 'ytd', label: 'YTD' },
-  { value: 'all', label: '全部' },
-  { value: 'custom', label: '自訂' },
+  { value: 'all', label: 'all' },
+  { value: 'custom', label: 'Customize' },
 ] as const;
 
 const SIDE_OPTIONS = [
-  { value: '', label: '全部' },
+  { value: '', label: 'All' },
   { value: 'LONG', label: 'Long' },
   { value: 'SHORT', label: 'Short' },
 ] as const;
 
 const UNIT_OPTIONS: { value: PnLUnit; label: string }[] = [
-  { value: 'points', label: '點數' },
+  { value: 'points', label: 'Points' },
   { value: 'usd', label: 'USD' },
   { value: 'twd', label: 'TWD' },
 ];
@@ -47,7 +47,7 @@ function ChipGroup({ items, selected, onToggle, colorMap }: ChipGroupProps) {
     <div className="flex flex-wrap gap-1.5">
       <button
         onClick={() => {
-          // clicking "全選" clears the selection (= all)
+          // clicking "Select all" clears the selection (= all)
           if (!allSelected) onToggle('__ALL__');
         }}
         className={cn(
@@ -57,7 +57,7 @@ function ChipGroup({ items, selected, onToggle, colorMap }: ChipGroupProps) {
             : 'bg-white/[0.04] border border-white/[0.08] text-[#8A8F98] hover:border-white/[0.15]'
         )}
       >
-        全選
+        Select all
       </button>
       {items.map(item => {
         const isActive = allSelected || selected.includes(item);
@@ -144,7 +144,7 @@ export function FilterBar({ filter, setFilter, allStrategyNames }: FilterBarProp
       <div className="flex flex-wrap items-center gap-4">
         {/* Range */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-[#8A8F98] shrink-0">區間</span>
+            <span className="text-xs text-[#8A8F98] shrink-0">Range</span>
           <div className="flex gap-1 flex-wrap">
             {RANGE_OPTIONS.map(opt => (
               <Button
@@ -179,7 +179,7 @@ export function FilterBar({ filter, setFilter, allStrategyNames }: FilterBarProp
 
         {/* Unit */}
         <div className="flex items-center gap-2 ml-auto">
-          <span className="text-xs text-[#8A8F98]">單位</span>
+            <span className="text-xs text-[#8A8F98]">Unit</span>
           <div className="flex gap-1">
             {UNIT_OPTIONS.map(opt => (
               <Button
@@ -199,7 +199,7 @@ export function FilterBar({ filter, setFilter, allStrategyNames }: FilterBarProp
       {/* Row 2: Strategy chips */}
       {allStrategyNames.length > 0 && (
         <div className="flex items-start gap-3 flex-wrap">
-          <span className="text-xs text-[#8A8F98] shrink-0 pt-1">策略</span>
+          <span className="text-xs text-[#8A8F98] shrink-0 pt-1">Strategy</span>
           <ChipGroup
             items={allStrategyNames}
             selected={selectedStrategies}
@@ -213,7 +213,7 @@ export function FilterBar({ filter, setFilter, allStrategyNames }: FilterBarProp
         {/* Symbol */}
         {symbols.length > 0 && (
           <div className="flex items-start gap-2">
-            <span className="text-xs text-[#8A8F98] shrink-0 pt-1">商品</span>
+            <span className="text-xs text-[#8A8F98] shrink-0 pt-1">Product</span>
             <ChipGroup
               items={symbols}
               selected={selectedSymbols}
@@ -224,7 +224,7 @@ export function FilterBar({ filter, setFilter, allStrategyNames }: FilterBarProp
 
         {/* Side */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-[#8A8F98]">方向</span>
+          <span className="text-xs text-[#8A8F98]">direction</span>
           <div className="flex gap-1">
             {SIDE_OPTIONS.map(opt => (
               <Button
@@ -243,7 +243,7 @@ export function FilterBar({ filter, setFilter, allStrategyNames }: FilterBarProp
         {/* Broker */}
         {brokerNames.length > 0 && (
           <div className="flex items-start gap-2">
-            <span className="text-xs text-[#8A8F98] shrink-0 pt-1">券商</span>
+            <span className="text-xs text-[#8A8F98] shrink-0 pt-1">Broker</span>
             <ChipGroup
               items={brokerNames}
               selected={selectedBrokers}

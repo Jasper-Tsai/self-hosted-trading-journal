@@ -219,20 +219,20 @@ function DrillDown({ group, onEdit }: DrillDownProps) {
     <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-3 text-xs">
       {/* Entry fills */}
       <div>
-        <div className="text-muted-foreground mb-1 font-medium">進場 ({group.trades.length} 筆)：</div>
+        <div className="text-muted-foreground mb-1 font-medium">Entry ({group.trades.length} {group.trades.length === 1 ? 'trade' : 'trades'}): </div>
         <div className="space-y-1 pl-2">
           {group.trades.map((t) => (
             <div key={`entry-${t.id}`} className="flex items-center gap-3 text-foreground/80">
               <span className="tabular-nums">{formatDateTime(t.entry_time)}</span>
               <span className="tabular-nums font-medium">{t.entry_price.toLocaleString()}</span>
-              <span>{t.qty} 口</span>
+              <span>{t.qty} {t.qty === 1 ? 'contract' : 'contracts'}</span>
               <Button
                 size="sm"
                 variant="outline"
                 className="h-5 px-2 text-xs py-0"
                 onClick={() => onEdit(t)}
               >
-                編輯
+                edit
               </Button>
             </div>
           ))}
@@ -243,7 +243,7 @@ function DrillDown({ group, onEdit }: DrillDownProps) {
       {group.trades.some(t => t.exit_price != null) && (
         <div>
           <div className="text-muted-foreground mb-1 font-medium">
-            出場 ({group.trades.filter(t => t.exit_price != null).length} 筆)：
+            Exit ({group.trades.filter(t => t.exit_price != null).length} {group.trades.filter(t => t.exit_price != null).length === 1 ? 'trade' : 'trades'}):
           </div>
           <div className="space-y-1 pl-2">
             {group.trades
@@ -253,7 +253,7 @@ function DrillDown({ group, onEdit }: DrillDownProps) {
                 <div key={`exit-${t.id}`} className="flex items-center gap-3 text-foreground/80">
                   <span className="tabular-nums">{formatDateTime(t.exit_time!)}</span>
                   <span className="tabular-nums font-medium">{t.exit_price!.toLocaleString()}</span>
-                  <span>{t.qty} 口</span>
+                  <span>{t.qty} {t.qty === 1 ? 'contract' : 'contracts'}</span>
                 </div>
               ))}
           </div>
@@ -276,10 +276,10 @@ interface GroupCardProps {
 function GroupCard({ group, onEdit, onDeleteGroup, isOwner, strategies, onStrategyChange, onNotesChange }: GroupCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [strategyUpdating, setStrategyUpdating] = useState(false);
-  // 備注編輯狀態：追蹤本地草稿（localNotes），供 onBlur 時比較是否有變動
+  // Note editing status: Track local drafts (localNotes), for onBlur Whether there is any change when comparing
   const [localNotes, setLocalNotes] = useState(group.notes ?? '');
 
-  // M2：group.notes prop 更新後（fetchTrades 重抓）同步草稿，避免 stale draft
+  // M2: group.notes prop After update (fetchTrades Catch again)Sync drafts, avoid stale draft
   useEffect(() => {
     setLocalNotes(group.notes ?? '');
   }, [group.notes]);
@@ -292,7 +292,7 @@ function GroupCard({ group, onEdit, onDeleteGroup, isOwner, strategies, onStrate
     : `${group.entryPriceMin.toLocaleString()} ~ ${group.entryPriceMax.toLocaleString()} (avg ${group.entryPriceAvg.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`;
 
   const exitLabel = !isClosed
-    ? '未平倉'
+    ? 'Open position'
     : group.exitPriceMin === group.exitPriceMax
       ? group.exitPriceAvg!.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
       : `${group.exitPriceMin!.toLocaleString()} ~ ${group.exitPriceMax!.toLocaleString()} (avg ${group.exitPriceAvg!.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`;
@@ -331,7 +331,7 @@ function GroupCard({ group, onEdit, onDeleteGroup, isOwner, strategies, onStrate
           </span>
           {/* Time + qty */}
           <span className="text-sm text-muted-foreground">
-            {timeRange} &nbsp;·&nbsp; {group.totalQty} 口
+            {timeRange} &nbsp;·&nbsp; {group.totalQty} {group.totalQty === 1 ? 'contract' : 'contracts'}
           </span>
           {/* Strategy */}
           {isOwner ? (
@@ -344,22 +344,22 @@ function GroupCard({ group, onEdit, onDeleteGroup, isOwner, strategies, onStrate
                 try {
                   await apiPatch(`/api/trade-groups/${group.groupKey}`, { strategy: newStrategy });
                   onStrategyChange(group.groupKey, newStrategy);
-                  toast.success('策略已更新');
+                  toast.success('Strategy updated');
                 } catch (err) {
-                  toast.error(`更新失敗: ${err instanceof Error ? err.message : '未知錯誤'}`);
+                  toast.error(`Update failed: ${err instanceof Error ? err.message : 'unknown error'}`);
                 } finally {
                   setStrategyUpdating(false);
                 }
               }}
               className="text-xs rounded-full px-2 py-0.5 border border-indigo-500/30 bg-indigo-900/20 text-indigo-400 cursor-pointer disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
             >
-              <option value="">無策略</option>
+              <option value="">No strategy</option>
               {strategies.map(s => (
                 <option key={s.name} value={s.name}>{s.name}</option>
               ))}
-              {/* 若現有策略不在 enabled 清單（已停用），仍補回 */}
+              {/* If the existing strategy is not enabled Checklist (Deactivated), Still making up for it */}
               {group.strategy && !strategies.find(s => s.name === group.strategy) && (
-                <option value={group.strategy}>{group.strategy} (已停用)</option>
+                <option value={group.strategy}>{group.strategy} (Deactivated)</option>
               )}
             </select>
           ) : (
@@ -380,7 +380,7 @@ function GroupCard({ group, onEdit, onDeleteGroup, isOwner, strategies, onStrate
               className="h-7 px-3 text-xs"
               onClick={() => onEdit(group.trades[0])}
             >
-              編輯
+              edit
             </Button>
           )}
           <Button
@@ -389,7 +389,7 @@ function GroupCard({ group, onEdit, onDeleteGroup, isOwner, strategies, onStrate
             className="h-7 px-3 text-xs"
             onClick={() => onDeleteGroup(group)}
           >
-            刪除
+            delete
           </Button>
         </div>
       </div>
@@ -397,15 +397,15 @@ function GroupCard({ group, onEdit, onDeleteGroup, isOwner, strategies, onStrate
       {/* Price info row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
         <div>
-          <div className="text-xs text-muted-foreground mb-0.5">進場</div>
+          <div className="text-xs text-muted-foreground mb-0.5">Entry</div>
           <div className="font-medium tabular-nums">{entryLabel}</div>
         </div>
         <div>
-          <div className="text-xs text-muted-foreground mb-0.5">出場</div>
+          <div className="text-xs text-muted-foreground mb-0.5">Exit</div>
           <div className="font-medium tabular-nums">{exitLabel}</div>
         </div>
         <div>
-          <div className="text-xs text-muted-foreground mb-0.5">盈虧</div>
+          <div className="text-xs text-muted-foreground mb-0.5">Profit and loss</div>
           {isClosed ? (
             <div className="space-y-0.5">
               <div className={`font-medium tabular-nums ${pnlColor}`}>
@@ -420,7 +420,7 @@ function GroupCard({ group, onEdit, onDeleteGroup, isOwner, strategies, onStrate
           )}
         </div>
         <div>
-          <div className="text-xs text-muted-foreground mb-0.5">手續費</div>
+          <div className="text-xs text-muted-foreground mb-0.5">fee</div>
           <div className="font-medium tabular-nums">${group.totalFee.toFixed(2)}</div>
           {isClosed && <RMultipleBadge group={group} />}
         </div>
@@ -445,7 +445,7 @@ function GroupCard({ group, onEdit, onDeleteGroup, isOwner, strategies, onStrate
       {/* Fuel zone */}
       {(group.fuelTop || group.fuelBottom) && (
         <div className="text-xs text-muted-foreground">
-          <span>燃料區: {group.fuelBottom} — {group.fuelTop}</span>
+          <span>fuel area: {group.fuelBottom} — {group.fuelTop}</span>
           {group.fuel && (
             <span className="ml-2 px-1.5 py-0.5 rounded bg-white/[0.05] font-medium text-foreground/70">
               {group.fuel} pt
@@ -456,34 +456,34 @@ function GroupCard({ group, onEdit, onDeleteGroup, isOwner, strategies, onStrate
 
       {/* Notes */}
       {isOwner ? (
-        // Owner：可編輯 textarea，失焦時若內容有變動才 PATCH（SPEC §4.2）
+        // Owner: Editable textarea, When the focus is out of focus, only if the content changes PATCH (SPEC §4.2)
         <div className="border-t border-white/[0.04] pt-2">
           <textarea
             className="w-full text-xs text-muted-foreground bg-transparent resize-none placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-white/10 rounded px-1 py-0.5"
-            placeholder="新增備注…"
+            placeholder="Add a note…"
             rows={2}
             value={localNotes}
             onChange={(e) => setLocalNotes(e.target.value)}
             onBlur={async () => {
-              // 正規化：空字串視同 null，跟原值比較
+              // normalization: An empty string is treated as null, Compare with original value
               const originalNotes = group.notes ?? '';
               if (localNotes === originalNotes) return;
               const newNotes = localNotes.trim() !== '' ? localNotes.trim() : null;
               try {
                 await apiPatch(`/api/trade-groups/${group.groupKey}`, { notes: newNotes });
-                // M3：PATCH 成功後同步本地 trades state（比照 strategy 的 handleStrategyChange）
+                // M3: PATCH Synchronize local after success trades state (compare strategy of handleStrategyChange)
                 onNotesChange(group.groupKey, newNotes);
-                toast.success('備注已更新');
+                toast.success('Note has been updated');
               } catch (err) {
-                toast.error(`備注更新失敗: ${err instanceof Error ? err.message : '未知錯誤'}`);
-                // 更新失敗時還原草稿
+                toast.error(`Note update failed: ${err instanceof Error ? err.message : 'unknown error'}`);
+                // Restore draft when update fails
                 setLocalNotes(originalNotes);
               }
             }}
           />
         </div>
       ) : (
-        // Viewer：唯讀顯示（有 notes 才顯示）
+        // Viewer: read-only display (have notes Only show)
         group.notes && (
           <div className="text-xs text-muted-foreground border-t border-white/[0.04] pt-2">
             {group.notes}
@@ -504,10 +504,10 @@ function GroupCard({ group, onEdit, onDeleteGroup, isOwner, strategies, onStrate
             >
               ▼
             </span>
-            {expanded ? '收合細部' : `展開 ${group.trades.length} 筆細部`}
+            {expanded ? 'Collapse details' : `Expand ${group.trades.length} ${group.trades.length === 1 ? 'trade' : 'trades'} details`}
           </button>
         ) : (
-          <span className="text-xs text-muted-foreground/50 select-none">僅 1 筆</span>
+          <span className="text-xs text-muted-foreground/50 select-none">1 trade</span>
         )}
       </div>
 
@@ -544,7 +544,7 @@ export function TradeList({ date, onEdit, onRefresh }: TradeListProps) {
       setTrades(data);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '載入失敗');
+      setError(err instanceof Error ? err.message : 'Loading failed');
     } finally {
       setLoading(false);
     }
@@ -570,7 +570,7 @@ export function TradeList({ date, onEdit, onRefresh }: TradeListProps) {
     );
   };
 
-  // M3：備注 PATCH 成功後同步本地 trades state（比照 handleStrategyChange）
+  // M3: Remark PATCH Synchronize local after success trades state (compare handleStrategyChange)
   const handleNotesChange = (groupKey: string, notes: string | null) => {
     setTrades(prev =>
       prev.map(t =>
@@ -584,8 +584,8 @@ export function TradeList({ date, onEdit, onRefresh }: TradeListProps) {
   const handleDeleteGroup = async (group: GroupedTrade) => {
     const count = group.trades.length;
     const confirmMsg = count > 1
-      ? `確定要刪除此群組的 ${count} 筆交易紀錄嗎？`
-      : '確定要刪除此交易紀錄嗎？';
+      ? `Are you sure you want to delete this group's ${count} A trade??`
+      : 'Are you sure you want to delete this trade??';
     if (!confirm(confirmMsg)) return;
 
     try {
@@ -596,9 +596,9 @@ export function TradeList({ date, onEdit, onRefresh }: TradeListProps) {
       setTrades(prev => prev.filter(t => !deletedIds.has(t.id)));
 
       onRefresh?.();
-      toast.success(count > 1 ? `已刪除 ${count} 筆交易紀錄` : '交易記錄已成功刪除');
+      toast.success(count > 1 ? `Deleted ${count} trades` : 'Trade deleted');
     } catch (err) {
-      toast.error(`刪除失敗: ${err instanceof Error ? err.message : '未知錯誤'}`);
+      toast.error(`Delete failed: ${err instanceof Error ? err.message : 'unknown error'}`);
     }
   };
 
@@ -617,9 +617,9 @@ export function TradeList({ date, onEdit, onRefresh }: TradeListProps) {
       <Card>
         <CardContent className="flex items-center justify-center h-64">
           <div className="text-center space-y-2">
-            <p className="text-destructive">載入失敗: {error}</p>
+            <p className="text-destructive">Loading failed: {error}</p>
             <Button variant="outline" onClick={fetchTrades}>
-              重新載入
+              Reload
             </Button>
           </div>
         </CardContent>
@@ -632,15 +632,15 @@ export function TradeList({ date, onEdit, onRefresh }: TradeListProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>今日交易清單</CardTitle>
+        <CardTitle>Today&apos;s trades</CardTitle>
         <CardDescription>
-          {groups.length} 筆交易紀錄（{trades.length} 個 fills）
+          {groups.length} {groups.length === 1 ? 'trade' : 'trades'} ({trades.length} fills)
         </CardDescription>
       </CardHeader>
       <CardContent>
         {groups.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            今日尚未有交易紀錄
+            There is no trade today
           </div>
         ) : (
           <div className="space-y-4">
@@ -662,7 +662,7 @@ export function TradeList({ date, onEdit, onRefresh }: TradeListProps) {
         {/* Refresh Button */}
         <div className="mt-4 pt-4 border-t border-white/[0.06]">
           <Button variant="outline" onClick={fetchTrades}>
-            重新載入
+            Reload
           </Button>
         </div>
       </CardContent>

@@ -41,7 +41,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            開始日期
+            start date
           </label>
           <input
             type="date"
@@ -52,7 +52,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
         </div>
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            結束日期
+            end date
           </label>
           <input
             type="date"
@@ -70,35 +70,35 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
           size="sm"
           onClick={() => handleQuickSelect(0)}
         >
-          今日
+          today
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={() => handleQuickSelect(7)}
         >
-          過去7天
+          Last 7 days
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={() => handleQuickSelect(30)}
         >
-          過去30天
+          Last 30 days
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={() => handleQuickSelect(90)}
         >
-          過去90天
+          Last 90 days
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={handleSelectAll}
         >
-          全部資料
+          All information
         </Button>
       </div>
     </div>

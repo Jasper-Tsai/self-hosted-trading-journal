@@ -30,7 +30,7 @@ export function DashboardOverview({ date }: DashboardOverviewProps) {
         setStats(data);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : '載入失敗');
+        setError(err instanceof Error ? err.message : 'Loading failed');
       } finally {
         setLoading(false);
       }
@@ -52,12 +52,12 @@ export function DashboardOverview({ date }: DashboardOverviewProps) {
       <Card>
         <CardContent className="flex items-center justify-center h-64">
           <div className="text-center space-y-2">
-            <p className="text-destructive">載入失敗: {error}</p>
+            <p className="text-destructive">Loading failed: {error}</p>
             <Button
               variant="outline"
               onClick={() => window.location.reload()}
             >
-              重新載入
+              Reload
             </Button>
           </div>
         </CardContent>
@@ -68,11 +68,11 @@ export function DashboardOverview({ date }: DashboardOverviewProps) {
   if (!stats) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground mb-4">今日還沒有交易數據</p>
+        <p className="text-muted-foreground mb-4">There is no trade data today</p>
         {!isViewer && (
           <div className="space-x-2">
             <Link href="/trades">
-              <Button>新增交易</Button>
+              <Button>Add trade</Button>
             </Link>
           </div>
         )}
@@ -86,7 +86,7 @@ export function DashboardOverview({ date }: DashboardOverviewProps) {
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">總盈虧 (點數)</CardTitle>
+            <CardTitle className="text-sm font-medium">Total P&amp;L (Points)</CardTitle>
             <span className="h-4 w-4 text-muted-foreground">📊</span>
           </CardHeader>
           <CardContent>
@@ -94,14 +94,14 @@ export function DashboardOverview({ date }: DashboardOverviewProps) {
               {formatPnL(stats.totalPnL)}
             </div>
             <p className="text-xs text-muted-foreground">
-              基於 {stats.tradeCount} 筆交易
+              Based on {stats.tradeCount} {stats.tradeCount === 1 ? 'trade' : 'trades'}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">總盈虧 (金額)</CardTitle>
+            <CardTitle className="text-sm font-medium">Total P&amp;L (USD)</CardTitle>
             <span className="h-4 w-4 text-muted-foreground">💰</span>
           </CardHeader>
           <CardContent>
@@ -109,14 +109,14 @@ export function DashboardOverview({ date }: DashboardOverviewProps) {
               {formatPnLAmount(stats.totalPnLAmount)}
             </div>
             <p className="text-xs text-muted-foreground">
-              每點 $2 計算
+              Calculated at $2 per point
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">平均每口</CardTitle>
+            <CardTitle className="text-sm font-medium">Avg. per contract</CardTitle>
             <span className="h-4 w-4 text-muted-foreground">📈</span>
           </CardHeader>
           <CardContent>
@@ -124,14 +124,14 @@ export function DashboardOverview({ date }: DashboardOverviewProps) {
               {formatPnL(stats.avgPnL)}
             </div>
             <p className="text-xs text-muted-foreground">
-              點數/口
+              Points / contract
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">策略勝率</CardTitle>
+            <CardTitle className="text-sm font-medium">Win rate</CardTitle>
             <span className="h-4 w-4 text-muted-foreground">🎯</span>
           </CardHeader>
           <CardContent>
@@ -154,7 +154,7 @@ export function DashboardOverview({ date }: DashboardOverviewProps) {
                 return (
                   <>
                     <div className="text-xl md:text-2xl font-bold text-muted-foreground">--</div>
-                    <p className="text-xs text-muted-foreground">今日尚無策略交易</p>
+                    <p className="text-xs text-muted-foreground">There are no strategic trades today</p>
                   </>
                 );
               }
@@ -186,9 +186,9 @@ export function DashboardOverview({ date }: DashboardOverviewProps) {
       {stats.trades.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>今日交易</CardTitle>
+            <CardTitle>Today&apos;s trades</CardTitle>
             <CardDescription>
-              最近的交易紀錄
+              Recent trades
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -219,10 +219,10 @@ export function DashboardOverview({ date }: DashboardOverviewProps) {
                       </div>
                       <div>
                         <div className="font-medium">
-                          {trade.entry_price} → {trade.exit_price || '未平倉'}
+                          {trade.entry_price} → {trade.exit_price || 'Open position'}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {trade.qty} 口 • {formatTime(trade.entry_time)}
+                          {trade.qty} {trade.qty === 1 ? 'contract' : 'contracts'} • {formatTime(trade.entry_time)}
                         </div>
                       </div>
                     </div>
@@ -238,7 +238,7 @@ export function DashboardOverview({ date }: DashboardOverviewProps) {
               <div className="mt-4 pt-4 border-t">
                 <Link href="/trades">
                   <Button variant="outline" size="sm">
-                    查看全部 {stats.trades.length} 筆交易
+                    View all {stats.trades.length} {stats.trades.length === 1 ? 'trade' : 'trades'}
                   </Button>
                 </Link>
               </div>
@@ -258,25 +258,25 @@ export function DashboardOverview({ date }: DashboardOverviewProps) {
         </div>
       )}
 
-      {/* Quick Actions - 對 Viewer 隱藏 */}
+      {/* Quick Actions - right Viewer hide */}
       {!isViewer && (
         <Card>
           <CardHeader>
-            <CardTitle>快速操作</CardTitle>
+            <CardTitle>Quick actions</CardTitle>
             <CardDescription>
-              常用功能快速入口
+              Quick access to commonly used functions
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-2 md:grid-cols-3">
               <Link href="/trades">
-                <Button className="w-full">新增交易</Button>
+                <Button className="w-full">Add trade</Button>
               </Link>
               <Link href="/review">
-                <Button variant="outline" className="w-full">回顧分析</Button>
+                <Button variant="outline" className="w-full">Review</Button>
               </Link>
               <Link href="/calendar">
-                <Button variant="outline" className="w-full">交易日曆</Button>
+                <Button variant="outline" className="w-full">Trading Calendar</Button>
               </Link>
 
             </div>

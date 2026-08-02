@@ -56,7 +56,7 @@ function KpiCard({
 }
 
 function formatPnL(v: number, unit: PnLUnit, usdTwd: number): string {
-  if (unit === 'points') return `${v >= 0 ? '+' : ''}${v.toFixed(2)} 點`;
+  if (unit === 'points') return `${v >= 0 ? '+' : ''}${v.toFixed(2)} point`;
   if (unit === 'twd') {
     const twd = Math.round(v * usdTwd);
     return `${twd >= 0 ? '+' : ''}NT$${Math.abs(twd).toLocaleString()}`;
@@ -120,61 +120,61 @@ export function KpiCards({ rows, enabledStrategies, unit, usdTwd }: KpiCardsProp
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3">
       <KpiCard
-        label="總損益"
+        label="Total profit and loss"
         value={pnlDisplay}
         valueClass={cn('text-2xl font-semibold tabular-nums', pnlValue >= 0 ? 'text-green-400' : 'text-red-400')}
-        tooltip="所有已篩選策略、已平倉 group 的淨損益加總（含手續費）"
+        tooltip="All filtered strategies, Position closed group Total net profit and loss (Including fee)"
       />
       <KpiCard
-        label="交易筆數"
+        label="Trades"
         value={String(trades)}
-        tooltip="已篩選策略的已平倉 trade group 數量"
+        tooltip="Closed positions for filtered strategies trade group quantity"
       />
       <KpiCard
-        label="勝率"
+        label="winning rate"
         value={`${winRate.toFixed(1)}%`}
         valueClass={cn('text-2xl font-semibold tabular-nums',
           winRate >= 60 ? 'text-green-400' :
           winRate >= 50 ? 'text-yellow-400' :
           'text-red-400'
         )}
-        tooltip="獲利 group 數 ÷ 總 group 數"
+        tooltip="profit group number ÷ total group number"
       />
       <KpiCard
         label="Profit Factor"
         value={profitFactor === null ? 'N/A' : profitFactor.toFixed(2)}
-        sub={profitFactor === null ? `${lossSampleCount} 虧損樣本` : undefined}
+        sub={profitFactor === null ? `${lossSampleCount} Loss sample` : undefined}
         valueClass={cn('text-2xl font-semibold tabular-nums',
           profitFactor === null ? 'text-[#8A8F98]' :
           profitFactor >= 2 ? 'text-green-400' :
           profitFactor >= 1 ? 'text-yellow-400' :
           'text-red-400'
         )}
-        tooltip="總獲利 ÷ 總虧損（絕對值）；無虧損樣本時顯示 N/A"
+        tooltip="Total profit divided by total loss (absolute value). Shows N/A when there are no loss samples."
       />
       <KpiCard
-        label="期望值/筆"
+        label="expected value/trades"
         value={`$${expectancyUsd >= 0 ? '+' : ''}${expectancyUsd.toFixed(2)}`}
         valueClass={cn('text-2xl font-semibold tabular-nums', expectancyUsd >= 0 ? 'text-green-400' : 'text-red-400')}
-        tooltip="平均每筆 trade group 的淨損益（USD）"
+        tooltip="Average net P&L per trade group (USD)"
       />
       <KpiCard
-        label="平均 R:R"
+        label="average R:R"
         value={avgRR === null ? 'N/A' : avgRR.toFixed(2)}
-        sub={`${rrSampleCount}/${rrTotal} 單`}
+        sub={`${rrSampleCount}/${rrTotal} one`}
         valueClass={cn('text-2xl font-semibold tabular-nums',
           avgRR === null ? 'text-[#8A8F98]' :
           avgRR >= 2 ? 'text-green-400' :
           avgRR >= 1 ? 'text-yellow-400' :
           'text-red-400'
         )}
-        tooltip="有 SL 的 group 的平均 R:R；副字為有 SL 樣本數 / 總樣本數"
+        tooltip="Average R:R for groups with a stop loss; sample coverage is SL groups divided by total groups."
       />
       <KpiCard
         label="Max Drawdown"
         value={`$${maxDD.toFixed(2)}`}
         valueClass="text-2xl font-semibold tabular-nums text-red-400"
-        tooltip="各策略獨立計算 max drawdown 後取最大值（USD）"
+        tooltip="Each strategy is calculated independently max drawdown Take the maximum value after (USD)"
       />
     </div>
   );

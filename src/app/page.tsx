@@ -12,14 +12,14 @@ export default function Home() {
     const today = getTodayString();
 
     if (dateString === today) {
-      return '今日總覽';
+      return "Today's Overview";
     }
 
     const parts = parseDateString(dateString);
     if (!parts) return dateString;
     const month = parts.month;
     const day = parts.day;
-    return `${month}月${day}日總覽`;
+    return `${month}/${day} Overview`;
   };
 
   return (
@@ -30,7 +30,7 @@ export default function Home() {
             {formatDateTitle(selectedDate)}
           </h1>
           <p className="text-muted-foreground">
-            查看交易表現與統計數據
+            View trading performance and statistics
           </p>
         </div>
         <DatePicker

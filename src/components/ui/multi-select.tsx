@@ -11,7 +11,7 @@ export interface MultiSelectProps {
 }
 
 const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
-  ({ options, value, onChange, placeholder = '請選擇...', className }, ref) => {
+  ({ options, value, onChange, placeholder = 'Please select...', className }, ref) => {
     const [isOpen, setIsOpen] = React.useState(false);
 
     const toggleOption = (optionValue: string) => {
@@ -34,9 +34,9 @@ const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
           className="w-full justify-between text-left font-normal"
         >
           <span className="truncate">
-            {selectedLabels.length > 0 
-              ? selectedLabels.length > 2 
-                ? `${selectedLabels.slice(0, 2).join(', ')} 等 ${selectedLabels.length} 項`
+            {selectedLabels.length > 0
+              ? selectedLabels.length > 2
+                ? `${selectedLabels.slice(0, 2).join(', ')} wait ${selectedLabels.length} item`
                 : selectedLabels.join(', ')
               : placeholder
             }
@@ -69,9 +69,9 @@ const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
 
         {/* Backdrop to close dropdown */}
         {isOpen && (
-          <div 
-            className="fixed inset-0 z-40" 
-            onClick={() => setIsOpen(false)} 
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setIsOpen(false)}
           />
         )}
       </div>

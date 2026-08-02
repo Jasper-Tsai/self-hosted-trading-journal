@@ -13,9 +13,9 @@ interface CsvManagerProps {
 }
 
 const CsvManager: React.FC<CsvManagerProps> = ({
-  startDate, 
-  endDate, 
-  onImportSuccess 
+  startDate,
+  endDate,
+  onImportSuccess
 }) => {
   const [importing, setImporting] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -27,7 +27,7 @@ const CsvManager: React.FC<CsvManagerProps> = ({
       const result = await exportTradesToCsv(startDate, endDate);
 
       if (!result.success) {
-        throw new Error(result.error || '匯出失敗');
+        throw new Error(result.error || 'Export failed');
       }
 
       // Create download
@@ -41,10 +41,10 @@ const CsvManager: React.FC<CsvManagerProps> = ({
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
-      toast.success(`匯出成功！共 ${result.count} 筆記錄`);
+      toast.success(`Exported ${result.count} trades`);
     } catch (error) {
       console.error('Export error:', error);
-      toast.error('匯出失敗，請重試');
+      toast.error('Export failed, Please try again');
     } finally {
       setExporting(false);
     }
@@ -56,7 +56,7 @@ const CsvManager: React.FC<CsvManagerProps> = ({
 
     // Validate file type
     if (!file.name.toLowerCase().endsWith('.csv')) {
-      toast.error('請選擇 CSV 檔案');
+        toast.error('Please select a CSV file');
       return;
     }
 
@@ -72,10 +72,10 @@ const CsvManager: React.FC<CsvManagerProps> = ({
         const { imported, errors, errorMessages } = result.data!;
 
         if (errors === 0) {
-          toast.success(`匯入成功！共匯入 ${imported} 筆記錄`);
+          toast.success(`Imported ${imported} trades`);
         } else {
           toast.success(
-            `匯入完成！成功 ${imported} 筆，失敗 ${errors} 筆`,
+            `Import complete: ${imported} imported, ${errors} failed`,
             { duration: 5000 }
           );
 
@@ -83,19 +83,19 @@ const CsvManager: React.FC<CsvManagerProps> = ({
           if (errorMessages && errorMessages.length > 0) {
             console.error('Import errors:', errorMessages);
             setTimeout(() => {
-              toast.error(`匯入錯誤詳情:\n${errorMessages.slice(0, 5).join('\n')}`, { duration: 8000 });
+              toast.error(`Import error details:\n${errorMessages.slice(0, 5).join('\n')}`, { duration: 8000 });
             }, 1000);
           }
         }
-        
+
         // Call success callback
         onImportSuccess?.();
       } else {
-        throw new Error(result.error || '匯入失敗');
+        throw new Error(result.error || 'Import failed');
       }
     } catch (error) {
       console.error('Import error:', error);
-      toast.error(error instanceof Error ? error.message : '匯入失敗，請檢查檔案格式');
+      toast.error(error instanceof Error ? error.message : 'Import failed, Please check the file format');
     } finally {
       setImporting(false);
       // Reset file input
@@ -103,20 +103,20 @@ const CsvManager: React.FC<CsvManagerProps> = ({
     }
   };
 
-  const typeLabel = '交易記錄';
-  
+  const typeLabel = 'Trades';
+
   return (
     <div className="bg-card rounded-lg shadow-md p-6 border">
-      <h3 className="text-lg font-semibold mb-4">{typeLabel} CSV 管理</h3>
-      
+      <h3 className="text-lg font-semibold mb-4">{typeLabel} CSV Manager</h3>
+
       <div className="space-y-4">
         {/* Export Section */}
         <div className="border-b pb-4">
-          <h4 className="font-medium mb-2">匯出 CSV</h4>
+          <h4 className="font-medium mb-2">Export CSV</h4>
           <p className="text-sm text-muted-foreground mb-3">
-            {startDate && endDate 
-              ? `匯出 ${startDate} 至 ${endDate} 期間的${typeLabel}`
-              : `匯出所有${typeLabel}`
+            {startDate && endDate
+              ? `Export ${typeLabel} from ${startDate} to ${endDate}`
+              : `Export all${typeLabel}`
             }
           </p>
           <Button
@@ -124,24 +124,24 @@ const CsvManager: React.FC<CsvManagerProps> = ({
             disabled={exporting}
             variant="default"
           >
-            {exporting ? '匯出中...' : `匯出 ${typeLabel}`}
+            {exporting ? 'Exporting...' : `Export ${typeLabel}`}
           </Button>
         </div>
 
         {/* Import Section */}
         <div>
-          <h4 className="font-medium mb-2">匯入 CSV</h4>
+          <h4 className="font-medium mb-2">Import CSV</h4>
           <p className="text-sm text-muted-foreground mb-3">
-            請選擇符合格式的 {typeLabel} CSV 檔案
+            Select a valid {typeLabel} CSV file.
           </p>
-          
+
           <div className="space-y-2">
             <input
               type="file"
               accept=".csv"
               onChange={handleImport}
               disabled={importing}
-              className="block w-full text-sm text-gray-500 
+              className="block w-full text-sm text-gray-500
                 file:mr-4 file:py-2 file:px-4
                 file:rounded-md file:border-0
                 file:text-sm file:font-medium
@@ -149,22 +149,22 @@ const CsvManager: React.FC<CsvManagerProps> = ({
                 hover:file:bg-blue-100
                 disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            
+
             {importing && (
-              <p className="text-sm text-primary">匯入中，請稍候...</p>
+              <p className="text-sm text-primary">Importing, Please wait...</p>
             )}
           </div>
 
           {/* Format Guide */}
           <details className="mt-4">
             <summary className="text-sm font-medium cursor-pointer text-muted-foreground hover:text-foreground">
-              CSV 格式說明
+              CSV format
             </summary>
             <div className="mt-2 p-3 bg-muted rounded text-xs text-muted-foreground">
               <div>
-                <p className="font-medium mb-1">交易記錄 CSV 格式：</p>
-                <p>欄位順序：交易ID, 日期, 方向(多/空), 入場時間, 入場價格, 出場時間, 出場價格, 口數, 燃料區上界, 燃料區下界, SL價格, TP1, TP2, TP3, 手續費, 滑點, 備註, 截圖</p>
-                <p className="mt-1">多個標籤用分號(;)分隔</p>
+                <p className="font-medium mb-1">Trades CSV format:</p>
+                <p>Field order: trade ID, date, direction (LONG/SHORT), entry time, entry price, exit time, exit price, contracts, fuel zone upper bound, fuel zone lower bound, SL price, TP1, TP2, TP3, fee, slippage, notes, screenshot</p>
+                <p className="mt-1">Separate multiple tags with semicolons (;).</p>
               </div>
             </div>
           </details>

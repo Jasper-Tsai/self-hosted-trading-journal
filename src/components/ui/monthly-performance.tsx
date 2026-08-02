@@ -39,9 +39,9 @@ interface MonthlyData {
   winDays: number;
   lossDays: number;
   winRate: number;
-  strategyWinRate?: number;  // 策略勝率（逐筆交易計算）
-  strategyTrades?: number;   // 策略交易數
-  strategyWins?: number;     // 策略獲利交易數
+  strategyWinRate?: number;  // Strategy winning rate (Transaction-by-transaction calculation)
+  strategyTrades?: number;   // Number of strategy trades
+  strategyWins?: number;     // Number of profitable trades for the strategy
   avgDailyPoints: number;
   avgDailyAmount: number;
 }
@@ -83,7 +83,7 @@ export function MonthlyPerformance({ className, usdTwdRate = 31.5 }: MonthlyPerf
         if (!parts) return;
         const monthIndex = parts.month - 1;
         const monthKey = `${parts.year}-${String(parts.month).padStart(2, '0')}`;
-        const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
         if (!monthlyMap.has(monthKey)) {
           monthlyMap.set(monthKey, {
@@ -108,7 +108,7 @@ export function MonthlyPerformance({ className, usdTwdRate = 31.5 }: MonthlyPerf
         monthData.totalAmount += item.amount;
         monthData.tradingDays += 1;
 
-        // 以金額（amount）判斷獲利/虧損，而不是點數
+        // by amount (amount)Judgment of profit/Loss, instead of points
         if (item.amount > 0) {
           monthData.winDays += 1;
         } else if (item.amount < 0) {
@@ -134,7 +134,7 @@ export function MonthlyPerformance({ className, usdTwdRate = 31.5 }: MonthlyPerf
       // Convert to array and sort by date (newest first)
       const sortedData = Array.from(monthlyMap.values()).sort((a, b) => {
         if (a.year !== b.year) return b.year - a.year;
-        const monthOrder = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+        const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         return monthOrder.indexOf(b.month) - monthOrder.indexOf(a.month);
       });
 
@@ -159,8 +159,8 @@ export function MonthlyPerformance({ className, usdTwdRate = 31.5 }: MonthlyPerf
         .sort((a, b) => b.year - a.year);
       setYearlyData(yearSummaries);
 
-      // 計算每年度最大回撤 (USD)
-      // 將每日金額按年分組，年內按日期排序，追蹤累計高峰與最大回落
+      // Calculate the maximum drawdown per year (USD)
+      // Group daily amounts by year, Sort by date within the year, Track cumulative peaks and maximum drawdowns
       const yearlyDailyAmounts = new Map<number, Array<{ date: string; amount: number }>>();
       heatmapData.forEach((item) => {
         const parts = parseDateString(item.date);
@@ -188,7 +188,7 @@ export function MonthlyPerformance({ className, usdTwdRate = 31.5 }: MonthlyPerf
       });
       setYearlyMaxDrawdown(maxDrawdownMap);
     } catch (err) {
-      setError('載入月度績效失敗');
+      setError('Failed to load monthly performance');
       console.error('Error fetching monthly performance:', err);
     } finally {
       setLoading(false);
@@ -217,13 +217,13 @@ export function MonthlyPerformance({ className, usdTwdRate = 31.5 }: MonthlyPerf
       <Card className={className}>
         <CardHeader>
           <CardTitle>
-            📊 月度交易績效
+            📊 Monthly trading performance
           </CardTitle>
-          <CardDescription>過去一年每月交易表現總覽</CardDescription>
+          <CardDescription>Overview of monthly trading performance over the past year</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-64">
-            <div className="text-muted-foreground">載入中...</div>
+            <div className="text-muted-foreground">loading...</div>
           </div>
         </CardContent>
       </Card>
@@ -235,7 +235,7 @@ export function MonthlyPerformance({ className, usdTwdRate = 31.5 }: MonthlyPerf
       <Card className={className}>
         <CardHeader>
           <CardTitle>
-            📊 月度交易績效
+            📊 Monthly trading performance
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -251,9 +251,9 @@ export function MonthlyPerformance({ className, usdTwdRate = 31.5 }: MonthlyPerf
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>
-              📊 月度交易績效
+              📊 Monthly trading performance
             </CardTitle>
-            <CardDescription>過去一年每月交易表現總覽</CardDescription>
+            <CardDescription>Overview of monthly trading performance over the past year</CardDescription>
           </div>
           <div className="flex gap-2">
             <Button
@@ -261,21 +261,21 @@ export function MonthlyPerformance({ className, usdTwdRate = 31.5 }: MonthlyPerf
               size="sm"
               onClick={() => setViewMode('points')}
             >
-              點數
+              Points
             </Button>
             <Button
               variant={viewMode === 'amount' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('amount')}
             >
-              金額
+              Amount
             </Button>
           </div>
         </div>
       </CardHeader>
       <CardContent>
         {monthlyData.length === 0 ? (
-          <div className="text-center text-muted-foreground py-8">尚無交易資料</div>
+          <div className="text-center text-muted-foreground py-8">No trade data yet</div>
         ) : (
           <div className="space-y-6">
             {yearlyData.map((yearSummary) => {
@@ -287,11 +287,11 @@ export function MonthlyPerformance({ className, usdTwdRate = 31.5 }: MonthlyPerf
                 <div key={yearSummary.year}>
                   {/* Year Header with Annualized Return & Win Rate */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 px-1">
-                    <h3 className="text-lg font-semibold">{yearSummary.year}年</h3>
+                    <h3 className="text-lg font-semibold">{yearSummary.year}Year</h3>
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1 sm:flex sm:items-center sm:gap-4">
                       {yearSummary.totalTrades > 0 && (
                         <div className="flex items-center gap-1.5">
-                          <span className="text-xs sm:text-sm text-muted-foreground">勝率</span>
+                          <span className="text-xs sm:text-sm text-muted-foreground">winning rate</span>
                           <span className={`text-sm sm:text-lg font-bold ${yearSummary.winRate >= 50 ? 'text-green-400' : 'text-yellow-400'}`}>
                             {yearSummary.winRate.toFixed(1)}%
                           </span>
@@ -299,7 +299,7 @@ export function MonthlyPerformance({ className, usdTwdRate = 31.5 }: MonthlyPerf
                       )}
                       {maxDrawdownUsd > 0 && (
                         <div className="flex items-center gap-1.5">
-                          <span className="text-xs sm:text-sm text-muted-foreground">最大回撤</span>
+                          <span className="text-xs sm:text-sm text-muted-foreground">maximum drawdown</span>
                           <span className="text-sm sm:text-lg font-bold text-red-400">
                             {formatPnLAmountWithTwd(-maxDrawdownUsd, usdTwdRate)}
                           </span>
@@ -319,7 +319,7 @@ export function MonthlyPerformance({ className, usdTwdRate = 31.5 }: MonthlyPerf
                           <CardHeader className="pb-3">
                             <div className="flex items-center justify-between">
                               <CardTitle className="text-base">
-                                {month.year}年 {month.month}
+                                {month.year}Year {month.month}
                               </CardTitle>
                               <div className={`${getPnLColor(value)} text-lg`}>
                                 {value > 0 ? '📈' : value < 0 ? '📉' : '⚪'}
@@ -327,25 +327,25 @@ export function MonthlyPerformance({ className, usdTwdRate = 31.5 }: MonthlyPerf
                             </div>
                           </CardHeader>
                           <CardContent className="space-y-3">
-                            {/* 總盈虧 */}
+                            {/* Total profit and loss */}
                             <div className="flex justify-between items-center">
-                              <span className="text-sm text-muted-foreground">總盈虧</span>
+                              <span className="text-sm text-muted-foreground">Total profit and loss</span>
                               <span className={`font-semibold ${getPnLColor(value)}`}>
                                 {formatNumber(value, viewMode === 'amount')}
-                                {viewMode === 'points' && ' 點'}
+                                {viewMode === 'points' && ' point'}
                               </span>
                             </div>
 
-                            {/* 交易天數 */}
+                            {/* Trading days */}
                             <div className="flex justify-between items-center">
-                              <span className="text-sm text-muted-foreground">交易天數</span>
-                              <span className="font-medium">{month.tradingDays} 天</span>
+                              <span className="text-sm text-muted-foreground">Trading days</span>
+                              <span className="font-medium">{month.tradingDays} days</span>
                             </div>
 
-                            {/* 勝率 - 只有 Owner 可以看到（按天計算） */}
+                            {/* winning rate - only Owner can be seen (Calculated by day) */}
                             {!isViewer && (
                               <div className="flex justify-between items-center">
-                                <span className="text-sm text-muted-foreground">勝率</span>
+                                <span className="text-sm text-muted-foreground">winning rate</span>
                                 <span className={`font-medium ${month.winRate >= 50 ? 'text-green-400' : 'text-yellow-400'
                                   }`}>
                                   {month.winRate.toFixed(1)}%
@@ -353,20 +353,20 @@ export function MonthlyPerformance({ className, usdTwdRate = 31.5 }: MonthlyPerf
                               </div>
                             )}
 
-                            {/* 策略勝率（按逐筆交易計算） */}
+                            {/* Strategy winning rate (Calculated on a trade-by-trade basis) */}
                             {month.strategyTrades && month.strategyTrades > 0 && (
                               <div className="flex justify-between items-center">
-                                <span className="text-sm text-muted-foreground">{isViewer ? '勝率' : '策略勝率'}</span>
+                                <span className="text-sm text-muted-foreground">{isViewer ? 'winning rate' : 'Strategy winning rate'}</span>
                                 <span className={`font-medium ${(month.strategyWinRate ?? 0) >= 50 ? 'text-green-400' : 'text-yellow-400'}`}>
                                   {month.strategyWinRate?.toFixed(1)}%
                                 </span>
                               </div>
                             )}
 
-                            {/* 獲利/虧損天數 - 只有 Owner 可以看到 */}
+                            {/* profit/Losing days - only Owner can be seen */}
                             {!isViewer && (
                               <div className="flex justify-between items-center text-xs">
-                                <span className="text-muted-foreground">獲利/虧損</span>
+                                <span className="text-muted-foreground">profit/Loss</span>
                                 <span>
                                   <span className="text-green-400">{month.winDays}</span>
                                   <span className="text-muted-foreground"> / </span>
@@ -375,12 +375,12 @@ export function MonthlyPerformance({ className, usdTwdRate = 31.5 }: MonthlyPerf
                               </div>
                             )}
 
-                            {/* 日均盈虧 */}
+                            {/* Average daily profit and loss */}
                             <div className="flex justify-between items-center">
-                              <span className="text-sm text-muted-foreground">日均</span>
+                              <span className="text-sm text-muted-foreground">Daily average</span>
                               <span className={`text-sm ${getPnLColor(avgValue)}`}>
                                 {formatNumber(avgValue, viewMode === 'amount')}
-                                {viewMode === 'points' && ' 點'}
+                                {viewMode === 'points' && ' point'}
                               </span>
                             </div>
                           </CardContent>

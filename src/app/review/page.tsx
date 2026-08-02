@@ -18,10 +18,10 @@ export default function ReviewPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
           <h1 className="text-2xl md:text-3xl font-semibold tracking-tight bg-gradient-to-b from-white via-white/95 to-white/70 bg-clip-text text-transparent">
-            回顧分析
+            Review
           </h1>
           <p className="text-muted-foreground">
-            週月報表與交易統計分析
+            Weekly and monthly reports and trade statistics
           </p>
         </div>
       </div>

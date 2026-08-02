@@ -1,21 +1,21 @@
 /**
  * trades-read.ts
  *
- * 策略與備注歸屬模型（SPEC §4.1 + §4.2）的核心讀取 helper。
+ * Strategy and Note Attribution Model (SPEC §4.1 + §4.2)The core reads helper.
  *
- * selectTradesWithGroupAttrs() 回傳一個 drizzle query builder，
- * 把每筆 trade 的 strategy 與 notes 同時解析為「所屬 trade_groups 的屬性」，
- * 讓呼叫端的 .where() / .orderBy() 等鏈式呼叫仍可正常使用。
+ * selectTradesWithGroupAttrs() Send back a drizzle query builder,
+ * put every trade of strategy and notes At the same time, it is resolved asBelong trade_groups properties,
+ * Let the caller .where() / .orderBy() Waiting for chained calls can still be used normally.
  *
- * 解析規則（strategy 與 notes 相同模式）：
+ * parsing rules (strategy and notes same pattern):
  *   CASE WHEN trade_groups.id IS NOT NULL
  *        THEN trade_groups.<attr>
  *        ELSE trades.<attr>
  *   END
- * （無 group row 的極少數舊資料 fallback 回 trades.<attr>）
+ *  (none group row very little old information fallback return trades.<attr>)
  *
- * ⚠️ 維護注意：下方 select 為手動列舉 trades 全欄位；schema.ts 的 trades table
- *    若新增欄位，務必同步加進此 select，否則所有讀取 API 會靜默漏該欄位。
+ * ⚠️ Maintenance precautions: below select for manual enumeration trades full field;schema.ts of trades table
+ *    If a new field is added, Be sure to add this simultaneously select, Otherwise all reads API This field will be silently leaked.
  */
 
 import { db } from '@/lib/db';
@@ -23,9 +23,9 @@ import { trades, trade_groups } from '@/lib/db/schema';
 import { sql } from 'drizzle-orm';
 
 /**
- * 回傳 drizzle query builder（已 LEFT JOIN trade_groups）。
- * select 欄位與 trades row 相容，但 strategy 與 notes 均已解析為群組屬性。
- * 呼叫端可接 .where(...) / .orderBy(...) 後再 .all() / .get() / await。
+ * return drizzle query builder (already LEFT JOIN trade_groups).
+ * select fields with trades row compatible, but strategy and notes have been parsed into group attributes.
+ * The caller can receive .where(...) / .orderBy(...) Later .all() / .get() / await.
  */
 export function selectTradesWithGroupAttrs() {
   return db
@@ -48,9 +48,9 @@ export function selectTradesWithGroupAttrs() {
       tp3: trades.tp3,
       broker: trades.broker,
       fee: trades.fee,
-      // 備注解析自所屬群組（SPEC §4.2）：群組存在時取 trade_groups.notes，否則 fallback 回 trades.notes
+      // Notes are parsed from the group they belong to. (SPEC §4.2): Taken when the group exists trade_groups.notes, otherwise fallback return trades.notes
       notes: sql<string | null>`CASE WHEN ${trade_groups.id} IS NOT NULL THEN ${trade_groups.notes} ELSE ${trades.notes} END`,
-      // 策略解析自所屬群組（SPEC §4.1）：群組存在時取 trade_groups.strategy，否則 fallback 回 trades.strategy
+      // Resolve the strategy from the group when available; otherwise use trades.strategy.
       strategy: sql<string | null>`CASE WHEN ${trade_groups.id} IS NOT NULL THEN ${trade_groups.strategy} ELSE ${trades.strategy} END`,
       trade_group_id: trades.trade_group_id,
       external_trade_ids: trades.external_trade_ids,

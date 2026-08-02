@@ -29,21 +29,21 @@ describe('getFeeByBroker', () => {
 });
 
 describe('getPointValue', () => {
-  it('MNQ 每點價值 $2', () => {
+  it('MNQ value per point $2', () => {
     expect(getPointValue('MNQ')).toBe(2);
   });
 
-  it('NQ 每點價值 $20', () => {
+  it('NQ value per point $20', () => {
     expect(getPointValue('NQ')).toBe(20);
   });
 
-  it('未指定商品時預設為 MNQ ($2)', () => {
+  it('When no product is specified, the default is MNQ ($2)', () => {
     expect(getPointValue()).toBe(2);
   });
 });
 
 describe('calculatePnL', () => {
-  it('LONG 獲利計算正確', () => {
+  it('LONG Profit calculation correct', () => {
     const trade: Trade = {
       id: '1',
       date: '2025-01-01',
@@ -55,11 +55,11 @@ describe('calculatePnL', () => {
       qty: 2,
       broker: 'Manual',
     };
-    // (21010 - 21000) * 2 = 20 點
+    // (21010 - 21000) * 2 = 20 point
     expect(calculatePnL(trade)).toBe(20);
   });
 
-  it('LONG 虧損計算正確', () => {
+  it('LONG Loss calculation is correct', () => {
     const trade: Trade = {
       id: '1',
       date: '2025-01-01',
@@ -71,11 +71,11 @@ describe('calculatePnL', () => {
       qty: 2,
       broker: 'Manual',
     };
-    // (20990 - 21000) * 2 = -20 點
+    // (20990 - 21000) * 2 = -20 point
     expect(calculatePnL(trade)).toBe(-20);
   });
 
-  it('SHORT 獲利計算正確', () => {
+  it('SHORT Profit calculation correct', () => {
     const trade: Trade = {
       id: '1',
       date: '2025-01-01',
@@ -87,11 +87,11 @@ describe('calculatePnL', () => {
       qty: 2,
       broker: 'Manual',
     };
-    // (21000 - 20990) * 2 = 20 點
+    // (21000 - 20990) * 2 = 20 point
     expect(calculatePnL(trade)).toBe(20);
   });
 
-  it('SHORT 虧損計算正確', () => {
+  it('SHORT Loss calculation is correct', () => {
     const trade: Trade = {
       id: '1',
       date: '2025-01-01',
@@ -103,11 +103,11 @@ describe('calculatePnL', () => {
       qty: 2,
       broker: 'Manual',
     };
-    // (21000 - 21010) * 2 = -20 點
+    // (21000 - 21010) * 2 = -20 point
     expect(calculatePnL(trade)).toBe(-20);
   });
 
-  it('未平倉（無出場價）應回傳 0', () => {
+  it('Open position (No exit price)Should be returned 0', () => {
     const trade: Trade = {
       id: '1',
       date: '2025-01-01',
@@ -123,48 +123,48 @@ describe('calculatePnL', () => {
 });
 
 describe('calculatePnLAmount', () => {
-  it('MNQ 獲利金額計算正確 (含手續費)', () => {
-    // 10 點 * $2/點 - $4 手續費 = $16
+  it('MNQ The profit amount is calculated correctly (Including fee)', () => {
+    // 10 point * $2/point - $4 fee = $16
     expect(calculatePnLAmount(10, 4, 'MNQ')).toBe(16);
   });
 
-  it('NQ 獲利金額計算正確 (含手續費)', () => {
-    // 10 點 * $20/點 - $9 手續費 = $191
+  it('NQ The profit amount is calculated correctly (Including fee)', () => {
+    // 10 point * $20/point - $9 fee = $191
     expect(calculatePnLAmount(10, 9, 'NQ')).toBe(191);
   });
 
-  it('虧損金額計算正確 (含手續費)', () => {
-    // -10 點 * $2/點 - $4 手續費 = -$24
+  it('The loss amount is calculated correctly (Including fee)', () => {
+    // -10 point * $2/point - $4 fee = -$24
     expect(calculatePnLAmount(-10, 4, 'MNQ')).toBe(-24);
   });
 
-  it('無手續費時計算正確', () => {
-    // 10 點 * $2/點 - $0 手續費 = $20
+  it('Calculated correctly when there is no fee', () => {
+    // 10 point * $2/point - $0 fee = $20
     expect(calculatePnLAmount(10, 0, 'MNQ')).toBe(20);
   });
 });
 
 describe('calculateHoldTime', () => {
-  it('計算持倉時間（分鐘）', () => {
+  it('Calculate position holding time (minute)', () => {
     const entryTime = '2025-01-01T10:00:00';
     const exitTime = '2025-01-01T10:30:00';
     expect(calculateHoldTime(entryTime, exitTime)).toBe(30);
   });
 
-  it('跨小時持倉計算正確', () => {
+  it('Cross-hour positions are calculated correctly', () => {
     const entryTime = '2025-01-01T10:00:00';
     const exitTime = '2025-01-01T12:15:00';
-    expect(calculateHoldTime(entryTime, exitTime)).toBe(135); // 2小時15分
+    expect(calculateHoldTime(entryTime, exitTime)).toBe(135); // 2Hour15point
   });
 
-  it('未出場時回傳 0', () => {
+  it('Return when not on the field 0', () => {
     const entryTime = '2025-01-01T10:00:00';
     expect(calculateHoldTime(entryTime, undefined)).toBe(0);
   });
 });
 
 describe('calculateRMultiple', () => {
-  it('計算 R 倍數 (獲利)', () => {
+  it('calculate R multiple (profit)', () => {
     const trade: Trade = {
       id: '1',
       date: '2025-01-01',
@@ -172,8 +172,8 @@ describe('calculateRMultiple', () => {
       side: 'LONG',
       entry_time: '2025-01-01T10:00:00',
       entry_price: 21000,
-      exit_price: 21020, // 獲利 20 點
-      sl_price: 20990,   // 風險 10 點
+      exit_price: 21020, // profit 20 point
+      sl_price: 20990,   // risk 10 point
       qty: 1,
       broker: 'Manual',
     };
@@ -181,7 +181,7 @@ describe('calculateRMultiple', () => {
     expect(calculateRMultiple(trade)).toBe(2);
   });
 
-  it('計算 R 倍數 (虧損)', () => {
+  it('calculate R multiple (Loss)', () => {
     const trade: Trade = {
       id: '1',
       date: '2025-01-01',
@@ -189,8 +189,8 @@ describe('calculateRMultiple', () => {
       side: 'LONG',
       entry_time: '2025-01-01T10:00:00',
       entry_price: 21000,
-      exit_price: 20995, // 虧損 5 點
-      sl_price: 20990,   // 風險 10 點
+      exit_price: 20995, // Loss 5 point
+      sl_price: 20990,   // risk 10 point
       qty: 1,
       broker: 'Manual',
     };
@@ -198,7 +198,7 @@ describe('calculateRMultiple', () => {
     expect(calculateRMultiple(trade)).toBe(0.5);
   });
 
-  it('無止損價時回傳 null', () => {
+  it('Return when there is no stop loss price null', () => {
     const trade: Trade = {
       id: '1',
       date: '2025-01-01',
@@ -213,7 +213,7 @@ describe('calculateRMultiple', () => {
     expect(calculateRMultiple(trade)).toBeNull();
   });
 
-  it('未平倉時回傳 null', () => {
+  it('Return when the position is not closed null', () => {
     const trade: Trade = {
       id: '1',
       date: '2025-01-01',
@@ -230,13 +230,13 @@ describe('calculateRMultiple', () => {
 });
 
 describe('formatPnL', () => {
-  it('正數顯示正號', () => {
+  it('Positive number shows positive sign', () => {
     const result = formatPnL(10);
     expect(result).toContain('+');
     expect(result).toContain('10');
   });
 
-  it('負數顯示負號', () => {
+  it('Negative numbers show minus sign', () => {
     const result = formatPnL(-10);
     expect(result).toContain('-');
     expect(result).toContain('10');
@@ -244,26 +244,26 @@ describe('formatPnL', () => {
 });
 
 describe('formatPnLAmount', () => {
-  it('正數顯示貨幣格式', () => {
+  it('Positive number display currency format', () => {
     const result = formatPnLAmount(100);
     expect(result).toContain('100');
     expect(result).toContain('$');
   });
 
-  it('負數顯示貨幣格式', () => {
+  it('Negative number display currency format', () => {
     const result = formatPnLAmount(-100);
     expect(result).toContain('100');
   });
 });
 
 describe('isValidPrice', () => {
-  it('有效價格', () => {
+  it('effective price', () => {
     expect(isValidPrice(21000)).toBe(true);
     expect(isValidPrice(0.25)).toBe(true);
     expect(isValidPrice(99999)).toBe(true);
   });
 
-  it('無效價格', () => {
+  it('Invalid price', () => {
     expect(isValidPrice(0)).toBe(false);
     expect(isValidPrice(-100)).toBe(false);
     expect(isValidPrice(100000)).toBe(false);
@@ -272,22 +272,22 @@ describe('isValidPrice', () => {
 });
 
 describe('isValidQuantity', () => {
-  it('有效口數', () => {
+  it('Valid number of contractss', () => {
     expect(isValidQuantity(1)).toBe(true);
     expect(isValidQuantity(50)).toBe(true);
     expect(isValidQuantity(100)).toBe(true);
   });
 
-  it('無效口數', () => {
+  it('Invalid contracts count', () => {
     expect(isValidQuantity(0)).toBe(false);
     expect(isValidQuantity(-1)).toBe(false);
     expect(isValidQuantity(101)).toBe(false);
   });
 });
 
-// 整合測試：完整交易流程計算
-describe('完整交易計算流程', () => {
-  it('MNQ Manual LONG 獲利計算', () => {
+// Integration testing: Complete trade calculation flow
+describe('Complete trade calculation flow', () => {
+  it('MNQ Manual LONG Profit calculation', () => {
     const trade: Trade = {
       id: '1',
       date: '2025-01-01',
@@ -295,22 +295,22 @@ describe('完整交易計算流程', () => {
       side: 'LONG',
       entry_time: '2025-01-01T10:00:00',
       entry_price: 21000,
-      exit_price: 21015, // 獲利 15 點
+      exit_price: 21015, // profit 15 point
       qty: 2,
       broker: 'Manual',
     };
 
     const pnl = calculatePnL(trade);
-    expect(pnl).toBe(30); // 15 點 * 2 口 = 30 點
+    expect(pnl).toBe(30); // 15 point * 2 contracts = 30 point
 
     const fee = getFeeByBroker('Manual', 'MNQ') * trade.qty;
     expect(fee).toBe(0);
 
     const amount = calculatePnLAmount(pnl, fee, 'MNQ');
-    expect(amount).toBe(60); // 30 點 * $2
+    expect(amount).toBe(60); // 30 point * $2
   });
 
-  it('NQ Custom SHORT 虧損計算', () => {
+  it('NQ Custom SHORT Loss calculation', () => {
     const trade: Trade = {
       id: '2',
       date: '2025-01-01',
@@ -318,18 +318,18 @@ describe('完整交易計算流程', () => {
       side: 'SHORT',
       entry_time: '2025-01-01T10:00:00',
       entry_price: 21000,
-      exit_price: 21005, // 虧損 5 點
+      exit_price: 21005, // Loss 5 point
       qty: 1,
       broker: 'Custom',
     };
 
     const pnl = calculatePnL(trade);
-    expect(pnl).toBe(-5); // SHORT: (21000 - 21005) = -5 點
+    expect(pnl).toBe(-5); // SHORT: (21000 - 21005) = -5 point
 
     const fee = getFeeByBroker('Custom', 'NQ') * trade.qty;
     expect(fee).toBe(0);
 
     const amount = calculatePnLAmount(pnl, fee, 'NQ');
-    expect(amount).toBe(-100); // -5 點 * $20
+    expect(amount).toBe(-100); // -5 point * $20
   });
 });

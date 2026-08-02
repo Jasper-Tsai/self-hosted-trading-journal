@@ -11,7 +11,7 @@ export type Broker = string;
 export interface Trade {
   id?: string;
   date: string;
-  symbol?: Symbol;         // 商品類型 (MNQ/NQ)，預設 MNQ
+  symbol?: Symbol;         // Product type (MNQ/NQ), default MNQ
   side: TradeSide;
   entry_time: string;
   entry_price: number;
@@ -20,16 +20,16 @@ export interface Trade {
   qty: number;
   fuel_top?: number;
   fuel_bottom?: number;
-  fuel?: number;           // 燃料（上界-下界的絕對值）
+  fuel?: number;           // fuel (upper bound-absolute value of lower bound)
   sl_price?: number;
   tp1?: number;
   tp2?: number;
   tp3?: number;
   broker?: Broker;
   fee?: number;
-  notes?: string;          // 唯讀，解析自所屬群組的備注（SPEC §4.2）
-  strategy?: string;       // 唯讀，解析自所屬群組的策略（SPEC §4.1）
-  trade_group_id?: string; // 同一開倉事件的交易群組 ID
+  notes?: string;          // Read only, Parse comments from the group you belong to (SPEC §4.2)
+  strategy?: string;       // Read only, Parse the policy from the group it belongs to (SPEC §4.1)
+  trade_group_id?: string; // Trading groups with the same opening event ID
 
   created_at?: string;
   updated_at?: string;
@@ -38,7 +38,7 @@ export interface Trade {
 // Form Data Types
 export interface TradeFormData {
   date: string;
-  symbol?: Symbol;         // 商品類型 (MNQ/NQ)，預設 MNQ
+  symbol?: Symbol;         // Product type (MNQ/NQ), default MNQ
   side: TradeSide;
   entry_time: string;
   entry_price: number;
@@ -47,7 +47,7 @@ export interface TradeFormData {
   qty: number;
   fuel_top?: number;
   fuel_bottom?: number;
-  fuel?: number;           // 燃料（上界-下界的絕對值）
+  fuel?: number;           // fuel (upper bound-absolute value of lower bound)
   sl_price?: number;
   tp1?: number;
   tp2?: number;
@@ -55,7 +55,7 @@ export interface TradeFormData {
   broker?: Broker;
   fee?: number;
   notes?: string;
-  // 注意：strategy 已移至 trade_groups 層級，TradeFormData 不再包含此欄位
+  // Notice: strategy Moved to trade_groups Hierarchy, TradeFormData This field is no longer included
 }
 
 // Dashboard Statistics
@@ -106,7 +106,7 @@ export interface TradingStats {
   worstTrade: number;
 }
 
-// Market Event (黑天鵝 / 重大事件標記)
+// Market Event (black swan / Major event markers)
 export type EventSeverity = 'danger' | 'warning' | 'info';
 
 export interface MarketEvent {
@@ -114,7 +114,7 @@ export interface MarketEvent {
   title: string;
   description?: string;
   start_date: string;
-  end_date?: string | null;   // null = 進行中
+  end_date?: string | null;   // null = in progress
   severity: EventSeverity;
   created_by?: string;
   created_at?: string;

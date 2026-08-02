@@ -95,14 +95,14 @@ describe('POST /api/trade-groups/batch — validation', () => {
     const res = await POST(makeRequest({ trades: 'bad' }) as never);
     expect(res.status).toBe(400);
     const body = await res.json();
-    expect(body.error).toMatch(/陣列/);
+    expect(body.error).toMatch(/Array/);
   });
 
   it('rejects empty trades array', async () => {
     const res = await POST(makeRequest({ trades: [] }) as never);
     expect(res.status).toBe(400);
     const body = await res.json();
-    expect(body.error).toMatch(/不可為空/);
+    expect(body.error).toMatch(/Cannot be empty/);
   });
 
   it('rejects invalid side', async () => {

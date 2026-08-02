@@ -1,9 +1,9 @@
 import { sqliteTable, text, integer, real, index } from 'drizzle-orm/sqlite-core';
 
-// 交易記錄
+// Trades
 export const trades = sqliteTable('trades', {
   id: text('id').primaryKey(),
-  date: text('date').notNull(),          // "YYYY-MM-DD" Taipei wall-clock，與 entry_time 同源
+  date: text('date').notNull(),          // "YYYY-MM-DD" Taipei wall-clock, and entry_time Homology
   symbol: text('symbol').default('MNQ'),
   side: text('side').notNull(),          // 'LONG' | 'SHORT'
   entry_time: text('entry_time').notNull(),
@@ -21,9 +21,9 @@ export const trades = sqliteTable('trades', {
   broker: text('broker').default('Manual'),
   fee: real('fee'),
   notes: text('notes'),
-  strategy: text('strategy'),                 // 策略標籤：'STAR' | 'PO3' | '夜星' | NULL（無）
+  strategy: text('strategy'),                 // strategy tag: 'STAR' | 'PO3' | 'night star' | NULL
   external_trade_ids: text('external_trade_ids'),    // Optional external broker execution IDs for dedupe
-  trade_group_id: text('trade_group_id'),    // 同一開倉事件的交易群組 ID
+  trade_group_id: text('trade_group_id'),    // Trading groups with the same opening event ID
   external_account_id: text('external_account_id'),
   created_at: text('created_at'),
   updated_at: text('updated_at'),
@@ -34,13 +34,13 @@ export const trades = sqliteTable('trades', {
   index('trades_group_id_idx').on(t.trade_group_id),
 ]));
 
-// 市場事件（黑天鵝、地緣政治等重大事件標記）
+// market events (black swan, Geopolitical and other major event markers)
 export const market_events = sqliteTable('market_events', {
   id: text('id').primaryKey(),
   title: text('title').notNull(),
   description: text('description'),
   start_date: text('start_date').notNull(),   // YYYY-MM-DD
-  end_date: text('end_date'),                  // YYYY-MM-DD, null = 進行中
+  end_date: text('end_date'),                  // YYYY-MM-DD, null = in progress
   severity: text('severity').notNull(),        // 'danger' | 'warning' | 'info'
   created_by: text('created_by').notNull(),
   created_at: text('created_at'),
@@ -50,7 +50,7 @@ export const market_events = sqliteTable('market_events', {
   index('market_events_end_date_idx').on(t.end_date),
 ]));
 
-// 策略管理
+// Strategy Manager
 export const strategies = sqliteTable('strategies', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull().unique(),
@@ -64,10 +64,10 @@ export const strategies = sqliteTable('strategies', {
   index('strategies_enabled_sort_idx').on(t.enabled, t.sort_order),
 ]));
 
-// 券商管理
+// Broker Manager
 export const brokers = sqliteTable('brokers', {
-  id: text('id').primaryKey(),              // 自訂短 ID，e.g. 'manual'
-  name: text('name').notNull().unique(),    // 顯示名稱，e.g. 'Manual'
+  id: text('id').primaryKey(),              // Custom short ID, e.g. 'manual'
+  name: text('name').notNull().unique(),    // display name, e.g. 'Manual'
   enabled: integer('enabled', { mode: 'boolean' }).notNull().default(true),
   sort_order: integer('sort_order').notNull().default(0),
   created_at: text('created_at'),
@@ -76,7 +76,7 @@ export const brokers = sqliteTable('brokers', {
   index('brokers_enabled_sort_idx').on(t.enabled, t.sort_order),
 ]));
 
-// 券商×商品手續費
+// Brokerage firm×Product fee
 export const broker_fees = sqliteTable('broker_fees', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   broker_id: text('broker_id').notNull().references(() => brokers.id),
@@ -88,7 +88,7 @@ export const broker_fees = sqliteTable('broker_fees', {
   index('broker_fees_broker_symbol_uidx').on(t.broker_id, t.symbol),
 ]));
 
-// 商品管理
+// Product Manager
 export const products = sqliteTable('products', {
   symbol: text('symbol').primaryKey(),
   name: text('name').notNull(),
@@ -105,7 +105,7 @@ export const products = sqliteTable('products', {
   index('products_enabled_sort_idx').on(t.enabled, t.sort_order),
 ]));
 
-// 上傳檔案記錄
+// Upload file record
 export const uploads = sqliteTable('uploads', {
   id: text('id').primaryKey(),
   original_name: text('original_name').notNull(),
@@ -117,7 +117,7 @@ export const uploads = sqliteTable('uploads', {
   created_at: text('created_at'),
 });
 
-// 交易群組 (top-level「一單」)
+// trading group (top-levelOne order)
 export const trade_groups = sqliteTable('trade_groups', {
   id: text('id').primaryKey(),
   date: text('date').notNull(),  // Chicago tz YYYY-MM-DD
@@ -155,7 +155,7 @@ export const trade_groups = sqliteTable('trade_groups', {
   index('trade_groups_strategy_idx').on(t.strategy),
 ]));
 
-// 交易腳 (細部 fills)
+// trading feet (details fills)
 export const trade_legs = sqliteTable('trade_legs', {
   id: text('id').primaryKey(),
   trade_group_id: text('trade_group_id').notNull().references(() => trade_groups.id, { onDelete: 'cascade' }),

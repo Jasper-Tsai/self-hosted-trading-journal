@@ -194,7 +194,7 @@ sqlite.prepare(`
   VALUES ('Default', 1, 1, '#5E6AD2', 1, @now, @now)
 `).run({ now });
 
-// 全域 singleton，避免 Next.js dev mode 熱重載時重複連線
+// All areas singleton, avoid Next.js dev mode Repeated connections during hot reload
 const globalForDb = global as unknown as { _db?: ReturnType<typeof drizzle> };
 
 export const db = globalForDb._db ?? drizzle(sqlite, { schema });

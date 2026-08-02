@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from './button';
-import { getTodayString, getYesterdayString, getWeekdayInChinese, getChicagoDateString, parseDateString } from '@/lib/utils';
+import { getTodayString, getYesterdayString, getWeekdayLabel, getChicagoDateString, parseDateString } from '@/lib/utils';
 
 interface DatePickerProps {
   selectedDate: string;
@@ -84,19 +84,19 @@ export function DatePicker({ selectedDate, onDateChange, className }: DatePicker
 
     // Today
     options.push({
-      label: '今天',
+      label: 'today',
       date: getTodayString(),
       isToday: true
     });
 
     // Yesterday
     options.push({
-      label: '昨天',
+      label: 'yesterday',
       date: getYesterdayString(),
       isToday: false
     });
 
-    // Calculate this week's Monday to determine "上週" prefix
+    // Calculate this week's Monday to determine "last week" prefix
     const todayParts = parseDateString(getTodayString());
     let thisMonday: Date | null = null;
     if (todayParts) {
@@ -117,10 +117,10 @@ export function DatePicker({ selectedDate, onDateChange, className }: DatePicker
         const d = new Date(dateObj.year, dateObj.month - 1, dateObj.day);
         const dayOfWeek = d.getDay();
         if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-          const weekday = getWeekdayInChinese(dateString);
+          const weekday = getWeekdayLabel(dateString);
           const isPreviousWeek = thisMonday && d < thisMonday;
           options.push({
-            label: isPreviousWeek ? `上${weekday}` : `${weekday}`,
+            label: isPreviousWeek ? `Previous ${weekday}` : `${weekday}`,
             date: dateString,
             isToday: false
           });
@@ -146,10 +146,10 @@ export function DatePicker({ selectedDate, onDateChange, className }: DatePicker
 
     const month = parts.month;
     const day = parts.day;
-    const weekday = getWeekdayInChinese(dateString);
+    const weekday = getWeekdayLabel(dateString);
 
     if (dateString === today) {
-      return `今天 ${month}/${day} ${weekday}`;
+      return `Today ${month}/${day} ${weekday}`;
     }
 
     return `${month}/${day} ${weekday}`;
@@ -198,7 +198,7 @@ export function DatePicker({ selectedDate, onDateChange, className }: DatePicker
 
               {/* Quick Date Options */}
               <div>
-                <h3 className="text-xs font-mono tracking-widest text-[#8A8F98] uppercase mb-2">快速選擇</h3>
+                <h3 className="text-xs font-mono tracking-widest text-[#8A8F98] uppercase mb-2">Quick selection</h3>
                 <div className="grid grid-cols-3 gap-1">
                   {getQuickDateOptions().map((option) => (
                     <button
@@ -224,7 +224,7 @@ export function DatePicker({ selectedDate, onDateChange, className }: DatePicker
 
               {/* Custom Date Selector */}
               <div>
-                <h3 className="text-xs font-mono tracking-widest text-[#8A8F98] uppercase mb-2">自訂日期</h3>
+                <h3 className="text-xs font-mono tracking-widest text-[#8A8F98] uppercase mb-2">Custom date</h3>
                 <div className="flex items-center space-x-2">
                   <input
                     type="date"
@@ -237,7 +237,7 @@ export function DatePicker({ selectedDate, onDateChange, className }: DatePicker
                     size="sm"
                     disabled={tempDate === selectedDate}
                   >
-                    確定
+                    Sure
                   </Button>
                 </div>
               </div>
@@ -253,14 +253,14 @@ export function DatePicker({ selectedDate, onDateChange, className }: DatePicker
                   size="sm"
                   disabled={selectedDate === today}
                 >
-                  回到今天
+                  Back to today
                 </Button>
                 <Button
                   onClick={() => setIsOpen(false)}
                   variant="ghost"
                   size="sm"
                 >
-                  關閉
+                  closure
                 </Button>
               </div>
             </div>

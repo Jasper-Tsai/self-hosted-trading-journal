@@ -49,7 +49,7 @@ export function MarketCountdown({ isOpen, nextOpenTime, secondsToOpen }: MarketC
     return (
       <div className="flex items-center gap-2 text-sm font-medium text-gray-400">
         <span className="inline-block w-2 h-2 rounded-full bg-gray-500" />
-        休市
+        Market closed
       </div>
     );
   }
@@ -59,7 +59,7 @@ export function MarketCountdown({ isOpen, nextOpenTime, secondsToOpen }: MarketC
     return (
       <div className="flex items-center gap-2 text-sm font-medium text-green-400">
         <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-        盤中 已開盤 {elapsed} 分鐘
+        intraday Opened {elapsed} minute
       </div>
     );
   }
@@ -67,7 +67,7 @@ export function MarketCountdown({ isOpen, nextOpenTime, secondsToOpen }: MarketC
   return (
     <div className="flex items-center gap-2 text-sm font-medium text-yellow-400">
       <span className="inline-block w-2 h-2 rounded-full bg-yellow-500" />
-      距開盤 {formatTime(remaining)}
+      from opening {formatTime(remaining)}
     </div>
   );
 }

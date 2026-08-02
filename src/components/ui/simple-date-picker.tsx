@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from './button';
-import { getTodayString, getYesterdayString, getWeekdayInChinese, parseDateString } from '@/lib/utils';
+import { getTodayString, getYesterdayString, getWeekdayLabel, parseDateString } from '@/lib/utils';
 
 interface SimpleDatePickerProps {
   selectedDate: string;
@@ -12,24 +12,24 @@ interface SimpleDatePickerProps {
 export function SimpleDatePicker({ selectedDate, onDateChange, className }: SimpleDatePickerProps) {
   const today = getTodayString();
   const yesterday = getYesterdayString();
-  
+
   const formatDisplayDate = (dateString: string) => {
     const parts = parseDateString(dateString);
     if (!parts) return dateString;
 
     const month = parts.month;
     const day = parts.day;
-    const dayName = getWeekdayInChinese(dateString).replace('週', '');
-    
+    const dayName = getWeekdayLabel(dateString);
+
     if (dateString === today) {
-      return `今天 ${month}/${day} (週${dayName})`;
+      return `Today ${month}/${day} (${dayName})`;
     }
-    
+
     if (dateString === yesterday) {
-      return `昨天 ${month}/${day} (週${dayName})`;
+      return `Yesterday ${month}/${day} (${dayName})`;
     }
-    
-    return `${month}/${day} (週${dayName})`;
+
+    return `${month}/${day} (${dayName})`;
   };
 
   const handleTodayClick = () => {
@@ -50,7 +50,7 @@ export function SimpleDatePicker({ selectedDate, onDateChange, className }: Simp
         size="sm"
         disabled={selectedDate === today}
       >
-        {selectedDate === today ? '今天' : '回到今天'}
+        {selectedDate === today ? 'Today' : 'Back to today'}
       </Button>
       <div className="text-sm text-muted-foreground">
         {formatDisplayDate(selectedDate)}

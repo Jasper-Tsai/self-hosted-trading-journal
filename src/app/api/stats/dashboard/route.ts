@@ -11,14 +11,14 @@ export async function GET(req: NextRequest) {
   try {
     const { role } = await verifyRequest(req);
     const date = req.nextUrl.searchParams.get('date');
-    if (!date) return NextResponse.json({ error: '缺少 date 參數' }, { status: 400 });
+    if (!date) return NextResponse.json({ error: 'Lack date parameter' }, { status: 400 });
 
     const isViewerMode = role === 'viewer';
     let dayTrades = await selectTradesWithGroupAttrs()
       .where(eq(trades.date, date));
 
     if (isViewerMode) {
-      // SPEC §4.1：t.strategy 已解析為群組策略，viewer 過濾以「該筆所屬群組是否有策略」為單位
+      // SPEC §4.1: resolve the strategy from the trade group and filter by group.
       dayTrades = dayTrades.filter(t => t.strategy != null && t.strategy !== '');
     }
 
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
       return sum + (pnl * pointValue) - getActualFee(t);
     }, 0);
 
-    // Group-level trade count: distinct trade_group_id, NULL 各自算 1 筆
+    // Group-level trade count: distinct trade_group_id, NULL Calculate each 1 trades
     const tradeCount = new Set(asTrades.map(t => t.trade_group_id ?? t.id ?? `${t.date}_${t.entry_time}`)).size;
     const totalQty = asTrades.reduce((sum, t) => sum + t.qty, 0);
     const avgPnL = totalQty > 0 ? totalPnL / totalQty : 0;

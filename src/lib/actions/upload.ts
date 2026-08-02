@@ -13,7 +13,7 @@ export async function uploadFile(file: File): Promise<string> {
     return data.url as string;
   } catch (error) {
     console.error('Error uploading file:', error);
-    throw new Error('文件上傳失敗');
+    throw new Error('File upload failed');
   }
 }
 
@@ -23,6 +23,6 @@ export async function uploadFiles(files: File[]): Promise<string[]> {
     return await Promise.all(uploadPromises);
   } catch (error) {
     console.error('Error uploading files:', error);
-    throw new Error('批量上傳失敗');
+    throw new Error('Batch upload failed');
   }
 }

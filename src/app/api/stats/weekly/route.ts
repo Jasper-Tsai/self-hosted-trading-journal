@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     const { role } = await verifyRequest(req);
     const year = parseInt(req.nextUrl.searchParams.get('year') ?? '0', 10);
     const month = parseInt(req.nextUrl.searchParams.get('month') ?? '0', 10);
-    if (!year || !month) return NextResponse.json({ error: '缺少 year/month' }, { status: 400 });
+    if (!year || !month) return NextResponse.json({ error: 'Lack year/month' }, { status: 400 });
 
     const isViewerMode = role === 'viewer';
     const lastDay = new Date(year, month, 0).getDate();

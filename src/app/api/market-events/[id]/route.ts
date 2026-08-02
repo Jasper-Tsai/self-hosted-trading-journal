@@ -4,11 +4,11 @@ import { db } from '@/lib/db';
 import { market_events } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
-// PUT /api/market-events/[id] — 僅 owner 可更新
+// PUT /api/market-events/[id] — only owner Updatable
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { role } = await verifyRequest(req);
-    if (role !== 'owner') return NextResponse.json({ error: '無權限' }, { status: 403 });
+    if (role !== 'owner') return NextResponse.json({ error: 'No permission' }, { status: 403 });
 
     const { id } = await params;
     const data = await req.json();
@@ -32,11 +32,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   }
 }
 
-// DELETE /api/market-events/[id] — 僅 owner 可刪除
+// DELETE /api/market-events/[id] — only owner Can be deleted
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { role } = await verifyRequest(req);
-    if (role !== 'owner') return NextResponse.json({ error: '無權限' }, { status: 403 });
+    if (role !== 'owner') return NextResponse.json({ error: 'No permission' }, { status: 403 });
 
     const { id } = await params;
     await db.delete(market_events).where(eq(market_events.id, id));

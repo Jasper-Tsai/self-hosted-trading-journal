@@ -320,12 +320,12 @@ describe('rebuildTradeGroup', () => {
 
 });
 
-// ─── 策略保留不變式測試 ────────────────────────────────────────────────────────
+// ─── Strategy Preserving Invariant Testing ────────────────────────────────────────────────────────
 
 /**
- * buildTxMockWithGroup：支援 rebuildTradeGroup 的兩次 select：
- *   1st call → 查 trades（matched）
- *   2nd call → 查 trade_groups（existingGroup.strategy）
+ * buildTxMockWithGroup: support rebuildTradeGroup twice select:
+ *   1st call → check trades (matched)
+ *   2nd call → check trade_groups (existingGroup.strategy)
  */
 function buildTxMockWithGroup(
   existingGroupStrategy: string | null | undefined,
@@ -341,13 +341,13 @@ function buildTxMockWithGroup(
     select: vi.fn(() => {
       selectCallCount++;
       const callIndex = selectCallCount;
-      // rebuildTradeGroup 呼叫順序：
-      //   1st select = 查 trades（matched）
-      //   2nd select = 查 trade_groups（existingGroup.strategy + existingGroup.notes）
+      // rebuildTradeGroup call sequence:
+      //   1st select = check trades (matched)
+      //   2nd select = check trade_groups (existingGroup.strategy + existingGroup.notes)
       if (callIndex === 1) {
         return makeSelectChain(selectedTrades);
       }
-      // 2nd select = 查 existingGroup（補上 notes: null 確保 schema 相符）
+      // 2nd select = check existingGroup (make up notes: null make sure schema consistent)
       const groupRow = existingGroupStrategy !== undefined
         ? [{ strategy: existingGroupStrategy, notes: null }]
         : [];
@@ -374,12 +374,12 @@ function buildTxMockWithGroup(
   return tx;
 }
 
-// ─── 備注保留不變式測試 ────────────────────────────────────────────────────────
+// ─── Note: Preserve invariant testing ────────────────────────────────────────────────────────
 
 /**
- * buildTxMockWithGroupAttrs：支援 rebuildTradeGroup 的兩次 select：
- *   1st call → 查 trades（matched）
- *   2nd call → 查 trade_groups（existingGroup.strategy + existingGroup.notes）
+ * buildTxMockWithGroupAttrs: support rebuildTradeGroup twice select:
+ *   1st call → check trades (matched)
+ *   2nd call → check trade_groups (existingGroup.strategy + existingGroup.notes)
  */
 function buildTxMockWithGroupAttrs(
   existingGroup: { strategy: string | null; notes: string | null } | undefined,
@@ -398,7 +398,7 @@ function buildTxMockWithGroupAttrs(
       if (callIndex === 1) {
         return makeSelectChain(selectedTrades);
       }
-      // 2nd select = 查 existingGroup（strategy + notes）
+      // 2nd select = check existingGroup (strategy + notes)
       const groupRow = existingGroup !== undefined
         ? [{ strategy: existingGroup.strategy, notes: existingGroup.notes }]
         : [];
@@ -425,23 +425,23 @@ function buildTxMockWithGroupAttrs(
   return tx;
 }
 
-describe('rebuildTradeGroup — 備注保留不變式 (SPEC §4.2)', () => {
+describe('rebuildTradeGroup — Note: retain the invariant (SPEC §4.2)', () => {
 
-  it('群組已存在且 notes="進場位置很好"：重建後保留，不被 first.notes 蓋掉', async () => {
-    const trade = makeTrade({ notes: '舊的種子備注' });
+  it('The group already exists and notes="Good entry position": retained after rebuilding, not be first.notes Cover it up', async () => {
+    const trade = makeTrade({ notes: 'Old seed notes' });
     const tx = buildTxMockWithGroupAttrs(
-      { strategy: null, notes: '進場位置很好' },
+      { strategy: null, notes: 'Good entry position' },
       [trade],
     );
 
     await rebuildTradeGroup(tx as never, 'group1');
 
     const group = capturedGroupValues as Record<string, unknown>;
-    expect(group.notes).toBe('進場位置很好');
+    expect(group.notes).toBe('Good entry position');
   });
 
-  it('群組已存在且 notes=null（使用者清空）：重建後保留 null，不被 first.notes 覆蓋', async () => {
-    const trade = makeTrade({ notes: '有種子備注' });
+  it('The group already exists and notes=null (User clear): retained after rebuilding null, not be first.notes cover', async () => {
+    const trade = makeTrade({ notes: 'There are seed notes' });
     const tx = buildTxMockWithGroupAttrs(
       { strategy: null, notes: null },
       [trade],
@@ -453,18 +453,18 @@ describe('rebuildTradeGroup — 備注保留不變式 (SPEC §4.2)', () => {
     expect(group.notes).toBeNull();
   });
 
-  it('群組首次建立（existingGroup 不存在）：從 first.notes 種子帶入', async () => {
-    const trade = makeTrade({ notes: '初始備注種子' });
-    // existingGroup 不存在 → undefined
+  it('Group created for the first time (existingGroup does not exist): from first.notes Bring in seeds', async () => {
+    const trade = makeTrade({ notes: 'Initial remarks seed' });
+    // existingGroup does not exist → undefined
     const tx = buildTxMockWithGroupAttrs(undefined, [trade]);
 
     await rebuildTradeGroup(tx as never, 'group1');
 
     const group = capturedGroupValues as Record<string, unknown>;
-    expect(group.notes).toBe('初始備注種子');
+    expect(group.notes).toBe('Initial remarks seed');
   });
 
-  it('群組首次建立且 first.notes=null：notes 為 null', async () => {
+  it('The group is created for the first time and first.notes=null: notes for null', async () => {
     const trade = makeTrade({ notes: null });
     const tx = buildTxMockWithGroupAttrs(undefined, [trade]);
 
@@ -476,9 +476,9 @@ describe('rebuildTradeGroup — 備注保留不變式 (SPEC §4.2)', () => {
 
 });
 
-describe('rebuildTradeGroup — 策略保留不變式 (SPEC §4.1)', () => {
+describe('rebuildTradeGroup — strategy preservation invariants (SPEC §4.1)', () => {
 
-  it('群組已存在且 strategy="COW"：重建後保留 "COW"，不被 first.strategy="STAR" 蓋掉', async () => {
+  it('The group already exists and strategy="COW": retained after rebuilding "COW", not be first.strategy="STAR" Cover it up', async () => {
     const trade = makeTrade({ strategy: 'STAR' });
     // existingGroup.strategy = 'COW'
     const tx = buildTxMockWithGroup('COW', [trade]);
@@ -489,9 +489,9 @@ describe('rebuildTradeGroup — 策略保留不變式 (SPEC §4.1)', () => {
     expect(group.strategy).toBe('COW');
   });
 
-  it('群組已存在且 strategy=null（使用者清空）：重建後保留 null，不被 first.strategy 覆蓋', async () => {
+  it('The group already exists and strategy=null (User clear): retained after rebuilding null, not be first.strategy cover', async () => {
     const trade = makeTrade({ strategy: 'STAR' });
-    // existingGroup.strategy = null（使用者已明確清空）
+    // existingGroup.strategy = null (User has explicitly cleared)
     const tx = buildTxMockWithGroup(null, [trade]);
 
     await rebuildTradeGroup(tx as never, 'group1');
@@ -500,9 +500,9 @@ describe('rebuildTradeGroup — 策略保留不變式 (SPEC §4.1)', () => {
     expect(group.strategy).toBeNull();
   });
 
-  it('群組首次建立（existingGroup 不存在）：從 first.strategy 種子帶入', async () => {
+  it('Group created for the first time (existingGroup does not exist): from first.strategy Bring in seeds', async () => {
     const trade = makeTrade({ strategy: 'STAR' });
-    // existingGroup 不存在 → select 回空陣列（undefined）
+    // existingGroup does not exist → select Return empty array (undefined)
     const tx = buildTxMockWithGroup(undefined, [trade]);
 
     await rebuildTradeGroup(tx as never, 'group1');
@@ -511,7 +511,7 @@ describe('rebuildTradeGroup — 策略保留不變式 (SPEC §4.1)', () => {
     expect(group.strategy).toBe('STAR');
   });
 
-  it('群組首次建立且 first.strategy=null：strategy 為 null', async () => {
+  it('The group is created for the first time and first.strategy=null: strategy for null', async () => {
     const trade = makeTrade({ strategy: null });
     const tx = buildTxMockWithGroup(undefined, [trade]);
 

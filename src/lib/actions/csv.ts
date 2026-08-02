@@ -41,7 +41,7 @@ export async function exportTradesToCsv(startDate?: string, endDate?: string) {
       count: trades.length,
     };
   } catch {
-    return { success: false, error: '匯出失敗' };
+    return { success: false, error: 'Export failed' };
   }
 }
 
@@ -65,7 +65,7 @@ function parseCSVLine(line: string): string[] {
 export async function importTradesFromCsv(csvContent: string) {
   try {
     const lines = csvContent.split('\n').filter(line => line.trim());
-    if (lines.length < 2) return { success: false, error: 'CSV 文件為空或格式不正確' };
+    if (lines.length < 2) return { success: false, error: 'CSV File is empty or incorrectly formatted' };
 
     const headers = lines[0].split(',').map(h => h.trim());
     const dataLines = lines.slice(1);
@@ -98,7 +98,7 @@ export async function importTradesFromCsv(csvContent: string) {
 
         if (!tradeData.date || !tradeData.side || !tradeData.entry_time || !tradeData.entry_price || !tradeData.qty) {
           errors++;
-          errorMessages.push(`第 ${i + 2} 行：缺少必填欄位`);
+          errorMessages.push(`Row ${i + 2}: Missing required fields`);
           continue;
         }
 
@@ -106,12 +106,12 @@ export async function importTradesFromCsv(csvContent: string) {
         imported++;
       } catch (error) {
         errors++;
-        errorMessages.push(`第 ${i + 2} 行：${error instanceof Error ? error.message : '解析錯誤'}`);
+        errorMessages.push(`Row ${i + 2}: ${error instanceof Error ? error.message : 'Parse error'}`);
       }
     }
 
     return { success: true, data: { imported, errors, errorMessages: errorMessages.slice(0, 10) } };
   } catch {
-    return { success: false, error: '匯入失敗' };
+    return { success: false, error: 'Import failed' };
   }
 }

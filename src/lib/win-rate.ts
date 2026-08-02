@@ -1,10 +1,10 @@
 /**
  * Win-rate classification rules for trade groups.
  *
- * 平局（breakeven）門檻：每口平均點數損益 |pnl_points / qty| ≤ 5
- * 勝率分母：只計 wins + losses，breakeven 完全排除（不入分子也不入分母）
+ * draw (breakeven)threshold: Average point profit and loss per trade |pnl_points / qty| ≤ 5
+ * winning rate denominator: Just count wins + losses, breakeven completely excluded (Neither the numerator nor the denominator)
  *
- * 詳見 SPEC.md §2.5.2 / §2.5.3。
+ * See details SPEC.md §2.5.2 / §2.5.3.
  */
 
 export const BREAKEVEN_POINTS_PER_CONTRACT = 5;

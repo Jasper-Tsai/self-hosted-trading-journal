@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
         g.amount += amount;
         g.points += pnl;
         g.qty += t.qty;
-        // SPEC §4.1：重構後同群組每筆 t.strategy 已一致，此 fallback 恆取同值（保留不影響結果）
+        // SPEC §4.1: After reconstruction, each transaction in the same group t.strategy Already consistent, this fallback Always take the same value (Keeping does not affect the results)
         if (!g.strategy && t.strategy) g.strategy = t.strategy;
         groupPnL.set(groupKey, g);
       });

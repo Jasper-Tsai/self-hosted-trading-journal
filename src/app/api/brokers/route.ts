@@ -5,8 +5,8 @@ import { brokers, broker_fees } from '@/lib/db/schema';
 import { eq, asc } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 
-// GET /api/brokers — 回傳券商（含 fees map）
-// ?all=1 時回傳全部（含停用），供 owner 管理頁用
+// GET /api/brokers — Return to broker (Contains fees map)
+// ?all=1 Return all (Including deactivation), for owner For management page
 export async function GET(req: NextRequest) {
   try {
     const { role } = await verifyRequest(req);
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
 
     const feeRows = await db.select().from(broker_fees);
 
-    // 建立 fees map：broker_id → { symbol: fee }
+    // Establish fees map: broker_id → { symbol: fee }
     const feesMap = new Map<string, Record<string, number>>();
     for (const f of feeRows) {
       if (!feesMap.has(f.broker_id)) feesMap.set(f.broker_id, {});
@@ -38,19 +38,19 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST /api/brokers — 新增券商
+// POST /api/brokers — Add new broker
 export async function POST(req: NextRequest) {
   try {
     const { role } = await verifyRequest(req);
     if (role !== 'owner') {
-      return NextResponse.json({ error: '無寫入權限' }, { status: 403 });
+      return NextResponse.json({ error: 'No write permission' }, { status: 403 });
     }
 
     const body = await req.json();
     const { name, enabled = true, sort_order = 0, fees = {} } = body;
 
     if (!name || typeof name !== 'string' || name.trim() === '') {
-      return NextResponse.json({ error: '券商名稱不得為空' }, { status: 400 });
+      return NextResponse.json({ error: 'Brokerage name cannot be empty' }, { status: 400 });
     }
 
     const now = new Date().toISOString();
@@ -68,12 +68,12 @@ export async function POST(req: NextRequest) {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes('UNIQUE') || msg.includes('unique')) {
-        return NextResponse.json({ error: '券商名稱已存在' }, { status: 409 });
+        return NextResponse.json({ error: 'The brokerage name already exists' }, { status: 409 });
       }
       throw err;
     }
 
-    // 插入 fees
+    // insert fees
     for (const [symbol, fee] of Object.entries(fees)) {
       if (typeof fee === 'number' && fee >= 0) {
         await db.insert(broker_fees).values({
@@ -90,8 +90,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ...inserted, fees }, { status: 201 });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    if (msg === '無寫入權限') return NextResponse.json({ error: msg }, { status: 403 });
-    if (msg === '未登入' || msg === '無權限') return NextResponse.json({ error: msg }, { status: 401 });
+    if (msg === 'No write permission') return NextResponse.json({ error: msg }, { status: 403 });
+    if (msg === 'Not logged in' || msg === 'No permission') return NextResponse.json({ error: msg }, { status: 401 });
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

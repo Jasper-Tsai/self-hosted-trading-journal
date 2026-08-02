@@ -12,55 +12,55 @@ const ALL_NAV_ITEMS = [
   {
     href: '/',
     pageKey: 'dashboard' as PageKey,
-    label: '今日總覽',
-    description: '查看今日交易統計與圖表'
+    label: "Today's Overview",
+    description: "View today's trading statistics and charts"
   },
   {
     href: '/trades',
     pageKey: 'trades' as PageKey,
-    label: '交易紀錄',
-    description: '新增和管理交易紀錄'
+    label: 'Trades',
+    description: 'Create and manage trades'
   },
   {
     href: '/review',
     pageKey: 'review' as PageKey,
-    label: '回顧分析',
-    description: '週月報表與統計分析'
+    label: 'Review',
+    description: 'Weekly/monthly reports and performance analysis'
   },
   {
     href: '/calendar',
     pageKey: 'calendar' as PageKey,
-    label: '交易日曆',
-    description: '每月盈虧日曆視圖'
+    label: 'Trading Calendar',
+    description: 'Monthly P&L calendar'
   },
   {
     href: '/csv',
     pageKey: 'csv' as PageKey,
     label: 'CSV',
-    description: '匯入與匯出交易資料'
+    description: 'Import and export trade data'
   },
 ];
 
 const OWNER_ONLY_NAV_ITEMS = [
   {
     href: '/strategy-performance',
-    label: '策略績效',
-    description: '各策略總/區間績效、R:R、PF、MaxDD',
+    label: 'Strategy Performance',
+    description: 'Total/range performance by strategy, R:R, PF, MaxDD',
   },
   {
     href: '/strategies',
-    label: '策略管理',
-    description: '管理交易策略清單與預設策略',
+    label: 'Strategy Manager',
+    description: 'Manage trading strategies and defaults',
   },
   {
     href: '/brokers',
-    label: '券商管理',
-    description: '管理券商清單及各商品手續費',
+    label: 'Broker Manager',
+    description: 'Manage brokers and per-contract fees',
   },
   {
     href: '/products',
-    label: '商品管理',
-    description: '管理交易商品清單（MNQ、NQ、SIL 等）',
+    label: 'Product Manager',
+    description: 'Manage trading products (MNQ, NQ, SIL, etc.)',
   },
 ];
 
@@ -74,7 +74,7 @@ export function Navigation({ brandName = 'Self-Hosted Trading Journal', enabledP
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isOwner, isUsingDefaultPassword, signOut } = useAuth();
 
-  // 根據 feature flags 過濾導航項目
+  // according to feature flags Filter navigation items
   const enabledSet = enabledPages ? new Set(enabledPages) : null;
   const navItems = ALL_NAV_ITEMS.filter(item =>
     enabledSet === null || enabledSet.has(item.pageKey)
@@ -149,7 +149,7 @@ export function Navigation({ brandName = 'Self-Hosted Trading Journal', enabledP
               onClick={() => void signOut()}
               className="hidden sm:inline-flex rounded-lg px-3 py-1.5 text-sm font-medium text-[#8A8F98] transition-colors duration-200 hover:bg-white/[0.05] hover:text-[#EDEDEF]"
             >
-              登出
+              Sign out
             </button>
             {/* Mobile Menu Button */}
             <button
@@ -228,7 +228,7 @@ export function Navigation({ brandName = 'Self-Hosted Trading Journal', enabledP
                 onClick={() => void signOut()}
                 className="px-3 py-2.5 text-left text-sm font-medium text-[#8A8F98] transition-colors duration-200 hover:text-[#EDEDEF]"
               >
-                登出
+                Sign out
               </button>
 
             </nav>

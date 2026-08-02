@@ -83,7 +83,7 @@ function MiniBarChart({ row, dd, unit, usdTwd }: MiniBarChartProps) {
     return `${Math.max(0, Math.min(100, ((v - minV) / range) * 100)).toFixed(1)}%`;
   }
 
-  const unitLabel = unit === 'points' ? '點' : unit === 'twd' ? 'TWD' : 'USD';
+  const unitLabel = unit === 'points' ? 'point' : unit === 'twd' ? 'TWD' : 'USD';
 
   return (
     <Card className="p-0">
@@ -98,15 +98,15 @@ function MiniBarChart({ row, dd, unit, usdTwd }: MiniBarChartProps) {
               {row.strategy}
             </CardTitle>
           </div>
-          <span className="text-xs text-[#8A8F98]">{values.length} 筆</span>
+          <span className="text-xs text-[#8A8F98]">{values.length} trades</span>
         </div>
         <CardDescription className="text-xs mt-0.5">
-          {unitLabel} 均 {unit === 'points' ? mean.toFixed(1) : `$${mean.toFixed(2)}`} ／ 中 {unit === 'points' ? median.toFixed(1) : `$${median.toFixed(2)}`}
+          {unitLabel} all {unit === 'points' ? mean.toFixed(1) : `$${mean.toFixed(2)}`} ／ middle {unit === 'points' ? median.toFixed(1) : `$${median.toFixed(2)}`}
         </CardDescription>
       </CardHeader>
       <CardContent className="px-4 pb-4 pt-0">
         {values.length === 0 ? (
-          <div className="h-[120px] flex items-center justify-center text-xs text-[#8A8F98]">暫無資料</div>
+          <div className="h-[120px] flex items-center justify-center text-xs text-[#8A8F98]">No information yet</div>
         ) : (
           <div className="relative" style={{ height: 120 }}>
             {/* Bar chart */}
@@ -121,7 +121,7 @@ function MiniBarChart({ row, dd, unit, usdTwd }: MiniBarChartProps) {
                       bin.isWin ? 'bg-green-500/60' : 'bg-red-500/60'
                     )}
                     style={{ height: barH, minHeight: bin.count > 0 ? 2 : 0 }}
-                    title={`${bin.min.toFixed(1)} ~ ${bin.max.toFixed(1)}: ${bin.count}筆`}
+                    title={`${bin.min.toFixed(1)} ~ ${bin.max.toFixed(1)}: ${bin.count}trades`}
                   />
                 );
               })}
@@ -189,13 +189,13 @@ export function StrategyPnLDistribution({
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <h3 className="text-base font-semibold text-[#EDEDEF]">損益分布</h3>
-        <span className="text-xs text-[#8A8F98]">（各策略獨立分布，直線=均值，白線=中位數）</span>
+        <h3 className="text-base font-semibold text-[#EDEDEF]">Profit and loss distribution</h3>
+        <span className="text-xs text-[#8A8F98]"> (Each strategy is independently distributed, straight line=mean, white line=median)</span>
       </div>
 
       {loading && (
         <div className="h-32 flex items-center justify-center">
-          <div className="text-[#8A8F98] text-sm">載入中...</div>
+          <div className="text-[#8A8F98] text-sm">loading...</div>
         </div>
       )}
 

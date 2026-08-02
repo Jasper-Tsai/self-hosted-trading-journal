@@ -76,7 +76,7 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
       setRollingCurve(response.rollingCurve ?? []);
       setOverallWinRate(response.overallWinRate ?? 0);
     } catch (err) {
-      setError('載入資金曲線失敗');
+      setError('Failed to load equity curve');
       console.error('Error fetching equity curve:', err);
     } finally {
       setLoading(false);
@@ -134,9 +134,9 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
       }
       if (consecutiveDays >= 3) {
         return {
-          title: `近期資金偏離正常軌道（已連續 ${consecutiveDays} 天低於常態下緣）`,
-          why: `累積資金跌破歷史趨勢的 -1σ 通道（白色 dashed 中線下方的灰色虛線）。代表這段期間表現比平常統計範圍更差。`,
-          action: `1. 立刻減倉至平常手數的 50%\n2. 暫停加碼，直到資金回到中線（dashed 線）\n3. 對照最近這 ${consecutiveDays} 天的交易，看是市況變了還是執行紀律滑掉`,
+          title: `Equity below its normal range for ${consecutiveDays} consecutive days`,
+          why: `Cumulative equity is below the historical -1σ trend channel, indicating unusually weak performance.`,
+          action: `1. Reduce size to 50% of normal.\n2. Stop adding risk until equity returns to the midline.\n3. Review the last ${consecutiveDays} days for a market or execution change.`,
         };
       }
     }
@@ -147,9 +147,9 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
     if (lastRolling?.profitFactor != null && lastRolling.profitFactor < 1.0) {
       const pf = lastRolling.profitFactor;
       return {
-        title: `最近 30 筆，賠的比賺的多`,
-        why: `Profit Factor = ${pf.toFixed(2)}（門檻 1.0）。意思：最近 30 筆，所有賺錢交易的總和，比所有賠錢交易的總和還少。每賠 100 元只賺回 ${Math.round(pf * 100)} 元。`,
-        action: `1. 立刻停止實單 3-5 個交易日\n2. 拉出最近 30 筆，逐一比對 Pine spec\n3. 找共通失敗模式（提早出場？止損太緊？沒等回踩？）\n4. 找到問題後，先用 1 口練 2 週驗證，再放大手數`,
+        title: `recent 30 trades, Lose more than you earn`,
+        why: `Profit Factor = ${pf.toFixed(2)}, below the 1.0 threshold. The last 30 trades lost more than they earned.`,
+        action: `1. Stop live trading for 3-5 sessions.\n2. Compare the last 30 trades with the strategy spec.\n3. Identify the common failure pattern.\n4. Validate with one contract before scaling up.`,
       };
     }
 
@@ -158,9 +158,9 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
       const wr = lastRolling.winRate;
       const delta = overallWinRate - wr;
       return {
-        title: `最近 30 筆勝率明顯下降`,
-        why: `最近 30 筆勝率 ${wr.toFixed(1)}%，比你的長期平均（${overallWinRate.toFixed(1)}%）少了 ${delta.toFixed(1)} 個百分點。`,
-        action: `1. 拉出最近 30 筆失敗交易\n2. 找共通模式（同一個進場條件？同一個時段？同一種市況？）\n3. 短期內只進你最有把握的 setup，捨掉邊緣 setup\n4. 縮回 1 口先把勝率穩回來`,
+        title: `recent 30 The win rate drops significantly`,
+        why: `recent 30 win rate ${wr.toFixed(1)}%, than your long-term average (${overallWinRate.toFixed(1)}%)less ${delta.toFixed(1)} percentage points. `,
+        action: `1. Review the last 30 losing trades.\n2. Look for a shared entry, time window, or market condition.\n3. Trade only the highest-confidence setups.\n4. Return to one contract until the win rate stabilizes.`,
       };
     }
 
@@ -250,10 +250,10 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
           const dailyValue = currentViewMode === 'points' ? dataPoint.tradePnL : dataPoint.tradeAmount;
           const cumulativeValue = currentViewMode === 'points' ? dataPoint.cumulativePnL : dataPoint.cumulativeAmount;
           const dailyDisplay = currentViewMode === 'points'
-            ? `${dailyValue >= 0 ? '+' : ''}${dailyValue.toFixed(2)} 點`
+            ? `${dailyValue >= 0 ? '+' : ''}${dailyValue.toFixed(2)} point`
             : formatPnLAmountWithTwd(dailyValue, currentUsdTwdRate);
           const cumulativeDisplay = currentViewMode === 'points'
-            ? `${cumulativeValue >= 0 ? '+' : ''}${cumulativeValue.toFixed(2)} 點`
+            ? `${cumulativeValue >= 0 ? '+' : ''}${cumulativeValue.toFixed(2)} point`
             : formatPnLAmountWithTwd(cumulativeValue, currentUsdTwdRate);
           const dailyColor = dailyValue >= 0 ? '#22c55e' : '#ef4444';
           const cumulativeColor = cumulativeValue >= 0 ? '#22c55e' : '#ef4444';
@@ -262,11 +262,11 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
           tooltip.innerHTML = `
             <div class="font-bold text-white mb-1">${dateStr}</div>
             <div class="flex justify-between gap-4 text-sm">
-              <span class="text-gray-400">當日損益:</span>
+              <span class="text-gray-400">Profit and loss of the day:</span>
               <span style="color: ${dailyColor}">${dailyDisplay}</span>
             </div>
             <div class="flex justify-between gap-4 text-sm">
-              <span class="text-gray-400">累積損益:</span>
+              <span class="text-gray-400">Accumulated profit and loss:</span>
               <span style="color: ${cumulativeColor}">${cumulativeDisplay}</span>
             </div>
           `;
@@ -372,11 +372,11 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
           tooltip.innerHTML = `
             <div class="font-bold text-white mb-1">${dateStr}</div>
             <div class="flex justify-between gap-4 text-sm">
-              <span class="text-gray-400">回撤%:</span>
+              <span class="text-gray-400">retracement%:</span>
               <span class="text-red-400">${dataPoint.drawdownPct.toFixed(2)}%</span>
             </div>
             <div class="flex justify-between gap-4 text-sm">
-              <span class="text-gray-400">回撤金額:</span>
+              <span class="text-gray-400">Drawdown amount:</span>
               <span class="text-red-400">$${dataPoint.drawdownAmt.toFixed(2)}</span>
             </div>
           `;
@@ -543,9 +543,9 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
       <CardHeader>
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <CardTitle>資金曲線 Equity Curve</CardTitle>
+            <CardTitle>Equity Curve</CardTitle>
             <CardDescription>
-              累積盈虧變化趨勢 ({days === 'all' ? '全部歷史' : `${days}天`})
+              Cumulative P&L trend ({days === 'all' ? 'All history' : `${days} days`})
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
@@ -554,14 +554,14 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
               size="sm"
               onClick={() => setViewMode('points')}
             >
-              點數
+              Points
             </Button>
             <Button
               variant={viewMode === 'amount' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('amount')}
             >
-              金額
+              Amount
             </Button>
           </div>
         </div>
@@ -575,7 +575,7 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
               size="sm"
               onClick={() => setDays(d)}
             >
-              {d === 'all' ? '全部' : `${d}天`}
+              {d === 'all' ? 'All' : `${d} days`}
             </Button>
           ))}
         </div>
@@ -585,10 +585,10 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
           <>
             <div className="flex items-center gap-6 text-sm mt-2 flex-wrap">
               <div>
-                <span className="text-muted-foreground">目前累積: </span>
+                <span className="text-muted-foreground">Current total: </span>
                 <span className={currentValue >= 0 ? 'text-green-600 dark:text-green-400 font-semibold' : 'text-red-600 dark:text-red-400 font-semibold'}>
                   {viewMode === 'points'
-                    ? `${currentValue >= 0 ? '+' : ''}${currentValue.toFixed(2)} 點`
+                    ? `${currentValue >= 0 ? '+' : ''}${currentValue.toFixed(2)} point`
                     : formatPnLAmountWithTwd(currentValue, usdTwdRate)
                   }
                 </span>
@@ -596,7 +596,7 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
 
               {growthPercentage !== null && (
                 <div>
-                  <span className="text-muted-foreground">成長: </span>
+                  <span className="text-muted-foreground">Growth: </span>
                   <span className={growthPercentage >= 0 ? 'text-green-600 dark:text-green-400 font-semibold' : 'text-red-600 dark:text-red-400 font-semibold'}>
                     {growthPercentage >= 0 ? '+' : ''}{growthPercentage.toFixed(2)}%
                   </span>
@@ -604,7 +604,7 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
               )}
 
               <div>
-                <span className="text-muted-foreground">交易數: </span>
+                <span className="text-muted-foreground">Trades: </span>
                 <span className="font-semibold">{equityData.length}</span>
               </div>
             </div>
@@ -617,16 +617,16 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
                   className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-red-500/15 hover:bg-red-500/25 text-red-400 text-xs font-medium border border-red-500/30 cursor-pointer transition-colors"
                 >
                   <span>{signalExpanded ? '▼' : '▶'}</span>
-                  <span>⚠ 策略警示：{failureSignal.title}</span>
+                  <span>⚠ Strategy alert: {failureSignal.title}</span>
                 </button>
                 {signalExpanded && (
                   <div className="mt-2 rounded-lg border border-red-500/20 bg-red-500/5 p-3 space-y-2">
                     <div>
-                      <div className="text-xs text-red-400/80 font-semibold mb-0.5">為什麼</div>
+                      <div className="text-xs text-red-400/80 font-semibold mb-0.5">Why</div>
                       <div className="text-sm text-foreground/90">{failureSignal.why}</div>
                     </div>
                     <div>
-                      <div className="text-xs text-red-400/80 font-semibold mb-0.5">怎麼做</div>
+                      <div className="text-xs text-red-400/80 font-semibold mb-0.5">how to do</div>
                       <div className="text-sm text-foreground/90 whitespace-pre-line">{failureSignal.action}</div>
                     </div>
                   </div>
@@ -642,7 +642,7 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
         {!loading && allTimeStats && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
             <div className="bg-muted/10 rounded-lg p-3">
-              <div className="text-xs text-muted-foreground mb-1">最大回撤 ($)</div>
+              <div className="text-xs text-muted-foreground mb-1">maximum drawdown ($)</div>
               <div className="text-lg font-bold text-red-400">
                 ${Math.abs(allTimeStats.maxDrawdownAmt).toFixed(2)}
               </div>
@@ -651,29 +651,29 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
               )}
             </div>
             <div className="bg-muted/10 rounded-lg p-3">
-              <div className="text-xs text-muted-foreground mb-1">最大回撤 (%)</div>
+              <div className="text-xs text-muted-foreground mb-1">maximum drawdown (%)</div>
               <div className="text-lg font-bold text-red-400">
                 {Math.abs(allTimeStats.maxDrawdownPct).toFixed(2)}%
               </div>
               {allTimeStats.maxDrawdownRecoveryDate && (
-                <div className="text-xs text-muted-foreground mt-0.5">恢復: {allTimeStats.maxDrawdownRecoveryDate}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">recover: {allTimeStats.maxDrawdownRecoveryDate}</div>
               )}
             </div>
             <div className="bg-muted/10 rounded-lg p-3">
-              <div className="text-xs text-muted-foreground mb-1">回撤天數</div>
+              <div className="text-xs text-muted-foreground mb-1">Drawback days</div>
               <div className="text-lg font-bold">
-                {allTimeStats.maxDrawdownDays} <span className="text-sm font-normal text-muted-foreground">天</span>
+                {allTimeStats.maxDrawdownDays} <span className="text-sm font-normal text-muted-foreground">days</span>
               </div>
             </div>
             <div className="bg-muted/10 rounded-lg p-3">
-              <div className="text-xs text-muted-foreground mb-1">目前狀態</div>
+              <div className="text-xs text-muted-foreground mb-1">current status</div>
               {allTimeStats.isInDrawdown ? (
                 <div className="text-lg font-bold text-red-400">
-                  回撤中 -{Math.abs(allTimeStats.currentDrawdownPct).toFixed(1)}%
+                  Retracement in progress -{Math.abs(allTimeStats.currentDrawdownPct).toFixed(1)}%
                 </div>
               ) : (
                 <div className="text-lg font-bold text-green-400">
-                  歷史高點
+                  all time high
                 </div>
               )}
             </div>
@@ -682,7 +682,7 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
 
         {loading && (
           <div className="h-[400px] flex items-center justify-center">
-            <div className="text-muted-foreground">載入中...</div>
+            <div className="text-muted-foreground">loading...</div>
           </div>
         )}
 
@@ -694,7 +694,7 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
 
         {!loading && !error && equityData.length === 0 && (
           <div className="h-[400px] flex items-center justify-center">
-            <div className="text-muted-foreground">暫無交易資料</div>
+            <div className="text-muted-foreground">No trade data yet</div>
           </div>
         )}
 
@@ -713,7 +713,7 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
 
         {/* Drawdown Curve Chart */}
         <div className={`mt-4 ${(!loading && !error && drawdownCurve.length > 0) ? 'block' : 'hidden'}`}>
-          <div className="text-sm text-muted-foreground mb-2">回撤曲線 Drawdown Curve</div>
+          <div className="text-sm text-muted-foreground mb-2">retracement curve Drawdown Curve</div>
           <div className="relative overflow-hidden">
             <div
               ref={ddChartContainerRef}
@@ -730,9 +730,9 @@ export function EquityCurve({ className, usdTwdRate = 31.5 }: EquityCurveProps) 
         {/* Rolling 30-trade WR + PF Chart */}
         <div className={`mt-4 ${(!loading && !error && rollingCurve.some(d => d.winRate != null)) ? 'block' : 'hidden'}`}>
           <div className="text-sm text-muted-foreground mb-2 flex items-center gap-3">
-            <span>Rolling 30 筆 勝率 / Profit Factor</span>
-            <span className="text-blue-400 text-xs">&#9644; WR%（左）</span>
-            <span className="text-amber-400 text-xs">&#9644; PF（右）</span>
+            <span>Rolling 30 trades winning rate / Profit Factor</span>
+            <span className="text-blue-400 text-xs">&#9644; WR% (Left)</span>
+            <span className="text-amber-400 text-xs">&#9644; PF (right)</span>
           </div>
           <div className="relative overflow-hidden">
             <div

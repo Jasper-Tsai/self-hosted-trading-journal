@@ -69,7 +69,7 @@ export async function createBroker(
     await apiPost('/api/brokers', input);
     return { success: true };
   } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : '無法新增券商' };
+    return { success: false, error: e instanceof Error ? e.message : 'Unable to add a new brokerage firm' };
   }
 }
 
@@ -81,7 +81,7 @@ export async function updateBroker(
     await apiPatch(`/api/brokers/${encodeURIComponent(id)}`, input);
     return { success: true };
   } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : '無法更新券商' };
+    return { success: false, error: e instanceof Error ? e.message : 'Unable to update brokerage' };
   }
 }
 
@@ -92,6 +92,6 @@ export async function deleteBroker(
     await apiDelete(`/api/brokers/${encodeURIComponent(id)}`);
     return { success: true };
   } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : '無法刪除券商' };
+    return { success: false, error: e instanceof Error ? e.message : 'Unable to delete brokerage' };
   }
 }

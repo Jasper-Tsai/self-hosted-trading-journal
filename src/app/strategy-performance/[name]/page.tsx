@@ -11,7 +11,7 @@ export default function StrategyDrilldownPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <span className="text-muted-foreground">載入中...</span>
+        <span className="text-muted-foreground">loading...</span>
       </div>
     );
   }
@@ -23,7 +23,7 @@ export default function StrategyDrilldownPage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center min-h-[50vh]">
-        <span className="text-muted-foreground">載入中...</span>
+        <span className="text-muted-foreground">loading...</span>
       </div>
     }>
       <DrilldownInner />

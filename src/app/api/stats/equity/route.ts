@@ -144,7 +144,7 @@ export async function GET(req: NextRequest) {
       ? sortedTrades.filter((_, i) => tradePnLs[i] > 0).length / sortedTrades.length * 100
       : 0;
 
-    // --- Drawdown calculations (based on cumulativeAmount, all-time) ---
+    // --- Drawdown calculations (Based on cumulativeAmount, all-time) ---
     let peak = 0;
     let peakDate = '';
     let peakAmount = 0;
