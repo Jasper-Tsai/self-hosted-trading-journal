@@ -151,7 +151,7 @@ export function useStrategyPerformance(): UseStrategyPerformanceResult {
 
     const results = await Promise.allSettled(
       toFetch.map(async name => {
-        const encoded = name === '無' ? '__none__' : encodeURIComponent(name);
+        const encoded = name === 'none' ? '__none__' : encodeURIComponent(name);
         const url = `/api/stats/strategy/${encoded}${qs ? `?${qs}` : ''}`;
         const data = await apiGet<StrategyDrilldownResponse>(url);
         return { name, data };

@@ -6,7 +6,7 @@ import { and, gte, lte, or, isNull } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 
 // GET /api/market-events?start=2026-03-01&end=2026-03-31
-// 取得指定日期範圍內有效的市場事件
+// Get valid market events within a specified date range
 export async function GET(req: NextRequest) {
   try {
     await verifyRequest(req);
@@ -15,10 +15,10 @@ export async function GET(req: NextRequest) {
     const end = req.nextUrl.searchParams.get('end');
 
     if (!start || !end) {
-      return NextResponse.json({ error: '缺少 start/end 參數' }, { status: 400 });
+      return NextResponse.json({ error: 'Lack start/end parameter' }, { status: 400 });
     }
 
-    // 事件在範圍內：start_date <= end AND (end_date >= start OR end_date IS NULL)
+    // event is in scope: start_date <= end AND (end_date >= start OR end_date IS NULL)
     const events = await db
       .select()
       .from(market_events)
@@ -38,11 +38,11 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST /api/market-events — 僅 owner 可新增
+// POST /api/market-events — only owner Can be added
 export async function POST(req: NextRequest) {
   try {
     const { role, email } = await verifyRequest(req);
-    if (role !== 'owner') return NextResponse.json({ error: '無權限' }, { status: 403 });
+    if (role !== 'owner') return NextResponse.json({ error: 'No permission' }, { status: 403 });
 
     const data = await req.json();
     const now = new Date().toISOString();

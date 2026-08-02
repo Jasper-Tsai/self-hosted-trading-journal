@@ -45,7 +45,7 @@ function BrokerFormModal({ broker, symbols, onClose, onSave }: BrokerFormModalPr
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      toast.error('券商名稱不得為空');
+      toast.error('Brokerage name cannot be empty');
       return;
     }
 
@@ -63,19 +63,19 @@ function BrokerFormModal({ broker, symbols, onClose, onSave }: BrokerFormModalPr
           sort_order: parseInt(sortOrder) || 0,
           fees: feesPayload,
         });
-        toast.success('券商已更新');
+        toast.success('Brokerage has been updated');
       } else {
         await apiPost('/api/brokers', {
           name: name.trim(),
           sort_order: parseInt(sortOrder) || 0,
           fees: feesPayload,
         });
-        toast.success('券商已新增');
+        toast.success('Brokerage has been added');
       }
       onSave();
       onClose();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : '操作失敗');
+      toast.error(e instanceof Error ? e.message : 'Operation failed');
     } finally {
       setSaving(false);
     }
@@ -86,24 +86,24 @@ function BrokerFormModal({ broker, symbols, onClose, onSave }: BrokerFormModalPr
       <div className="w-full max-w-lg mx-4 bg-[#0D0D0F] border border-white/[0.08] rounded-xl shadow-2xl">
         <div className="px-6 py-5 border-b border-white/[0.06]">
           <h2 className="text-lg font-semibold text-[#EDEDEF]">
-            {broker ? '編輯券商' : '新增券商'}
+            {broker ? 'Edit broker' : 'Add new broker'}
           </h2>
         </div>
 
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="broker-name">券商名稱</Label>
+              <Label htmlFor="broker-name">Broker name</Label>
               <Input
                 id="broker-name"
                 value={name}
                 onChange={e => setName(e.target.value)}
-                placeholder="例：IB"
+                placeholder="example: IB"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="broker-sort">排序</Label>
+              <Label htmlFor="broker-sort">sort</Label>
               <Input
                 id="broker-sort"
                 type="number"
@@ -115,7 +115,7 @@ function BrokerFormModal({ broker, symbols, onClose, onSave }: BrokerFormModalPr
           </div>
 
           <div>
-            <p className="text-sm font-medium text-[#8A8F98] mb-3">每口手續費 (USD)　空白 = 未設定</p>
+            <p className="text-sm font-medium text-[#8A8F98] mb-3">Fee per contract (USD); blank = not set</p>
             <div className="grid grid-cols-3 gap-3">
               {symbols.map(sym => (
                 <div key={sym}>
@@ -136,10 +136,10 @@ function BrokerFormModal({ broker, symbols, onClose, onSave }: BrokerFormModalPr
 
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="ghost" onClick={onClose} disabled={saving}>
-              取消
+              Cancel
             </Button>
             <Button type="submit" disabled={saving}>
-              {saving ? '儲存中...' : '儲存'}
+              {saving ? 'Storing...' : 'store'}
             </Button>
           </div>
         </form>
@@ -148,7 +148,7 @@ function BrokerFormModal({ broker, symbols, onClose, onSave }: BrokerFormModalPr
   );
 }
 
-// ─── BrokerManager (主元件) ───────────────────────────────────
+// ─── BrokerManager (main component) ───────────────────────────────────
 
 export default function BrokersPage() {
   const { isOwner, loading: authLoading } = useAuth();
@@ -168,20 +168,20 @@ export default function BrokersPage() {
         if (syms.length > 0) setSymbols(syms);
       }
     } catch {
-      // 保持 fallback ['MNQ', 'NQ', 'SIL']
+      // Keep fallback ['MNQ', 'NQ', 'SIL']
     }
   }, []);
 
   const fetchBrokers = useCallback(async () => {
     try {
       setLoading(true);
-      // 呼叫不過濾 enabled 的版本（讓 owner 看全部）
+      // Calls are not filtered enabled version of (let owner See all)
       const res = await fetch('/api/brokers?all=1');
       if (!res.ok) throw new Error(await res.text());
       const rows: BrokerRecord[] = await res.json();
       setBrokers(rows);
     } catch {
-      toast.error('載入券商失敗');
+      toast.error('Failed to load brokerage');
     } finally {
       setLoading(false);
     }
@@ -197,7 +197,7 @@ export default function BrokersPage() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <span className="text-[#8A8F98]">載入中...</span>
+        <span className="text-[#8A8F98]">loading...</span>
       </div>
     );
   }
@@ -217,21 +217,21 @@ export default function BrokersPage() {
   const handleToggleEnabled = async (b: BrokerRecord) => {
     try {
       await apiPatch(`/api/brokers/${encodeURIComponent(b.id)}`, { enabled: !b.enabled });
-      toast.success(b.enabled ? `「${b.name}」已停用` : `「${b.name}」已啟用`);
+      toast.success(b.enabled ? `${b.name}Deactivated` : `${b.name}Enabled`);
       await fetchBrokers();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : '操作失敗');
+      toast.error(e instanceof Error ? e.message : 'Operation failed');
     }
   };
 
   const handleDelete = async (b: BrokerRecord) => {
     try {
       await apiDeleteReq(`/api/brokers/${encodeURIComponent(b.id)}`);
-      toast.success(`「${b.name}」已刪除`);
+      toast.success(`${b.name}Deleted`);
       setDeleteConfirm(null);
       await fetchBrokers();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : '刪除失敗');
+      toast.error(e instanceof Error ? e.message : 'Delete failed');
       setDeleteConfirm(null);
     }
   };
@@ -242,34 +242,34 @@ export default function BrokersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight bg-gradient-to-b from-white via-white/95 to-white/70 bg-clip-text text-transparent">
-            券商管理
+            Broker Manager
           </h1>
           <p className="text-[#8A8F98] mt-1">
-            管理券商清單及各商品的每口手續費
+            Manage the list of brokers and the fees for each product
           </p>
         </div>
-        <Button onClick={handleAdd}>新增券商</Button>
+        <Button onClick={handleAdd}>Add new broker</Button>
       </div>
 
       {/* Table */}
       <div className="rounded-xl border border-white/[0.06] bg-[#0D0D0F] overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-[#8A8F98]">載入中...</div>
+          <div className="p-8 text-center text-[#8A8F98]">loading...</div>
         ) : brokers.length === 0 ? (
-          <div className="p-8 text-center text-[#8A8F98]">尚無券商，點選右上角「新增券商」</div>
+          <div className="p-8 text-center text-[#8A8F98]">No broker yet, Click on the upper right cornerAdd new broker</div>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/[0.06]">
-                <th className="px-5 py-3 text-left font-medium text-[#8A8F98]">名稱</th>
-                <th className="px-5 py-3 text-center font-medium text-[#8A8F98]">排序</th>
-                <th className="px-5 py-3 text-center font-medium text-[#8A8F98]">狀態</th>
+                <th className="px-5 py-3 text-left font-medium text-[#8A8F98]">name</th>
+                <th className="px-5 py-3 text-center font-medium text-[#8A8F98]">sort</th>
+                <th className="px-5 py-3 text-center font-medium text-[#8A8F98]">state</th>
                 {symbols.map(sym => (
                   <th key={sym} className="px-4 py-3 text-center font-medium text-[#8A8F98]">
-                    {sym} 手續費
+                    {sym} fee
                   </th>
                 ))}
-                <th className="px-5 py-3 text-right font-medium text-[#8A8F98]">操作</th>
+                <th className="px-5 py-3 text-right font-medium text-[#8A8F98]">operate</th>
               </tr>
             </thead>
             <tbody>
@@ -290,7 +290,7 @@ export default function BrokersPage() {
                           : 'bg-white/[0.04] text-[#8A8F98] border border-white/[0.08]'
                       }`}
                     >
-                      {b.enabled ? '啟用' : '停用'}
+                      {b.enabled ? 'enable' : 'deactivate'}
                     </span>
                   </td>
                   {symbols.map(sym => (
@@ -306,19 +306,19 @@ export default function BrokersPage() {
                         onClick={() => handleEdit(b)}
                         className="px-3 py-1 text-xs rounded-md bg-white/[0.06] hover:bg-white/[0.10] text-[#EDEDEF] transition-colors duration-150"
                       >
-                        編輯
+                        edit
                       </button>
                       <button
                         onClick={() => handleToggleEnabled(b)}
                         className="px-3 py-1 text-xs rounded-md bg-white/[0.06] hover:bg-white/[0.10] text-[#8A8F98] transition-colors duration-150"
                       >
-                        {b.enabled ? '停用' : '啟用'}
+                        {b.enabled ? 'deactivate' : 'enable'}
                       </button>
                       <button
                         onClick={() => setDeleteConfirm(b)}
                         className="px-3 py-1 text-xs rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-colors duration-150"
                       >
-                        刪除
+                        delete
                       </button>
                     </div>
                   </td>
@@ -342,20 +342,20 @@ export default function BrokersPage() {
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="w-full max-w-sm mx-4 bg-[#0D0D0F] border border-white/[0.08] rounded-xl shadow-2xl p-6 space-y-4">
-            <h2 className="text-lg font-semibold text-[#EDEDEF]">確認刪除</h2>
+            <h2 className="text-lg font-semibold text-[#EDEDEF]">Confirm deletion</h2>
             <p className="text-[#8A8F98] text-sm">
-              確定要刪除券商「<span className="text-white font-medium">{deleteConfirm.name}</span>」嗎？
-              若已有交易紀錄使用此券商，將無法刪除。
+              Confirm to delete the broker<span className="text-white font-medium">{deleteConfirm.name}</span>??
+              If you already have trades, use this brokerage, will not be able to be deleted.
             </p>
             <div className="flex justify-end gap-3">
               <Button variant="ghost" onClick={() => setDeleteConfirm(null)}>
-                取消
+                Cancel
               </Button>
               <Button
                 variant="destructive"
                 onClick={() => handleDelete(deleteConfirm)}
               >
-                確認刪除
+                Confirm deletion
               </Button>
             </div>
           </div>

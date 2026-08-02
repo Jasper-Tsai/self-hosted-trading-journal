@@ -8,7 +8,7 @@ import { rebuildTradeGroup } from '@/lib/actions/trade-group-sync';
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { role } = await verifyRequest(req);
-    if (role !== 'owner') return NextResponse.json({ error: '無寫入權限' }, { status: 403 });
+    if (role !== 'owner') return NextResponse.json({ error: 'No write permission' }, { status: 403 });
 
     const { id } = await params;
     const data = await req.json();
@@ -24,9 +24,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       fuel: 'fuel', sl_price: 'sl_price',
       tp1: 'tp1', tp2: 'tp2', tp3: 'tp3',
       broker: 'broker', fee: 'fee',
-      // ⚠️ notes 與 strategy 均已移至 trade_groups 層（SPEC §4.1 / §4.2）。
-      // trades.notes / trades.strategy 僅作為建立時的種子，編輯既有交易不再更新。
-      // 編輯備注走 PATCH /api/trade-groups/[id]；編輯策略同理。
+      // ⚠️ notes and strategy have been moved to trade_groups layer (SPEC §4.1 / §4.2).
+      // trades.notes / trades.strategy Only as a seed for creation, Editing existing transactions will no longer update.
+      // Editor's Notes Go PATCH /api/trade-groups/[id];Same editing strategy.
     };
 
     for (const [key, col] of Object.entries(fieldMap)) {
@@ -63,7 +63,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { role } = await verifyRequest(req);
-    if (role !== 'owner') return NextResponse.json({ error: '無寫入權限' }, { status: 403 });
+    if (role !== 'owner') return NextResponse.json({ error: 'No write permission' }, { status: 403 });
 
     const { id } = await params;
 

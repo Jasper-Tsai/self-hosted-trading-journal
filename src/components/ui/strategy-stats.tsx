@@ -21,10 +21,10 @@ interface StrategyStatsData {
 type RangeDays = 30 | 90 | 180 | 'all';
 
 const RANGE_OPTIONS: { label: string; value: RangeDays }[] = [
-  { label: '30天', value: 30 },
-  { label: '90天', value: 90 },
-  { label: '180天', value: 180 },
-  { label: '全部', value: 'all' },
+  { label: '30 days', value: 30 },
+  { label: '90 days', value: 90 },
+  { label: '180 days', value: 180 },
+  { label: 'all', value: 'all' },
 ];
 
 export function StrategyStats({ className }: { className?: string }) {
@@ -43,7 +43,7 @@ export function StrategyStats({ className }: { className?: string }) {
         );
         setData(result);
       } catch {
-        setError('載入策略勝率失敗');
+        setError('Failed to load strategy win rate');
       } finally {
         setLoading(false);
       }
@@ -63,8 +63,8 @@ export function StrategyStats({ className }: { className?: string }) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>策略勝率統計</CardTitle>
-            <CardDescription>各策略歷史勝率與近期區間勝率</CardDescription>
+            <CardTitle>Strategy win rate statistics</CardTitle>
+            <CardDescription>Historical and recent win rates by strategy</CardDescription>
           </div>
           <div className="flex gap-2">
             {RANGE_OPTIONS.map((opt) => (
@@ -83,7 +83,7 @@ export function StrategyStats({ className }: { className?: string }) {
       <CardContent>
         {loading && (
           <div className="flex items-center justify-center h-32">
-            <span className="text-muted-foreground">載入中...</span>
+            <span className="text-muted-foreground">loading...</span>
           </div>
         )}
         {error && (
@@ -94,14 +94,14 @@ export function StrategyStats({ className }: { className?: string }) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="text-left py-2 pr-4 text-muted-foreground font-medium">策略</th>
-                  <th className="text-right py-2 px-3 text-muted-foreground font-medium">歷史筆數</th>
-                  <th className="text-right py-2 px-3 text-muted-foreground font-medium">歷史勝率</th>
+                  <th className="text-left py-2 pr-4 text-muted-foreground font-medium">Strategy</th>
+                  <th className="text-right py-2 px-3 text-muted-foreground font-medium">Historical trades</th>
+                  <th className="text-right py-2 px-3 text-muted-foreground font-medium">Historical win rate</th>
                   <th className="text-right py-2 px-3 text-muted-foreground font-medium">
-                    近 {rangeDays === 'all' ? '全部' : `${rangeDays}天`} 筆數
+                    Closed {rangeDays === 'all' ? 'all' : `${rangeDays} days`} trades
                   </th>
                   <th className="text-right py-2 pl-3 text-muted-foreground font-medium">
-                    近 {rangeDays === 'all' ? '全部' : `${rangeDays}天`} 勝率
+                    Closed {rangeDays === 'all' ? 'all' : `${rangeDays} days`} win rate
                   </th>
                 </tr>
               </thead>
@@ -111,8 +111,8 @@ export function StrategyStats({ className }: { className?: string }) {
                   return (
                     <tr key={row.strategy} className="border-b border-white/5 hover:bg-white/[0.02]">
                       <td className="py-3 pr-4 font-medium">
-                        {row.strategy === '無' ? (
-                          <span className="text-muted-foreground">無</span>
+                        {row.strategy === 'none' ? (
+                          <span className="text-muted-foreground">none</span>
                         ) : (
                           <span
                             className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold"

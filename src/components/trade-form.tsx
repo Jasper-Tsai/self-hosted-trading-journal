@@ -203,15 +203,15 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
     apiGet<BrokerRecord[]>('/api/brokers')
       .then(rows => setDbBrokers(rows))
       .catch(() => setDbBrokers([]));
-    // 更新商品 cache，讓 getProductConfig 能取得最新的 priceStep / pointValue
+    // Update product cache, let getProductConfig can get the latest priceStep / pointValue
     apiGet<Array<{ symbol: string; name: string; name_zh: string; tick_size: number; point_value: number; price_step: number; owner_only: boolean }>>('/api/products')
       .then(rows => updateProductCache(rows))
-      .catch(() => {/* 保持 fallback cache */});
+      .catch(() => {/* Keep fallback cache */});
   }, []);
 
-  // 取得當前商品配置（用於動態 step）
+  // Get current product configuration (for dynamic step)
 
-  // 取得當前時間作為新增交易的預設值
+  // Get the current time as the default value for new transactions
   const getDefaultTime = () => getCurrentTaipeiDateTime();
 
   const [formData, setFormData] = useState({
@@ -261,7 +261,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
       // Edit mode: always single mode
       setIsMultiExit(false);
     } else {
-      // Reset form when no trade is selected - 新增交易時預設帶入當前時間
+      // Reset form when no trade is selected - When adding a transaction, the current time is brought in by default
       const currentTime = getCurrentTaipeiDateTime();
       setFormData({
         date: initialDate,
@@ -392,7 +392,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
 
   // ─── Broker options ──────────────────────────────────────────────────────
 
-  // 動態券商選項：從 DB 讀取，若尚未載入則用靜態 fallback
+  // Dynamic brokerage options: from DB read, If it has not been loaded yet, use static fallback
   const brokerOptions = dbBrokers.length > 0
     ? dbBrokers.map(b => ({ value: b.name, label: b.name }))
     : [
@@ -406,7 +406,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
         [field]: value
       };
 
-      // 自動計算燃料當燃料區上界或下界改變時
+      // Automatically calculate fuel when the upper or lower fuel zone boundary changes
       if (field === 'fuel_top' || field === 'fuel_bottom') {
         const fuelTop = field === 'fuel_top' ? parseFloat(value as string) : parseFloat(prev.fuel_top);
         const fuelBottom = field === 'fuel_bottom' ? parseFloat(value as string) : parseFloat(prev.fuel_bottom);
@@ -418,13 +418,13 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
         }
       }
 
-      // 自動計算手續費當券商、商品或口數改變時
+      // Automatically calculate fees as a broker, When the product or quantity changes
       const symbol = (field === 'symbol' ? value as Symbol : prev.symbol) as Symbol;
       const broker = (field === 'broker' ? value as Broker : prev.broker) as Broker;
       const qty = field === 'qty' ? parseInt(value as string) : parseInt(prev.qty);
 
       if (broker && !isNaN(qty) && qty > 0 && (field === 'broker' || field === 'symbol' || field === 'qty')) {
-        // 從 DB 券商 fees map 查詢手續費
+        // from DB Brokerage firm fees map Inquiry fee
         const brokerRecord = dbBrokers.find(b => b.name === broker);
         if (brokerRecord) {
           const feePerContract = brokerRecord.fees[symbol] ?? 0;
@@ -434,7 +434,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
             updated.fee = '';
           }
         } else if (field === 'broker') {
-          // 未知券商（可能尚未載入），清空手續費讓使用者手動填
+          // Unknown broker (May not be loaded yet), Clear the fee and let users fill it in manually
           updated.fee = '';
         }
       }
@@ -458,7 +458,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
     // Validation
     if (!formData.side || !formData.entry_time || !formData.entry_price ||
       !formData.qty) {
-      toast.error('請填寫所有必填欄位');
+      toast.error('Please fill in all required fields');
       return;
     }
 
@@ -466,7 +466,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
     const qty = parseInt(formData.qty);
 
     if (isNaN(entryPrice) || entryPrice <= 0 || isNaN(qty) || qty <= 0) {
-      toast.error('請輸入有效的價格和口數');
+      toast.error('Please enter a valid price and quantity');
       return;
     }
 
@@ -500,15 +500,15 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
       if (trade?.id) {
         const result = await updateTrade(String(trade.id), tradeData as Partial<Trade>);
         if (!result.success) {
-          throw new Error(result.error || '更新失敗');
+          throw new Error(result.error || 'Update failed');
         }
-        toast.success('交易紀錄已更新');
+        toast.success('Trade updated');
       } else {
         const result = await createTrade(tradeData as Omit<Trade, 'id' | 'created_at' | 'updated_at'>);
         if (!result.success) {
-          throw new Error(result.error || '創建失敗');
+          throw new Error(result.error || 'Creation failed');
         }
-        toast.success('交易紀錄已新增');
+        toast.success('Trade created');
       }
 
       resetForm();
@@ -516,8 +516,8 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
 
     } catch (error) {
       console.error('Save error:', error);
-      const errorMessage = error instanceof Error ? error.message : '未知錯誤';
-      toast.error(`儲存失敗: ${errorMessage}`);
+      const errorMessage = error instanceof Error ? error.message : 'unknown error';
+      toast.error(`Save failed: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -527,7 +527,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
 
   const handleMultiExitSubmit = async () => {
     if (!formData.side) {
-      toast.error('請選擇交易方向');
+      toast.error('Please select the trading direction');
       return;
     }
 
@@ -535,13 +535,13 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
     for (let i = 0; i < entries.length; i++) {
       const entry = entries[i];
       if (!entry.entry_time || !entry.entry_price || !entry.qty) {
-        toast.error(`進場 ${i + 1} 欄位不完整`);
+        toast.error(`Entry ${i + 1}: incomplete fields`);
         return;
       }
       const ep = parseFloat(entry.entry_price);
       const q = parseInt(entry.qty);
       if (isNaN(ep) || ep <= 0 || isNaN(q) || q <= 0) {
-        toast.error(`進場 ${i + 1} 數值無效`);
+        toast.error(`Entry ${i + 1}: invalid values`);
         return;
       }
     }
@@ -550,13 +550,13 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
     for (let i = 0; i < exits.length; i++) {
       const exit = exits[i];
       if (!exit.exit_time || !exit.exit_price || !exit.qty) {
-        toast.error(`出場 ${i + 1} 欄位不完整`);
+        toast.error(`Exit ${i + 1}: incomplete fields`);
         return;
       }
       const ep = parseFloat(exit.exit_price);
       const q = parseInt(exit.qty);
       if (isNaN(ep) || ep <= 0 || isNaN(q) || q <= 0) {
-        toast.error(`出場 ${i + 1} 數值無效`);
+        toast.error(`Exit ${i + 1}: invalid values`);
         return;
       }
     }
@@ -565,7 +565,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
     const sumEntryQty = entries.reduce((acc, row) => acc + (parseInt(row.qty) || 0), 0);
     const sumExitQty = exits.reduce((acc, row) => acc + (parseInt(row.qty) || 0), 0);
     if (sumEntryQty !== sumExitQty) {
-      toast.error(`進場口數總和 (${sumEntryQty}) 必須等於出場口數總和 (${sumExitQty})`);
+      toast.error(`Total entry contracts (${sumEntryQty}) Must be equal to total exit contracts (${sumExitQty})`);
       return;
     }
 
@@ -631,15 +631,15 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
         { trades: batchTrades },
       );
       if (!result.success) {
-        throw new Error(result.error || '創建失敗');
+        throw new Error(result.error || 'Creation failed');
       }
 
-      toast.success(`進場 ${entries.length} 筆 × 出場 ${exits.length} 筆，共新增 ${fifoRows.length} 筆交易`);
+      toast.success(`Matched ${entries.length} entries × ${exits.length} exits into ${fifoRows.length} trades`);
       resetForm();
       onSubmit?.();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '未知錯誤';
-      toast.error(`儲存失敗: ${errorMessage}`);
+      const errorMessage = error instanceof Error ? error.message : 'unknown error';
+      toast.error(`Save failed: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -682,15 +682,15 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
     <LoadingOverlay isLoading={loading}>
       <Card>
         <CardHeader>
-          <CardTitle>{trade ? '編輯交易' : '新增交易'}</CardTitle>
+          <CardTitle>{trade ? 'Edit trade' : 'Add trade'}</CardTitle>
           <CardDescription>
-            輸入交易詳細資訊，系統將自動計算盈虧
+            Enter trade details. P&L is calculated automatically.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
 
-            {/* ── 分段 TP 模式 toggle（新增模式才顯示） ── */}
+            {/* ── Partial take-profit toggle (new trades only) ── */}
             {!trade && (
               <div className="flex items-center gap-3 py-2 px-3 rounded-md border border-white/[0.06] bg-white/[0.02]">
                 <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -700,16 +700,16 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                     onChange={(e) => handleToggleMultiExit(e.target.checked)}
                     className="w-4 h-4 rounded border-white/[0.20] bg-white/[0.05] accent-blue-500 cursor-pointer"
                   />
-                  <span className="text-sm font-medium text-[#EDEDEF]">分段 TP 模式</span>
+                  <span className="text-sm font-medium text-[#EDEDEF]">Partial take-profit</span>
                 </label>
-                <span className="text-xs text-[#8A8F98]">開啟後可記錄多個出場點，自動分配同一 group</span>
+                <span className="text-xs text-[#8A8F98]">Record multiple exits under one trade group.</span>
               </div>
             )}
 
             {/* Basic Info */}
             <div className="space-y-4">
               <div>
-                <Label htmlFor="date">交易日期</Label>
+                <Label htmlFor="date">Trade date</Label>
                 <Input
                   id="date"
                   type="date"
@@ -720,7 +720,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>商品</Label>
+                  <Label>Product</Label>
                   <div className="flex gap-2 mt-2">
                     <button
                       type="button"
@@ -757,7 +757,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                   </div>
                 </div>
                 <div>
-                  <Label>交易方向</Label>
+                  <Label>Trading direction</Label>
                   <div className="flex gap-2 mt-2">
                     <button
                       type="button"
@@ -767,7 +767,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                         }`}
                       onClick={() => handleInputChange('side', 'LONG')}
                     >
-                      多
+                      many
                     </button>
                     <button
                       type="button"
@@ -777,7 +777,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                         }`}
                       onClick={() => handleInputChange('side', 'SHORT')}
                     >
-                      空
+                      null
                     </button>
                   </div>
                 </div>
@@ -787,10 +787,10 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
             {/* Entry Details — single mode */}
             {!isMultiExit && (
               <div className="space-y-4">
-                <h4 className="text-lg font-medium">進場資訊</h4>
+                <h4 className="text-lg font-medium">Entry information</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="min-w-0">
-                    <Label htmlFor="entry_time">進場時間</Label>
+                    <Label htmlFor="entry_time">Entry time</Label>
                     <Input
                       id="entry_time"
                       type="datetime-local"
@@ -801,7 +801,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="entry_price">進場價格</Label>
+                    <Label htmlFor="entry_price">Entry price</Label>
                       <Input
                         id="entry_price"
                         type="number"
@@ -813,7 +813,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="qty">口數</Label>
+                      <Label htmlFor="qty">Contracts</Label>
                       <Input
                         id="qty"
                         type="number"
@@ -829,19 +829,19 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
               </div>
             )}
 
-            {/* ── N entries + M exits 進階模式 ── */}
+            {/* ── N entries + M exits Advanced mode ── */}
             {isMultiExit ? (
               <div className="space-y-4">
 
-                {/* ── Entry fills 區塊 ── */}
+                {/* ── Entry fills block ── */}
                 <div className="space-y-3 p-4 rounded-lg border border-white/[0.08] bg-white/[0.03]">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-base font-medium">Entry fills（進場）</h4>
+                    <h4 className="text-base font-medium">Entry fills (Entry)</h4>
                     {(() => {
                       const sumQty = entries.reduce((acc, r) => acc + (parseInt(r.qty) || 0), 0);
                       return (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-blue-900/40 text-blue-300">
-                          {sumQty} 口
+                          {sumQty} contracts
                         </span>
                       );
                     })()}
@@ -860,14 +860,14 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                             onClick={() => handleRemoveEntry(entry.id)}
                             disabled={entries.length <= 1}
                             className="w-5 h-5 flex items-center justify-center rounded text-[#8A8F98] hover:text-red-400 hover:bg-red-900/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-xs"
-                            aria-label={`刪除 Entry ${idx + 1}`}
+                            aria-label={`delete Entry ${idx + 1}`}
                           >
                             ✕
                           </button>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div>
-                            <Label className="text-xs">進場時間</Label>
+                            <Label className="text-xs">Entry time</Label>
                             <Input
                               type="datetime-local"
                               value={entry.entry_time}
@@ -876,7 +876,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                           </div>
                           <div className="grid grid-cols-2 gap-2">
                             <div>
-                              <Label className="text-xs">進場價格</Label>
+                            <Label className="text-xs">Entry price</Label>
                               <Input
                                 type="number"
                                 step={getProductConfig(formData.symbol).priceStep}
@@ -886,7 +886,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                               />
                             </div>
                             <div>
-                              <Label className="text-xs">口數</Label>
+                              <Label className="text-xs">Contracts</Label>
                               <Input
                                 type="number"
                                 min="1"
@@ -898,11 +898,11 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                           </div>
                         </div>
                         <div className="w-full md:w-1/4">
-                          <Label className="text-xs">進場手續費 (USD)</Label>
+                          <Label className="text-xs">Entry fee (USD)</Label>
                           <Input
                             type="number"
                             step="0.01"
-                            placeholder={getAutoExitFee(parseInt(entry.qty) || 1) || '自動'}
+                            placeholder={getAutoExitFee(parseInt(entry.qty) || 1) || 'automatic'}
                             value={entry.fee}
                             onChange={(e) => handleEntryChange(entry.id, 'fee', e.target.value)}
                           />
@@ -917,19 +917,19 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                     className="w-full py-2 px-3 rounded-md text-sm font-medium border border-dashed border-white/[0.12] text-[#8A8F98] hover:text-[#EDEDEF] hover:border-white/[0.20] hover:bg-white/[0.03] transition-all duration-200 flex items-center justify-center gap-1"
                   >
                     <span className="text-base leading-none">+</span>
-                    <span>新增進場</span>
+                    <span>Add new entry</span>
                   </button>
                 </div>
 
-                {/* ── Exit fills 區塊 ── */}
+                {/* ── Exit fills block ── */}
                 <div className="space-y-3 p-4 rounded-lg border border-white/[0.08] bg-white/[0.03]">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-base font-medium">Exit fills（出場）</h4>
+                    <h4 className="text-base font-medium">Exit fills</h4>
                     {(() => {
                       const sumExitQty = exits.reduce((acc, r) => acc + (parseInt(r.qty) || 0), 0);
                       return (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-purple-900/40 text-purple-300">
-                          {sumExitQty} 口
+                          {sumExitQty} contracts
                         </span>
                       );
                     })()}
@@ -963,7 +963,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                                 onClick={() => handleRemoveExit(exit.id)}
                                 disabled={exits.length <= 1}
                                 className="w-5 h-5 flex items-center justify-center rounded text-[#8A8F98] hover:text-red-400 hover:bg-red-900/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-xs"
-                                aria-label={`刪除 TP${idx + 1}`}
+                                aria-label={`delete TP${idx + 1}`}
                               >
                                 ✕
                               </button>
@@ -971,7 +971,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
-                              <Label className="text-xs">出場時間</Label>
+                              <Label className="text-xs">Exit time</Label>
                               <Input
                                 type="datetime-local"
                                 value={exit.exit_time}
@@ -980,7 +980,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                             </div>
                             <div className="grid grid-cols-2 gap-2">
                               <div>
-                                <Label className="text-xs">出場價格</Label>
+                        <Label className="text-xs">Exit price</Label>
                                 <Input
                                   type="number"
                                   step={getProductConfig(formData.symbol).priceStep}
@@ -990,7 +990,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                                 />
                               </div>
                               <div>
-                                <Label className="text-xs">口數</Label>
+                                <Label className="text-xs">Contracts</Label>
                                 <Input
                                   type="number"
                                   min="1"
@@ -1002,11 +1002,11 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                             </div>
                           </div>
                           <div className="w-full md:w-1/4">
-                            <Label className="text-xs">出場手續費 (USD)</Label>
+                            <Label className="text-xs">Exit fee (USD)</Label>
                             <Input
                               type="number"
                               step="0.01"
-                              placeholder={getAutoExitFee(parseInt(exit.qty) || 1) || '自動'}
+                              placeholder={getAutoExitFee(parseInt(exit.qty) || 1) || 'automatic'}
                               value={exit.fee}
                               onChange={(e) => handleExitChange(exit.id, 'fee', e.target.value)}
                             />
@@ -1022,21 +1022,21 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                     className="w-full py-2 px-3 rounded-md text-sm font-medium border border-dashed border-white/[0.12] text-[#8A8F98] hover:text-[#EDEDEF] hover:border-white/[0.20] hover:bg-white/[0.03] transition-all duration-200 flex items-center justify-center gap-1"
                   >
                     <span className="text-base leading-none">+</span>
-                    <span>新增出場</span>
+                    <span>Add exit</span>
                   </button>
                 </div>
 
-                {/* ── Qty 對齊指示 ── */}
+                {/* ── Qty Alignment instructions ── */}
                 {(() => {
                   const sumEntryQty = entries.reduce((acc, r) => acc + (parseInt(r.qty) || 0), 0);
                   const sumExitQty = exits.reduce((acc, r) => acc + (parseInt(r.qty) || 0), 0);
                   const matched = sumEntryQty > 0 && sumEntryQty === sumExitQty;
                   return (
                     <div className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm ${matched ? 'bg-green-900/20 text-green-400' : 'bg-yellow-900/20 text-yellow-400'}`}>
-                      <span>入: {sumEntryQty} 口</span>
+                      <span>Entry: {sumEntryQty} contracts</span>
                       <span className="text-[#8A8F98]">｜</span>
-                      <span>出: {sumExitQty} 口</span>
-                      <span>{matched ? '✅' : '⚠️ 不符'}</span>
+                      <span>Exit: {sumExitQty} contracts</span>
+                      <span>{matched ? '✅' : '⚠️ Does not match'}</span>
                     </div>
                   );
                 })()}
@@ -1045,10 +1045,10 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                 {currentPnL !== null && (
                   <div className={`p-3 rounded-md ${currentPnL >= 0 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">總預估盈虧：</span>
+                      <span className="text-sm font-medium">Total estimated profit and loss: </span>
                       <div className="text-right">
                         <div className={`text-lg font-bold ${currentPnL >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                          {currentPnL >= 0 ? '+' : ''}{currentPnL.toFixed(2)} 點
+                          {currentPnL >= 0 ? '+' : ''}{currentPnL.toFixed(2)} point
                         </div>
                         <div className="text-sm text-muted-foreground">
                           {calculatePnLAmount(currentPnL, 0, formData.symbol as Symbol).toFixed(2)} USD
@@ -1061,10 +1061,10 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
             ) : (
               /* ── Single mode exit section (original) ── */
               <div className="space-y-4">
-                <h4 className="text-lg font-medium">出場資訊</h4>
+                <h4 className="text-lg font-medium">Exit information</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="min-w-0">
-                    <Label htmlFor="exit_time">出場時間</Label>
+                    <Label htmlFor="exit_time">Exit time</Label>
                     <Input
                       id="exit_time"
                       type="datetime-local"
@@ -1073,7 +1073,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="exit_price">出場價格</Label>
+                    <Label htmlFor="exit_price">Exit price</Label>
                     <Input
                       id="exit_price"
                       type="number"
@@ -1088,10 +1088,10 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                 {currentPnL !== null && (
                   <div className={`p-3 rounded-md ${currentPnL >= 0 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">預估盈虧：</span>
+                      <span className="text-sm font-medium">Estimated profit and loss: </span>
                       <div className="text-right">
                         <div className={`text-lg font-bold ${currentPnL >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                          {currentPnL >= 0 ? '+' : ''}{currentPnL.toFixed(2)} 點
+                          {currentPnL >= 0 ? '+' : ''}{currentPnL.toFixed(2)} point
                         </div>
                         <div className="text-sm text-muted-foreground">
                           {calculatePnLAmount(currentPnL, parseFloat(formData.fee) || 0, formData.symbol as Symbol).toFixed(2)} USD
@@ -1105,10 +1105,10 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
 
             {/* Risk Management */}
             <div className="space-y-4">
-              <h4 className="text-lg font-medium">風險管理</h4>
+              <h4 className="text-lg font-medium">Risk management</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <Label htmlFor="sl_price">SL 價格</Label>
+                  <Label htmlFor="sl_price">SL price</Label>
                   <Input
                     id="sl_price"
                     type="number"
@@ -1119,7 +1119,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="tp1">TP1 價格</Label>
+                  <Label htmlFor="tp1">TP1 price</Label>
                   <Input
                     id="tp1"
                     type="number"
@@ -1130,7 +1130,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="tp2">TP2 價格</Label>
+                  <Label htmlFor="tp2">TP2 price</Label>
                   <Input
                     id="tp2"
                     type="number"
@@ -1141,7 +1141,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="tp3">TP3 價格</Label>
+                  <Label htmlFor="tp3">TP3 price</Label>
                   <Input
                     id="tp3"
                     type="number"
@@ -1158,7 +1158,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="fuel_top">燃料區上界</Label>
+                  <Label htmlFor="fuel_top">Fuel zone upper bound</Label>
                   <Input
                     id="fuel_top"
                     type="number"
@@ -1168,7 +1168,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="fuel_bottom">燃料區下界</Label>
+                  <Label htmlFor="fuel_bottom">Fuel zone lower bound</Label>
                   <Input
                     id="fuel_bottom"
                     type="number"
@@ -1179,30 +1179,30 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                 </div>
               </div>
 
-              {/* 燃料計算顯示 */}
+              {/* fuel calculation display */}
               {formData.fuel && (
                 <div className="mt-2 p-3 bg-muted rounded-md">
-                  <div className="text-sm text-muted-foreground">燃料</div>
+                  <div className="text-sm text-muted-foreground">Fuel</div>
                   <div className="font-medium text-lg">
-                    {formData.fuel} 點
+                    {formData.fuel} point
                   </div>
                 </div>
               )}
 
               <div>
-                <Label htmlFor="broker">券商</Label>
+                <Label htmlFor="broker">Broker</Label>
                 <Select
                   value={formData.broker}
                   onChange={(e) => handleInputChange('broker', e.target.value)}
                   options={brokerOptions}
-                  placeholder="選擇券商"
+                  placeholder="Select a broker"
                 />
               </div>
 
-              {/* 手續費（進階模式下隱藏，改為每個 entry/exit row 各自填） */}
+              {/* fee (Hidden in advanced mode, Change to each entry/exit row Fill in each) */}
               {!isMultiExit && (
                 <div>
-                  <Label htmlFor="fee">手續費 (USD)</Label>
+                  <Label htmlFor="fee">Fee (USD)</Label>
                   {(() => {
                     const brokerRecord = dbBrokers.find(b => b.name === formData.broker);
                     const feePerContract = brokerRecord?.fees[formData.symbol] ?? null;
@@ -1221,7 +1221,7 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
                         />
                         {hasKnownFee && (
                           <p className="text-xs text-muted-foreground mt-1">
-                            {formData.broker}: ${feePerContract}/口 × {formData.qty || 0} 口
+                            {formData.broker}: ${feePerContract}/contracts × {formData.qty || 0} contracts
                           </p>
                         )}
                       </>
@@ -1231,14 +1231,13 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
               )}
             </div>
 
-            {/* Notes — 僅新增模式顯示；編輯既有交易時隱藏（SPEC §4.2：備注真相在群組層，
-                 編輯既有交易的備注請在卡片上的 textarea 進行，避免「改了沒反應」的 UX 陷阱） */}
+            {/* Notes are captured on create and edited at the group level afterward. */}
             {!trade && (
               <div>
-                <Label htmlFor="notes">交易備註</Label>
+                <Label htmlFor="notes">Trade notes</Label>
                 <Textarea
                   id="notes"
-                  placeholder="記錄交易心得、市場觀察等..."
+                  placeholder="Record trade notes and market observations..."
                   rows={3}
                   value={formData.notes}
                   onChange={(e) => handleInputChange('notes', e.target.value)}
@@ -1249,10 +1248,10 @@ export function TradeForm({ initialDate, trade, onSubmit }: TradeFormProps) {
             {/* Submit Button */}
             <div className="flex space-x-2">
               <Button type="submit" size="lg">
-                {trade ? '更新交易' : isMultiExit ? `儲存進階模式（${entries.length} 進 × ${exits.length} 出）` : '儲存交易'}
+                {trade ? 'Update trade' : isMultiExit ? `Save partial exits (${entries.length} entries × ${exits.length} exits)` : 'Save trade'}
               </Button>
               <Button type="button" variant="outline" onClick={resetForm}>
-                重設
+                Reset
               </Button>
             </div>
           </form>

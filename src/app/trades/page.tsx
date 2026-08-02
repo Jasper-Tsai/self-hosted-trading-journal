@@ -31,7 +31,7 @@ function TradesContent() {
     }
   }, [dateFromUrl]);
 
-  // Viewer 無法訪問交易紀錄頁面
+  // Viewer Unable to access Trades page
   if (isViewer) {
     return <AccessDenied />;
   }
@@ -60,14 +60,14 @@ function TradesContent() {
     const today = getTodayString();
 
     if (dateString === today) {
-      return '交易紀錄';
+      return 'Trades';
     }
 
     const parts = parseDateString(dateString);
-    if (!parts) return `交易紀錄 - ${dateString}`;
+    if (!parts) return `Trades - ${dateString}`;
     const month = parts.month;
     const day = parts.day;
-    return `交易紀錄 - ${month}月${day}日`;
+    return `Trades - ${month}/${day}`;
   };
 
   return (
@@ -78,7 +78,7 @@ function TradesContent() {
             {formatDateTitle(selectedDate)}
           </h1>
           <p className="text-muted-foreground">
-            新增和管理您的交易紀錄，自動計算盈虧與統計
+            Create and manage trades. P&L and statistics are calculated automatically.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -108,7 +108,7 @@ function TradesContent() {
 
 export default function TradesPage() {
   return (
-    <Suspense fallback={<div className="text-muted-foreground">載入交易頁面...</div>}>
+    <Suspense fallback={<div className="text-muted-foreground">Load trades page...</div>}>
       <TradesContent />
     </Suspense>
   );

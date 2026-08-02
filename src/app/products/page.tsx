@@ -69,7 +69,7 @@ function ProductFormModal({ product, onClose, onSave }: ProductFormModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.symbol.trim() || !form.name.trim() || !form.name_zh.trim()) {
-      toast.error('商品代號和名稱不得為空');
+      toast.error('Product code and name cannot be empty');
       return;
     }
     const payload = {
@@ -90,16 +90,16 @@ function ProductFormModal({ product, onClose, onSave }: ProductFormModalProps) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { symbol: _sym, ...updatePayload } = payload;
         await apiPatch(`/api/products/${encodeURIComponent(product.symbol)}`, updatePayload);
-        toast.success('商品已更新');
+        toast.success('Product has been updated');
       } else {
         await apiPost('/api/products', payload);
-        toast.success('商品已新增');
+        toast.success('Product has been added');
       }
       onSave();
       onClose();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : '操作失敗';
-      // API 回傳的是 JSON 字串，嘗試解析
+      const msg = e instanceof Error ? e.message : 'Operation failed';
+      // API What is returned is JSON String, try to parse
       try {
         const parsed = JSON.parse(msg);
         toast.error(parsed.error ?? msg);
@@ -116,15 +116,15 @@ function ProductFormModal({ product, onClose, onSave }: ProductFormModalProps) {
       <div className="w-full max-w-lg mx-4 bg-[#0D0D0F] border border-white/[0.08] rounded-xl shadow-2xl">
         <div className="px-6 py-5 border-b border-white/[0.06]">
           <h2 className="text-lg font-semibold text-[#EDEDEF]">
-            {product ? '編輯商品' : '新增商品'}
+            {product ? 'Edit product' : 'Add new product'}
           </h2>
         </div>
 
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
-          {/* 第一列：symbol + sort_order */}
+          {/* first column: symbol + sort_order */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="p-symbol">商品代號</Label>
+              <Label htmlFor="p-symbol">Product code</Label>
               <Input
                 id="p-symbol"
                 value={form.symbol}
@@ -135,7 +135,7 @@ function ProductFormModal({ product, onClose, onSave }: ProductFormModalProps) {
               />
             </div>
             <div>
-              <Label htmlFor="p-sort">排序</Label>
+              <Label htmlFor="p-sort">sort</Label>
               <Input
                 id="p-sort"
                 type="number"
@@ -146,20 +146,20 @@ function ProductFormModal({ product, onClose, onSave }: ProductFormModalProps) {
             </div>
           </div>
 
-          {/* 第二列：中文名 + 英文名 */}
+          {/* second column: alternate name + display name */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="p-name-zh">中文名稱</Label>
+              <Label htmlFor="p-name-zh">Alternate name</Label>
               <Input
                 id="p-name-zh"
                 value={form.name_zh}
                 onChange={e => set('name_zh', e.target.value)}
-                placeholder="微型那斯達克"
+                placeholder="Miniature Nasdaq"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="p-name">英文名稱</Label>
+              <Label htmlFor="p-name">English name</Label>
               <Input
                 id="p-name"
                 value={form.name}
@@ -170,7 +170,7 @@ function ProductFormModal({ product, onClose, onSave }: ProductFormModalProps) {
             </div>
           </div>
 
-          {/* 第三列：tick_size + point_value + price_step */}
+          {/* third column: tick_size + point_value + price_step */}
           <div className="grid grid-cols-3 gap-3">
             <div>
               <Label htmlFor="p-tick">Tick Size</Label>
@@ -210,7 +210,7 @@ function ProductFormModal({ product, onClose, onSave }: ProductFormModalProps) {
             </div>
           </div>
 
-          {/* 第四列：ownerOnly + enabled */}
+          {/* fourth column: ownerOnly + enabled */}
           <div className="flex items-center gap-6">
             <label className="flex items-center gap-2 cursor-pointer select-none">
               <input
@@ -219,7 +219,7 @@ function ProductFormModal({ product, onClose, onSave }: ProductFormModalProps) {
                 onChange={e => set('owner_only', e.target.checked)}
                 className="w-4 h-4 accent-[#5E6AD2]"
               />
-              <span className="text-sm text-[#8A8F98]">僅 Owner 可見</span>
+              <span className="text-sm text-[#8A8F98]">only Owner visible</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer select-none">
               <input
@@ -228,16 +228,16 @@ function ProductFormModal({ product, onClose, onSave }: ProductFormModalProps) {
                 onChange={e => set('enabled', e.target.checked)}
                 className="w-4 h-4 accent-emerald-500"
               />
-              <span className="text-sm text-[#8A8F98]">啟用</span>
+              <span className="text-sm text-[#8A8F98]">enable</span>
             </label>
           </div>
 
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="ghost" onClick={onClose} disabled={saving}>
-              取消
+              Cancel
             </Button>
             <Button type="submit" disabled={saving}>
-              {saving ? '儲存中...' : '儲存'}
+              {saving ? 'Storing...' : 'store'}
             </Button>
           </div>
         </form>
@@ -246,7 +246,7 @@ function ProductFormModal({ product, onClose, onSave }: ProductFormModalProps) {
   );
 }
 
-// ─── ProductsPage（主元件）──────────────────────────────────────
+// ─── ProductsPage (main component)──────────────────────────────────────
 
 export default function ProductsPage() {
   const { isOwner, loading: authLoading } = useAuth();
@@ -264,7 +264,7 @@ export default function ProductsPage() {
       const rows: ProductRecord[] = await res.json();
       setProductList(rows);
     } catch {
-      toast.error('載入商品失敗');
+      toast.error('Failed to load product');
     } finally {
       setLoading(false);
     }
@@ -277,7 +277,7 @@ export default function ProductsPage() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <span className="text-[#8A8F98]">載入中...</span>
+        <span className="text-[#8A8F98]">loading...</span>
       </div>
     );
   }
@@ -297,21 +297,21 @@ export default function ProductsPage() {
   const handleToggleEnabled = async (p: ProductRecord) => {
     try {
       await apiPatch(`/api/products/${encodeURIComponent(p.symbol)}`, { enabled: !p.enabled });
-      toast.success(p.enabled ? `「${p.symbol}」已停用` : `「${p.symbol}」已啟用`);
+      toast.success(p.enabled ? `${p.symbol}Deactivated` : `${p.symbol}Enabled`);
       await fetchProducts();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : '操作失敗');
+      toast.error(e instanceof Error ? e.message : 'Operation failed');
     }
   };
 
   const handleDelete = async (p: ProductRecord) => {
     try {
       await apiDeleteReq(`/api/products/${encodeURIComponent(p.symbol)}`);
-      toast.success(`「${p.symbol}」已刪除`);
+      toast.success(`${p.symbol}Deleted`);
       setDeleteConfirm(null);
       await fetchProducts();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : '刪除失敗';
+      const msg = e instanceof Error ? e.message : 'Delete failed';
       try {
         const parsed = JSON.parse(msg);
         toast.error(parsed.error ?? msg);
@@ -328,35 +328,35 @@ export default function ProductsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight bg-gradient-to-b from-white via-white/95 to-white/70 bg-clip-text text-transparent">
-            商品管理
+            Product Manager
           </h1>
           <p className="text-[#8A8F98] mt-1">
-            管理交易商品清單（MNQ、NQ、SIL 等）
+            Manage trading product list (MNQ, NQ, SIL, etc.)
           </p>
         </div>
-        <Button onClick={handleAdd}>新增商品</Button>
+        <Button onClick={handleAdd}>Add new product</Button>
       </div>
 
       {/* Table */}
       <div className="rounded-xl border border-white/[0.06] bg-[#0D0D0F] overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-[#8A8F98]">載入中...</div>
+          <div className="p-8 text-center text-[#8A8F98]">loading...</div>
         ) : productList.length === 0 ? (
-          <div className="p-8 text-center text-[#8A8F98]">尚無商品，點選右上角「新增商品」</div>
+          <div className="p-8 text-center text-[#8A8F98]">No products yet, Click on the upper right cornerAdd new product</div>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/[0.06]">
-                <th className="px-5 py-3 text-left font-medium text-[#8A8F98]">代號</th>
-                <th className="px-5 py-3 text-left font-medium text-[#8A8F98]">中文名</th>
-                <th className="px-5 py-3 text-left font-medium text-[#8A8F98]">英文名</th>
+                <th className="px-5 py-3 text-left font-medium text-[#8A8F98]">code name</th>
+                <th className="px-5 py-3 text-left font-medium text-[#8A8F98]">Alternate name</th>
+                <th className="px-5 py-3 text-left font-medium text-[#8A8F98]">English name</th>
                 <th className="px-4 py-3 text-center font-medium text-[#8A8F98]">Tick</th>
                 <th className="px-4 py-3 text-center font-medium text-[#8A8F98]">Point $</th>
                 <th className="px-4 py-3 text-center font-medium text-[#8A8F98]">Step</th>
-                <th className="px-4 py-3 text-center font-medium text-[#8A8F98]">排序</th>
+                <th className="px-4 py-3 text-center font-medium text-[#8A8F98]">sort</th>
                 <th className="px-4 py-3 text-center font-medium text-[#8A8F98]">Owner Only</th>
-                <th className="px-4 py-3 text-center font-medium text-[#8A8F98]">狀態</th>
-                <th className="px-5 py-3 text-right font-medium text-[#8A8F98]">操作</th>
+                <th className="px-4 py-3 text-center font-medium text-[#8A8F98]">state</th>
+                <th className="px-5 py-3 text-right font-medium text-[#8A8F98]">operate</th>
               </tr>
             </thead>
             <tbody>
@@ -391,7 +391,7 @@ export default function ProductsPage() {
                           : 'bg-white/[0.04] text-[#8A8F98] border border-white/[0.08]'
                       }`}
                     >
-                      {p.enabled ? '啟用' : '停用'}
+                      {p.enabled ? 'enable' : 'deactivate'}
                     </span>
                   </td>
                   <td className="px-5 py-4">
@@ -400,19 +400,19 @@ export default function ProductsPage() {
                         onClick={() => handleEdit(p)}
                         className="px-3 py-1 text-xs rounded-md bg-white/[0.06] hover:bg-white/[0.10] text-[#EDEDEF] transition-colors duration-150"
                       >
-                        編輯
+                        edit
                       </button>
                       <button
                         onClick={() => handleToggleEnabled(p)}
                         className="px-3 py-1 text-xs rounded-md bg-white/[0.06] hover:bg-white/[0.10] text-[#8A8F98] transition-colors duration-150"
                       >
-                        {p.enabled ? '停用' : '啟用'}
+                        {p.enabled ? 'deactivate' : 'enable'}
                       </button>
                       <button
                         onClick={() => setDeleteConfirm(p)}
                         className="px-3 py-1 text-xs rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-colors duration-150"
                       >
-                        刪除
+                        delete
                       </button>
                     </div>
                   </td>
@@ -435,20 +435,20 @@ export default function ProductsPage() {
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="w-full max-w-sm mx-4 bg-[#0D0D0F] border border-white/[0.08] rounded-xl shadow-2xl p-6 space-y-4">
-            <h2 className="text-lg font-semibold text-[#EDEDEF]">確認刪除</h2>
+            <h2 className="text-lg font-semibold text-[#EDEDEF]">Confirm deletion</h2>
             <p className="text-[#8A8F98] text-sm">
-              確定要刪除商品「<span className="text-white font-medium">{deleteConfirm.symbol}</span>（{deleteConfirm.name_zh}）」嗎？
-              若已有交易紀錄或手續費設定使用此商品，將無法刪除。
+              Confirm you want to delete the product<span className="text-white font-medium">{deleteConfirm.symbol}</span> ({deleteConfirm.name_zh})??
+              Use this product if you already have trades or fee settings, will not be able to be deleted.
             </p>
             <div className="flex justify-end gap-3">
               <Button variant="ghost" onClick={() => setDeleteConfirm(null)}>
-                取消
+                Cancel
               </Button>
               <Button
                 variant="destructive"
                 onClick={() => handleDelete(deleteConfirm)}
               >
-                確認刪除
+                Confirm deletion
               </Button>
             </div>
           </div>

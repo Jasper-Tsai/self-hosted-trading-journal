@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   try {
     await verifyRequest(req);
     const date = req.nextUrl.searchParams.get('date');
-    if (!date) return NextResponse.json({ error: '缺少 date 參數' }, { status: 400 });
+    if (!date) return NextResponse.json({ error: 'Lack date parameter' }, { status: 400 });
 
     const result = await selectTradesWithGroupAttrs()
       .where(eq(trades.date, date))

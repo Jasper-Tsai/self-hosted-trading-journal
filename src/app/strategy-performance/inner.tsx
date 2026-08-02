@@ -29,10 +29,10 @@ export function StrategyPerformanceInner() {
       {/* Header */}
       <div>
         <h1 className="text-2xl md:text-3xl font-semibold tracking-tight bg-gradient-to-b from-white via-white/95 to-white/70 bg-clip-text text-transparent">
-          策略績效
+          strategy performance
         </h1>
         <p className="text-[#8A8F98] mt-1">
-          {data?.rangeLabel ? `${data.rangeLabel} · ` : ''}各策略總損益、R:R、PF、MaxDD 對照
+          {data?.rangeLabel ? `${data.rangeLabel} · ` : ''}Total profit and loss of each strategy, R:R, PF, MaxDD control
         </p>
       </div>
 
@@ -46,7 +46,7 @@ export function StrategyPerformanceInner() {
       {/* Error */}
       {error && (
         <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-          載入失敗：{error}
+          Loading failed: {error}
         </div>
       )}
 
@@ -121,7 +121,7 @@ export function StrategyPerformanceInner() {
 
       {!loading && !error && rows.length === 0 && (
         <div className="flex items-center justify-center h-40 text-[#8A8F98]">
-          暫無策略績效資料
+          No strategy performance data yet
         </div>
       )}
     </div>

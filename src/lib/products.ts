@@ -1,18 +1,18 @@
 /**
  * products.ts
  *
- * 商品設定的統一入口。
+ * Unified entrance for product settings.
  *
- * - Server side (actions / API routes)：改用 src/lib/actions/products.ts
- * - Client side：
- *   - getProductConfig() 仍保留為同步，使用本地 fallback 快取，
- *     讓 trade-form 等 client component 在 priceStep / pointValue 取值時不需要 await
- *   - 動態商品清單請改用 /api/products（SWR/fetch）
+ * - Server side (actions / API routes): Use instead src/lib/actions/products.ts
+ * - Client side:
+ *   - getProductConfig() remain in sync, Use local fallback cache,
+ *     let trade-form wait client component exist priceStep / pointValue Not required when taking the value await
+ *   - Please use dynamic product list instead /api/products (SWR/fetch)
  */
 
 // ─── Types ───────────────────────────────────────────────────
 
-/** @deprecated fees 欄位已移至 broker_fees 表，此欄位僅保留型別相容 */
+/** @deprecated fees Field moved to broker_fees surface, This field only retains type compatibility */
 export interface ProductConfig {
   symbol: string;
   name: string;
@@ -24,18 +24,18 @@ export interface ProductConfig {
 }
 
 // ─── Client-side fallback cache ───────────────────────────────
-// 這個 map 作為 getProductConfig() 的同步 fallback，
-// 當 /api/products 回傳後可透過 updateProductCache() 更新
+// this map as getProductConfig() synchronization fallback,
+// when /api/products You can pass the updateProductCache() renew
 
 const _cache = new Map<string, ProductConfig>([
-  ['MNQ', { symbol: 'MNQ', name: 'Micro E-mini NASDAQ', nameZh: '微型那斯達克', tickSize: 0.25, pointValue: 2, priceStep: 0.25, ownerOnly: false }],
-  ['NQ',  { symbol: 'NQ',  name: 'E-mini NASDAQ',        nameZh: '那斯達克',     tickSize: 0.25, pointValue: 20, priceStep: 0.25, ownerOnly: false }],
-  ['SIL', { symbol: 'SIL', name: 'Micro Silver',          nameZh: '微白銀',       tickSize: 0.5,  pointValue: 10, priceStep: 0.5,  ownerOnly: true  }],
+  ['MNQ', { symbol: 'MNQ', name: 'Micro E-mini NASDAQ', nameZh: 'Miniature Nasdaq', tickSize: 0.25, pointValue: 2, priceStep: 0.25, ownerOnly: false }],
+  ['NQ',  { symbol: 'NQ',  name: 'E-mini NASDAQ',        nameZh: 'Nasdaq',     tickSize: 0.25, pointValue: 20, priceStep: 0.25, ownerOnly: false }],
+  ['SIL', { symbol: 'SIL', name: 'Micro Silver',          nameZh: 'Microsilver',       tickSize: 0.5,  pointValue: 10, priceStep: 0.5,  ownerOnly: true  }],
 ]);
 
 /**
- * 更新 client-side 快取（在 /api/products 回傳後呼叫）
- * 供 trade-form 或其他 client component 注入最新資料
+ * renew client-side cache (exist /api/products Call after postback)
+ * for trade-form or other client component Inject the latest information
  */
 export function updateProductCache(rows: Array<{
   symbol: string; name: string; name_zh: string;
@@ -55,24 +55,24 @@ export function updateProductCache(rows: Array<{
   }
 }
 
-// ─── Sync helpers（client component 使用）────────────────────
+// ─── Sync helpers (client component use)────────────────────
 
-/** 同步取得商品配置，未找到時回傳 MNQ fallback */
+/** Get product configuration synchronously, Return when not found MNQ fallback */
 export function getProductConfig(symbol: string): ProductConfig {
   return _cache.get(symbol) ?? _cache.get('MNQ')!;
 }
 
-/** 同步取得所有 symbol（快取版，client component 用） */
+/** Get all synchronously symbol (cache version, client component use) */
 export function getAllSymbolsCached(): string[] {
   return Array.from(_cache.keys());
 }
 
-/** 同步取得 viewer symbol（快取版，排除 ownerOnly） */
+/** Get synchronously viewer symbol (cache version, exclude ownerOnly) */
 export function getViewerSymbolsCached(): string[] {
   return Array.from(_cache.values()).filter(p => !p.ownerOnly).map(p => p.symbol);
 }
 
 // ─── NOTE ─────────────────────────────────────────────────────
 // Async / server-side helpers (getAllSymbols, listProducts, etc.)
-// 請直接 import from '@/lib/actions/products'（server component / API route 專用）
-// 此檔案只包含 client-safe 的同步工具，不可 import server-only modules。
+// Please direct import from '@/lib/actions/products' (server component / API route dedicated)
+// This file only contains client-safe sync tool, No import server-only modules.

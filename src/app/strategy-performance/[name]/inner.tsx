@@ -15,7 +15,7 @@ function fmtUsd(v: number): string {
   return `${v >= 0 ? '+' : ''}$${Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 function fmtPts(v: number): string {
-  return `${v >= 0 ? '+' : ''}${v.toFixed(2)} 點`;
+  return `${v >= 0 ? '+' : ''}${v.toFixed(2)} point`;
 }
 function fmtTwd(v: number, rate: number): string {
   const twd = Math.round(v * rate);
@@ -37,7 +37,7 @@ function MonthlyBarChart({
   unit: PnLUnit;
   usdTwd: number;
 }) {
-  if (monthly.length === 0) return <div className="text-[#8A8F98] text-sm py-4">暫無月度資料</div>;
+  if (monthly.length === 0) return <div className="text-[#8A8F98] text-sm py-4">No monthly data yet</div>;
 
   const values = monthly.map(m =>
     unit === 'points' ? m.pnlPoints : unit === 'twd' ? m.pnlUsd * usdTwd : m.pnlUsd
@@ -62,7 +62,7 @@ function MonthlyBarChart({
               <div
                 className={cn('w-7 rounded-t-sm', isPos ? 'bg-green-500/60' : 'bg-red-500/60')}
                 style={{ height: Math.max(h, 2) }}
-                title={`${m.month}: ${v.toFixed(2)} | ${m.trades}筆 | 勝率${m.winRate}%`}
+                title={`${m.month}: ${v.toFixed(2)} | ${m.trades} trades | win rate ${m.winRate}%`}
               />
               {/* month label */}
               <span className="text-[9px] text-[#8A8F98] whitespace-nowrap">{m.month.slice(2)}</span>
@@ -82,7 +82,7 @@ export function DrilldownInner() {
 
   const rawName = Array.isArray(params.name) ? params.name[0] : (params.name ?? '');
   const strategyName = decodeURIComponent(rawName);
-  const displayName = strategyName === '__none__' ? '無' : strategyName;
+  const displayName = strategyName === '__none__' ? 'none' : strategyName;
 
   const [data, setData] = useState<StrategyDrilldownResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -119,7 +119,7 @@ export function DrilldownInner() {
   const color = data?.color ?? '#8A8F98';
 
   const unitOptions: { value: PnLUnit; label: string }[] = [
-    { value: 'points', label: '點數' },
+    { value: 'points', label: 'Points' },
     { value: 'usd', label: 'USD' },
     { value: 'twd', label: 'TWD' },
   ];
@@ -129,7 +129,7 @@ export function DrilldownInner() {
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-[#8A8F98]">
         <Link href="/strategy-performance" className="hover:text-[#EDEDEF] transition-colors">
-          策略績效
+          strategy performance
         </Link>
         <span>/</span>
         <span className="text-[#EDEDEF]">{displayName}</span>
@@ -146,7 +146,7 @@ export function DrilldownInner() {
             {displayName}
           </span>
           <h1 className="text-2xl md:text-3xl font-semibold tracking-tight bg-gradient-to-b from-white via-white/95 to-white/70 bg-clip-text text-transparent">
-            策略 Drilldown
+            Strategy Drilldown
           </h1>
         </div>
         {/* Unit toggle */}
@@ -190,13 +190,13 @@ export function DrilldownInner() {
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
             {[
               {
-                label: '總損益',
+                label: 'Total profit and loss',
                 value: fmtPnL(summary.totalPnLUsd, summary.totalPnLPoints, unit, usdTwd),
                 cls: summary.totalPnLUsd >= 0 ? 'text-green-400' : 'text-red-400',
               },
-              { label: '筆數', value: String(summary.trades), cls: 'text-[#EDEDEF]' },
+              { label: 'Trades', value: String(summary.trades), cls: 'text-[#EDEDEF]' },
               {
-                label: '勝率',
+                label: 'winning rate',
                 value: `${summary.winRate.toFixed(1)}%`,
                 cls: summary.winRate >= 55 ? 'text-green-400' : summary.winRate >= 45 ? 'text-yellow-400' : 'text-red-400',
               },
@@ -206,7 +206,7 @@ export function DrilldownInner() {
                 cls: summary.profitFactor === null ? 'text-[#8A8F98]' : summary.profitFactor >= 2 ? 'text-green-400' : summary.profitFactor >= 1 ? 'text-yellow-400' : 'text-red-400',
               },
               {
-                label: 'EV/筆',
+                label: 'EV/trades',
                 value: fmtUsd(summary.expectancyUsd),
                 cls: summary.expectancyUsd >= 0 ? 'text-green-400' : 'text-red-400',
               },
@@ -233,7 +233,7 @@ export function DrilldownInner() {
           {/* Monthly P&L */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">月度損益</CardTitle>
+              <CardTitle className="text-base">monthly profit and loss</CardTitle>
             </CardHeader>
             <CardContent>
               <MonthlyBarChart monthly={monthly} unit={unit} usdTwd={usdTwd} />
@@ -243,14 +243,14 @@ export function DrilldownInner() {
           {/* Trade groups table */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">交易 Groups（{groups.length} 筆）</CardTitle>
+              <CardTitle className="text-base">trade Groups ({groups.length} trades)</CardTitle>
             </CardHeader>
             <CardContent className="p-0 pb-2">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-white/[0.06]">
-                      {['日期', '方向', '進場', '出場', 'qty', '損益', 'R:R', '備註'].map(h => (
+                      {['date', 'direction', 'Entry', 'Exit', 'qty', 'profit and loss', 'R:R', 'Remark'].map(h => (
                         <th key={h} className="px-3 py-2.5 text-xs font-medium text-[#8A8F98] text-left whitespace-nowrap">
                           {h}
                         </th>
@@ -303,7 +303,7 @@ export function DrilldownInner() {
                     {groups.length === 0 && (
                       <tr>
                         <td colSpan={8} className="px-3 py-8 text-center text-[#8A8F98]">
-                          暫無資料
+                          No information yet
                         </td>
                       </tr>
                     )}

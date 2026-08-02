@@ -33,7 +33,7 @@ function LoginForm() {
 
     setLoading(false);
     if (!res.ok) {
-      setError(res.status === 503 ? '尚未設定登入密碼，請先設定 JOURNAL_PASSWORD 與 JOURNAL_SESSION_SECRET' : '帳號或密碼錯誤');
+      setError(res.status === 503 ? 'Authentication is not configured. Set JOURNAL_PASSWORD and JOURNAL_SESSION_SECRET first.' : 'Invalid username or password');
       return;
     }
 
@@ -45,8 +45,8 @@ function LoginForm() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>登入</CardTitle>
-          <CardDescription>使用本機管理員帳號進入交易日誌</CardDescription>
+          <CardTitle>Sign in</CardTitle>
+          <CardDescription>Use the local admin account to access your trading journal</CardDescription>
         </CardHeader>
         <CardContent>
           {!authConfigured && (
@@ -56,7 +56,7 @@ function LoginForm() {
           )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">帳號</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
                 id="username"
                 value={username}
@@ -65,7 +65,7 @@ function LoginForm() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">密碼</Label>
+              <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -77,7 +77,7 @@ function LoginForm() {
             </div>
             {error && <p className="text-sm text-red-400">{error}</p>}
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? '登入中...' : '登入'}
+              {loading ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
         </CardContent>

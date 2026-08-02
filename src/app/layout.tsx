@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: features.brandName,
-  description: "專業的期貨交易日誌與分析工具",
+  description: "Professional futures trading log and analysis tools",
 };
 
 export default function RootLayout({
@@ -31,7 +31,7 @@ export default function RootLayout({
   const enabledPageKeys = Array.from(features.enabledPages);
 
   return (
-    <html lang="zh-TW" className="dark">
+    <html lang="en" className="dark">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

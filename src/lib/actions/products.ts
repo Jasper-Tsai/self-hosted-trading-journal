@@ -1,7 +1,7 @@
 /**
  * Server actions for products (DB-driven CRUD)
- * 取代原本 src/lib/products.ts 的靜態 PRODUCTS 常數
- * 只能在 server components、API routes、server actions 中呼叫
+ * replace original src/lib/products.ts of static PRODUCTS constant
+ * can only be server components, API routes, server actions mid call
  */
 import { db } from '@/lib/db';
 import { products, trades, broker_fees } from '@/lib/db/schema';
@@ -46,19 +46,19 @@ export interface UpdateProductInput {
   sort_order?: number;
 }
 
-// ─── Fallback（DB 為空時）────────────────────────────────────
+// ─── Fallback (DB When empty)────────────────────────────────────
 
 const FALLBACK_SYMBOLS = ['MNQ', 'NQ', 'SIL'];
 
 const FALLBACK_PRODUCTS: ProductRow[] = [
-  { symbol: 'MNQ', name: 'Micro E-mini NASDAQ', name_zh: '微型那斯達克', tick_size: 0.25, point_value: 2, price_step: 0.25, owner_only: false, enabled: true, sort_order: 1, created_at: null, updated_at: null },
-  { symbol: 'NQ', name: 'E-mini NASDAQ', name_zh: '那斯達克', tick_size: 0.25, point_value: 20, price_step: 0.25, owner_only: false, enabled: true, sort_order: 2, created_at: null, updated_at: null },
-  { symbol: 'SIL', name: 'Micro Silver', name_zh: '微白銀', tick_size: 0.5, point_value: 10, price_step: 0.5, owner_only: true, enabled: true, sort_order: 3, created_at: null, updated_at: null },
+  { symbol: 'MNQ', name: 'Micro E-mini NASDAQ', name_zh: 'Miniature Nasdaq', tick_size: 0.25, point_value: 2, price_step: 0.25, owner_only: false, enabled: true, sort_order: 1, created_at: null, updated_at: null },
+  { symbol: 'NQ', name: 'E-mini NASDAQ', name_zh: 'Nasdaq', tick_size: 0.25, point_value: 20, price_step: 0.25, owner_only: false, enabled: true, sort_order: 2, created_at: null, updated_at: null },
+  { symbol: 'SIL', name: 'Micro Silver', name_zh: 'Microsilver', tick_size: 0.5, point_value: 10, price_step: 0.5, owner_only: true, enabled: true, sort_order: 3, created_at: null, updated_at: null },
 ];
 
 // ─── Read ────────────────────────────────────────────────────
 
-/** 取得所有商品（owner 用）或過濾 ownerOnly（viewer 用）*/
+/** Get all products (owner use)or filter ownerOnly (viewer use)*/
 export async function listProducts({ ownerOnly }: { ownerOnly?: boolean } = {}): Promise<ProductRow[]> {
   try {
     const rows = await db
@@ -77,7 +77,7 @@ export async function listProducts({ ownerOnly }: { ownerOnly?: boolean } = {}):
   }
 }
 
-/** 取得所有商品（含停用），owner 管理頁用 */
+/** Get all products (Including deactivation), owner For management page */
 export async function listAllProducts(): Promise<ProductRow[]> {
   try {
     const rows = await db
@@ -104,7 +104,7 @@ export async function getProductBySymbol(symbol: string): Promise<ProductRow | n
   }
 }
 
-/** 取得所有商品 symbol 清單（owner 用）*/
+/** Get all products symbol Checklist (owner use)*/
 export async function getAllSymbols(): Promise<string[]> {
   try {
     const rows = await db
@@ -119,7 +119,7 @@ export async function getAllSymbols(): Promise<string[]> {
   }
 }
 
-/** 取得 Viewer 可見的 symbol 清單（排除 ownerOnly）*/
+/** obtain Viewer visible symbol Checklist (exclude ownerOnly)*/
 export async function getViewerSymbols(): Promise<string[]> {
   try {
     const rows = await db
@@ -134,7 +134,7 @@ export async function getViewerSymbols(): Promise<string[]> {
   }
 }
 
-/** 檢查商品是否為 Owner 專用 */
+/** Check if the product is Owner dedicated */
 export async function isOwnerOnlySymbol(symbol: string): Promise<boolean> {
   try {
     const [row] = await db
@@ -173,7 +173,7 @@ export async function createProduct(
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     if (msg.includes('UNIQUE') || msg.includes('unique')) {
-      return { success: false, error: '商品代號已存在' };
+      return { success: false, error: 'Product code already exists' };
     }
     return { success: false, error: msg };
   }
@@ -203,31 +203,31 @@ export async function updateProduct(
 }
 
 /**
- * 刪除商品
- * 若有 trades.symbol 或 broker_fees.symbol 指向它，阻擋刪除
+ * Delete product
+ * If so trades.symbol or broker_fees.symbol point to it, block deletion
  */
 export async function deleteProduct(
   symbol: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // 檢查 trades
+    // examine trades
     const usedTrades = await db
       .select({ id: trades.id })
       .from(trades)
       .where(eq(trades.symbol, symbol))
       .limit(1);
     if (usedTrades.length > 0) {
-      return { success: false, error: `無法刪除：已有交易紀錄使用商品「${symbol}」` };
+      return { success: false, error: `cannot be deleted: There is already a trade for using the product${symbol}` };
     }
 
-    // 檢查 broker_fees
+    // examine broker_fees
     const usedFees = await db
       .select({ id: broker_fees.id })
       .from(broker_fees)
       .where(eq(broker_fees.symbol, symbol))
       .limit(1);
     if (usedFees.length > 0) {
-      return { success: false, error: `無法刪除：已有券商手續費設定使用商品「${symbol}」，請先刪除相關費率設定` };
+      return { success: false, error: `cannot be deleted: There is already a brokerage fee set to use the product${symbol}, Please delete related rate settings first` };
     }
 
     await db.delete(products).where(eq(products.symbol, symbol));

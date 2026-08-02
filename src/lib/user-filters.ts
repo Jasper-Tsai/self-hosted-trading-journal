@@ -1,7 +1,7 @@
 import { Trade } from '@/types';
 
 /**
- * 檢查交易是否符合 Viewer 可見條件
+ * Check whether the transaction complies with Viewer visible conditions
  */
 export function isTradeVisibleToViewer(trade: Trade): boolean {
     void trade;
@@ -9,21 +9,21 @@ export function isTradeVisibleToViewer(trade: Trade): boolean {
 }
 
 /**
- * 過濾交易清單（給 Viewer 使用）
+ * Filter transaction list (Give Viewer use)
  */
 export function filterTradesForViewer(trades: Trade[]): Trade[] {
     return trades.filter(isTradeVisibleToViewer);
 }
 
 /**
- * 取得 Viewer 可見資料的最早日期（已移除日期限制，回傳極早日期）
+ * obtain Viewer The earliest date the data is visible (Date restriction removed, Return very early date)
  */
 export function getViewerStartDate(): string {
     return '2000-01-01';
 }
 
 /**
- * 取得 Viewer 可見的商品清單
+ * obtain Viewer Visible product list
  */
 export function getViewerAllowedSymbols(): readonly string[] {
     return ['MNQ', 'NQ', 'SIL'];

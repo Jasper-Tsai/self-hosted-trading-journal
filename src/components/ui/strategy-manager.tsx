@@ -19,7 +19,7 @@ export function StrategyManager() {
       const rows = await apiGet<Strategy[]>('/api/strategies');
       setStrategies(rows);
     } catch {
-      toast.error('載入策略失敗');
+      toast.error('Failed to load strategies');
     } finally {
       setLoading(false);
     }
@@ -42,10 +42,10 @@ export function StrategyManager() {
   const handleSave = async (data: Partial<Strategy>) => {
     if (editTarget) {
       await apiPatch(`/api/strategies/${editTarget.id}`, data);
-      toast.success('策略已更新');
+      toast.success('Strategy updated');
     } else {
       await apiPost('/api/strategies', data);
-      toast.success('策略已新增');
+      toast.success('Strategy has been added');
     }
     await fetchStrategies();
   };
@@ -53,42 +53,42 @@ export function StrategyManager() {
   const handleDisable = async (s: Strategy) => {
     try {
       await apiDelete(`/api/strategies/${s.id}`);
-      toast.success(`「${s.name}」已停用`);
+      toast.success(`${s.name} disabled`);
       await fetchStrategies();
     } catch {
-      toast.error('操作失敗');
+      toast.error('Operation failed');
     }
   };
 
   const handleEnable = async (s: Strategy) => {
     try {
       await apiPatch(`/api/strategies/${s.id}`, { enabled: true });
-      toast.success(`「${s.name}」已啟用`);
+      toast.success(`${s.name} enabled`);
       await fetchStrategies();
     } catch {
-      toast.error('操作失敗');
+      toast.error('Operation failed');
     }
   };
 
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Button onClick={handleAdd}>新增策略</Button>
+        <Button onClick={handleAdd}>Add new strategy</Button>
       </div>
 
       {loading ? (
-        <div className="text-center text-muted-foreground py-12">載入中...</div>
+        <div className="text-center text-muted-foreground py-12">Loading...</div>
       ) : (
         <div className="border border-white/[0.06] rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/[0.06] bg-white/[0.02]">
-                <th className="text-left py-3 px-4 text-muted-foreground font-medium">排序</th>
-                <th className="text-left py-3 px-4 text-muted-foreground font-medium">名稱</th>
-                <th className="text-left py-3 px-4 text-muted-foreground font-medium">顏色</th>
-                <th className="text-left py-3 px-4 text-muted-foreground font-medium">預設</th>
-                <th className="text-left py-3 px-4 text-muted-foreground font-medium">狀態</th>
-                <th className="text-right py-3 px-4 text-muted-foreground font-medium">操作</th>
+                <th className="text-left py-3 px-4 text-muted-foreground font-medium">Order</th>
+                <th className="text-left py-3 px-4 text-muted-foreground font-medium">Name</th>
+                <th className="text-left py-3 px-4 text-muted-foreground font-medium">Color</th>
+                <th className="text-left py-3 px-4 text-muted-foreground font-medium">Default</th>
+                <th className="text-left py-3 px-4 text-muted-foreground font-medium">Status</th>
+                <th className="text-right py-3 px-4 text-muted-foreground font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -120,22 +120,22 @@ export function StrategyManager() {
                   </td>
                   <td className="py-3 px-4">
                     {s.is_default ? (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-[#5E6AD2]/20 text-[#A5B4FC]">預設</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-[#5E6AD2]/20 text-[#A5B4FC]">default</span>
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}
                   </td>
                   <td className="py-3 px-4">
                     {s.enabled ? (
-                      <span className="text-xs text-green-400">啟用</span>
+                      <span className="text-xs text-green-400">Enabled</span>
                     ) : (
-                      <span className="text-xs text-muted-foreground">已停用</span>
+                      <span className="text-xs text-muted-foreground">Deactivated</span>
                     )}
                   </td>
                   <td className="py-3 px-4 text-right">
                     <div className="flex gap-2 justify-end">
                       <Button size="sm" variant="outline" onClick={() => handleEdit(s)}>
-                        編輯
+                        Edit
                       </Button>
                       {s.enabled ? (
                         <Button
@@ -144,7 +144,7 @@ export function StrategyManager() {
                           onClick={() => handleDisable(s)}
                           className="text-red-400 border-red-400/30 hover:bg-red-400/10"
                         >
-                          停用
+                          Disable
                         </Button>
                       ) : (
                         <Button
@@ -153,7 +153,7 @@ export function StrategyManager() {
                           onClick={() => handleEnable(s)}
                           className="text-green-400 border-green-400/30 hover:bg-green-400/10"
                         >
-                          啟用
+                          Enable
                         </Button>
                       )}
                     </div>
@@ -163,7 +163,7 @@ export function StrategyManager() {
               {strategies.length === 0 && (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-muted-foreground">
-                    尚無策略，點擊「新增策略」開始
+                    No strategies yet. Click Add Strategy to begin.
                   </td>
                 </tr>
               )}

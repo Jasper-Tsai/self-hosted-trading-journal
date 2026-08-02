@@ -64,7 +64,7 @@ function isValidTime(v: unknown): boolean {
 }
 
 function validateBatchTrades(tradeList: TradeData[]): string | null {
-  if (tradeList.length === 0) return 'trades 不可為空';
+  if (tradeList.length === 0) return 'trades Cannot be empty';
 
   const first = tradeList[0];
   const refSymbol = first.symbol ?? 'MNQ';
@@ -76,21 +76,21 @@ function validateBatchTrades(tradeList: TradeData[]): string | null {
     const t = tradeList[i];
     const idx = i + 1;
 
-    if (!VALID_SIDES.has(t.side)) return `第 ${idx} 筆：side 必須是 LONG 或 SHORT`;
+    if (!VALID_SIDES.has(t.side)) return `No. ${idx} trades: side must be LONG or SHORT`;
     const sym = t.symbol ?? 'MNQ';
-    if (!VALID_SYMBOLS.has(sym)) return `第 ${idx} 筆：symbol 必須是 MNQ、NQ 或 SIL`;
+    if (!VALID_SYMBOLS.has(sym)) return `No. ${idx} trades: symbol must be MNQ, NQ or SIL`;
     if (!t.broker || typeof t.broker !== 'string' || t.broker.trim() === '')
-      return `第 ${idx} 筆：broker 不可為空`;
-    if (!isPositiveFinite(t.entry_price)) return `第 ${idx} 筆：entry_price 必須為正數`;
+      return `No. ${idx} trades: broker Cannot be empty`;
+    if (!isPositiveFinite(t.entry_price)) return `No. ${idx} trades: entry_price Must be a positive number`;
     if (t.exit_price != null && !isPositiveFinite(t.exit_price))
-      return `第 ${idx} 筆：exit_price 必須為正數`;
-    if (!Number.isInteger(t.qty) || t.qty <= 0) return `第 ${idx} 筆：qty 必須為正整數`;
-    if (!DATE_RE.test(t.date)) return `第 ${idx} 筆：date 格式必須為 YYYY-MM-DD`;
+      return `No. ${idx} trades: exit_price Must be a positive number`;
+    if (!Number.isInteger(t.qty) || t.qty <= 0) return `No. ${idx} trades: qty Must be a positive integer`;
+    if (!DATE_RE.test(t.date)) return `No. ${idx} trades: date The format must be YYYY-MM-DD`;
 
     // Datetime fields
-    if (!isValidTime(t.entry_time)) return `第 ${idx} 筆：entry_time 格式無效`;
+    if (!isValidTime(t.entry_time)) return `No. ${idx} trades: entry_time Invalid format`;
     if (t.exit_time != null && !isValidTime(t.exit_time))
-      return `第 ${idx} 筆：exit_time 格式無效`;
+      return `No. ${idx} trades: exit_time Invalid format`;
 
     // Optional numeric fields: if present must be finite >= 0
     for (const [field, val] of [
@@ -104,20 +104,20 @@ function validateBatchTrades(tradeList: TradeData[]): string | null {
       ['tp3', t.tp3],
     ] as [string, unknown][]) {
       if (val != null && !isNonNegativeFinite(val))
-        return `第 ${idx} 筆：${field} 若有值必須為非負有限數`;
+        return `No. ${idx} trades: ${field} If there is a value, it must be a non-negative finite number`;
     }
 
     // String length limits
     if (t.notes != null && t.notes.length > 2000)
-      return `第 ${idx} 筆：notes 不可超過 2000 字`;
+      return `No. ${idx} trades: notes not to exceed 2000 Character`;
     if (t.strategy != null && t.strategy.length > 100)
-      return `第 ${idx} 筆：strategy 不可超過 100 字`;
+      return `No. ${idx} trades: strategy not to exceed 100 Character`;
 
     // All trades must share the same symbol, side, date, broker
-    if (sym !== refSymbol) return `第 ${idx} 筆：symbol 與第 1 筆不一致`;
-    if (t.side !== refSide) return `第 ${idx} 筆：side 與第 1 筆不一致`;
-    if (t.date !== refDate) return `第 ${idx} 筆：date 與第 1 筆不一致`;
-    if ((t.broker ?? '') !== refBroker) return `第 ${idx} 筆：broker 與第 1 筆不一致`;
+    if (sym !== refSymbol) return `No. ${idx} trades: symbol and No. 1 pen inconsistent`;
+    if (t.side !== refSide) return `No. ${idx} trades: side and No. 1 pen inconsistent`;
+    if (t.date !== refDate) return `No. ${idx} trades: date and No. 1 pen inconsistent`;
+    if ((t.broker ?? '') !== refBroker) return `No. ${idx} trades: broker and No. 1 pen inconsistent`;
   }
   return null;
 }
@@ -125,13 +125,13 @@ function validateBatchTrades(tradeList: TradeData[]): string | null {
 export async function POST(req: NextRequest) {
   try {
     const { role } = await verifyRequest(req);
-    if (role !== 'owner') return NextResponse.json({ error: '無寫入權限' }, { status: 403 });
+    if (role !== 'owner') return NextResponse.json({ error: 'No write permission' }, { status: 403 });
 
     const body = await req.json();
     const { trades: tradeList } = body as { trades: TradeData[] };
 
     if (!Array.isArray(tradeList)) {
-      return NextResponse.json({ error: 'trades 欄位必須為陣列' }, { status: 400 });
+      return NextResponse.json({ error: 'trades field must be an Array' }, { status: 400 });
     }
 
     const validationError = validateBatchTrades(tradeList);

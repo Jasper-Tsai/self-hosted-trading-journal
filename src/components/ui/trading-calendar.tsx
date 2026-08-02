@@ -23,11 +23,11 @@ interface TradingCalendarProps {
     usdTwdRate: number;
 }
 
-// severity 樣式對應
+// severity Style correspondence
 const severityConfig: Record<EventSeverity, { dot: string; label: string; text: string; bg: string; border: string; badge: string }> = {
-    danger: { dot: 'bg-red-500', label: '黑天鵝', text: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/30', badge: 'bg-red-500/20 text-red-400 border-red-500/30' },
-    warning: { dot: 'bg-orange-500', label: '高波動', text: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/30', badge: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
-    info: { dot: 'bg-blue-500', label: '參考', text: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/30', badge: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
+    danger: { dot: 'bg-red-500', label: 'black swan', text: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/30', badge: 'bg-red-500/20 text-red-400 border-red-500/30' },
+    warning: { dot: 'bg-orange-500', label: 'High volatility', text: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/30', badge: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
+    info: { dot: 'bg-blue-500', label: 'Reference', text: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/30', badge: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
 };
 
 export default function TradingCalendar({ usdTwdRate }: TradingCalendarProps) {
@@ -111,7 +111,7 @@ export default function TradingCalendar({ usdTwdRate }: TradingCalendarProps) {
     };
 
     const handleDeleteEvent = async (id: string) => {
-        if (!confirm('確定要刪除此事件？')) return;
+        if (!confirm('Are you sure you want to delete this event??')) return;
         await deleteMarketEvent(id);
         const events = await fetchEvents(currentMonth.year, currentMonth.month);
         setMarketEvents(events);
@@ -129,7 +129,7 @@ export default function TradingCalendar({ usdTwdRate }: TradingCalendarProps) {
                         <ChevronRight className="h-4 w-4" />
                     </Button>
                     <Button variant="outline" size="sm" onClick={goToCurrentMonth}>
-                        本月
+                        This month
                     </Button>
                 </div>
                 {!isViewer && (
@@ -140,13 +140,13 @@ export default function TradingCalendar({ usdTwdRate }: TradingCalendarProps) {
                         className="gap-1.5"
                     >
                         <Plus className="h-3.5 w-3.5" />
-                        事件
+                        event
                     </Button>
                 )}
             </div>
 
             {loading ? (
-                <div className="text-center text-muted-foreground py-12">載入中...</div>
+                <div className="text-center text-muted-foreground py-12">loading...</div>
             ) : (
                 <div className="space-y-6">
                     {monthData.map((data, index) => (
@@ -227,7 +227,7 @@ function EventModal({ event, onClose, onSaved }: EventModalProps) {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
             <div className="bg-popover border border-border rounded-xl shadow-2xl w-full max-w-md mx-4 p-6" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-5">
-                    <h3 className="text-lg font-semibold">{isEdit ? '編輯市場事件' : '新增市場事件'}</h3>
+                    <h3 className="text-lg font-semibold">{isEdit ? 'Edit market events' : 'Add new market event'}</h3>
                     <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
                         <X className="h-5 w-5" />
                     </button>
@@ -236,12 +236,12 @@ function EventModal({ event, onClose, onSaved }: EventModalProps) {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Title */}
                     <div>
-                        <label className="text-sm font-medium text-muted-foreground mb-1 block">標題 *</label>
+                        <label className="text-sm font-medium text-muted-foreground mb-1 block">title *</label>
                         <input
                             type="text"
                             value={title}
                             onChange={e => setTitle(e.target.value)}
-                            placeholder="例：美伊戰爭爆發"
+                            placeholder="example: The outbreak of the US-Iraq war"
                             className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
                             required
                         />
@@ -249,11 +249,11 @@ function EventModal({ event, onClose, onSaved }: EventModalProps) {
 
                     {/* Description */}
                     <div>
-                        <label className="text-sm font-medium text-muted-foreground mb-1 block">說明</label>
+                        <label className="text-sm font-medium text-muted-foreground mb-1 block">Description</label>
                         <textarea
                             value={description}
                             onChange={e => setDescription(e.target.value)}
-                            placeholder="事件對市場的影響描述..."
+                            placeholder="Description of the event’s impact on the market..."
                             rows={3}
                             className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 resize-none"
                         />
@@ -261,7 +261,7 @@ function EventModal({ event, onClose, onSaved }: EventModalProps) {
 
                     {/* Severity */}
                     <div>
-                        <label className="text-sm font-medium text-muted-foreground mb-2 block">嚴重程度</label>
+                        <label className="text-sm font-medium text-muted-foreground mb-2 block">Severity</label>
                         <div className="flex gap-2">
                             {(['danger', 'warning', 'info'] as const).map(s => (
                                 <button
@@ -288,7 +288,7 @@ function EventModal({ event, onClose, onSaved }: EventModalProps) {
                     {/* Dates */}
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="text-sm font-medium text-muted-foreground mb-1 block">開始日期 *</label>
+                            <label className="text-sm font-medium text-muted-foreground mb-1 block">start date *</label>
                             <input
                                 type="date"
                                 value={startDate}
@@ -298,7 +298,7 @@ function EventModal({ event, onClose, onSaved }: EventModalProps) {
                             />
                         </div>
                         <div>
-                            <label className="text-sm font-medium text-muted-foreground mb-1 block">結束日期</label>
+                            <label className="text-sm font-medium text-muted-foreground mb-1 block">end date</label>
                             <input
                                 type="date"
                                 value={ongoing ? '' : endDate}
@@ -314,16 +314,16 @@ function EventModal({ event, onClose, onSaved }: EventModalProps) {
                                     onChange={e => setOngoing(e.target.checked)}
                                     className="rounded border-border"
                                 />
-                                <span className="text-xs text-muted-foreground">進行中</span>
+                                <span className="text-xs text-muted-foreground">in progress</span>
                             </label>
                         </div>
                     </div>
 
                     {/* Actions */}
                     <div className="flex justify-end gap-2 pt-2">
-                        <Button type="button" variant="outline" size="sm" onClick={onClose}>取消</Button>
+                        <Button type="button" variant="outline" size="sm" onClick={onClose}>Cancel</Button>
                         <Button type="submit" size="sm" disabled={saving || !title.trim()}>
-                            {saving ? '儲存中...' : (isEdit ? '更新' : '新增')}
+                            {saving ? 'Storing...' : (isEdit ? 'renew' : 'New')}
                         </Button>
                     </div>
                 </form>
@@ -350,7 +350,7 @@ interface MonthCalendarProps {
     onDeleteEvent?: (id: string) => void;
 }
 
-// 判斷某日期是否在事件範圍內
+// Determine whether a certain date is within the event range
 function isDateInEvent(dateKey: string, event: MarketEvent): boolean {
     if (dateKey < event.start_date) return false;
     if (event.end_date && dateKey > event.end_date) return false;
@@ -359,8 +359,8 @@ function isDateInEvent(dateKey: string, event: MarketEvent): boolean {
 
 function MonthCalendar({ year, month, dailyPnL, monthlyTotal, usdTwdRate, isViewer = false, weeklySummaries, marketEvents, onEditEvent, onDeleteEvent }: MonthCalendarProps) {
     const router = useRouter();
-    const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
-    const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     const firstDayOfMonth = new Date(year, month - 1, 1);
     const lastDayOfMonth = new Date(year, month, 0);
@@ -384,7 +384,7 @@ function MonthCalendar({ year, month, dailyPnL, monthlyTotal, usdTwdRate, isView
 
     const formatPoints = (points: number) => {
         const sign = points >= 0 ? '+' : '';
-        return `${sign}${points.toFixed(1)} 點`;
+        return `${sign}${points.toFixed(1)} point`;
     };
 
     const formatMonthlyTotal = (amount: number) => {
@@ -399,7 +399,7 @@ function MonthCalendar({ year, month, dailyPnL, monthlyTotal, usdTwdRate, isView
 
     const isSaturday = (day: number) => new Date(year, month - 1, day).getDay() === 6;
 
-    // 過濾出本月相關的事件
+    // Filter out relevant events this month
     const monthStart = `${year}-${String(month).padStart(2, '0')}-01`;
     const monthEnd = `${year}-${String(month).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
     const activeEvents = marketEvents.filter(ev => {
@@ -408,11 +408,11 @@ function MonthCalendar({ year, month, dailyPnL, monthlyTotal, usdTwdRate, isView
         return true;
     });
 
-    // 取得某日的事件
+    // Get the events of a certain day
     const getEventsForDate = (dateKey: string) =>
         activeEvents.filter(ev => isDateInEvent(dateKey, ev));
 
-    // 取得最高嚴重度（用於圓點顏色）
+    // Get the highest severity (for polka dot color)
     const getHighestSeverity = (events: MarketEvent[]): EventSeverity | null => {
         if (events.length === 0) return null;
         if (events.some(e => e.severity === 'danger')) return 'danger';
@@ -424,7 +424,7 @@ function MonthCalendar({ year, month, dailyPnL, monthlyTotal, usdTwdRate, isView
         <Card>
             <CardHeader className="pb-3">
                 <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                    <span className="text-lg md:text-xl">{year}年 {monthNames[month - 1]}</span>
+                    <span className="text-lg md:text-xl">{monthNames[month - 1]} {year}</span>
                     <span className={`text-sm md:text-lg font-semibold ${monthlyTotal >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                         {formatMonthlyTotal(monthlyTotal)}
                     </span>
@@ -457,10 +457,10 @@ function MonthCalendar({ year, month, dailyPnL, monthlyTotal, usdTwdRate, isView
                                     {/* Owner: edit/delete on hover */}
                                     {onEditEvent && onDeleteEvent && (
                                         <span className="hidden group-hover/event:inline-flex items-center gap-1 ml-1">
-                                            <button onClick={() => onEditEvent(ev)} className="hover:opacity-80 transition-opacity" title="編輯">
+                                            <button onClick={() => onEditEvent(ev)} className="hover:opacity-80 transition-opacity" title="edit">
                                                 <Pencil className="h-3 w-3" />
                                             </button>
-                                            <button onClick={() => onDeleteEvent(ev.id!)} className="hover:opacity-80 transition-opacity" title="刪除">
+                                            <button onClick={() => onDeleteEvent(ev.id!)} className="hover:opacity-80 transition-opacity" title="delete">
                                                 <Trash2 className="h-3 w-3" />
                                             </button>
                                         </span>
@@ -513,7 +513,7 @@ function MonthCalendar({ year, month, dailyPnL, monthlyTotal, usdTwdRate, isView
                                 >
                                     <div className="w-full flex justify-between items-start">
                                         <span className="text-[10px] text-indigo-500 dark:text-indigo-400 font-semibold">
-                                            週結
+                                            Weekend
                                         </span>
                                         <span className="text-[10px] text-muted-foreground">{day}</span>
                                     </div>
@@ -525,7 +525,7 @@ function MonthCalendar({ year, month, dailyPnL, monthlyTotal, usdTwdRate, isView
                                             </span>
                                             <div className="flex items-center gap-1 mb-auto">
                                                 <span className="text-[10px] text-muted-foreground">
-                                                    {weeklySummary.totalTrades}筆
+                                                    {weeklySummary.totalTrades} {weeklySummary.totalTrades === 1 ? 'trade' : 'trades'}
                                                 </span>
                                                 <span className="text-[10px] text-muted-foreground">·</span>
                                                 <span className={`text-[10px] font-medium ${weeklySummary.winRate >= 50 ? 'text-green-500' : 'text-red-500'}`}>
@@ -538,37 +538,37 @@ function MonthCalendar({ year, month, dailyPnL, monthlyTotal, usdTwdRate, isView
                                                 transition-opacity duration-200 pointer-events-none">
                                                 <div className="bg-popover border border-border rounded-lg shadow-lg p-3 min-w-[200px] text-sm">
                                                     <div className="font-semibold mb-2 text-center border-b pb-1 text-indigo-600 dark:text-indigo-400">
-                                                        📊 週交易總結
+                                                        📊 Weekly trading summary
                                                     </div>
                                                     <div className="text-xs text-muted-foreground text-center mb-2">
                                                         {weeklySummary.weekStart.substring(5)} ~ {weeklySummary.weekEnd.substring(5)}
                                                     </div>
                                                     <div className="space-y-1">
                                                         <div className="flex justify-between">
-                                                            <span className="text-muted-foreground">盈虧（點數）</span>
+                                                            <span className="text-muted-foreground">Profit and loss (Points)</span>
                                                             <span className={weeklySummary.totalPoints >= 0 ? 'text-green-500' : 'text-red-500'}>
                                                                 {formatPoints(weeklySummary.totalPoints)}
                                                             </span>
                                                         </div>
                                                         <div className="flex justify-between">
-                                                            <span className="text-muted-foreground">盈虧（金額）</span>
+                                                            <span className="text-muted-foreground">Profit and loss (Amount)</span>
                                                             <span className={weeklySummary.totalAmount >= 0 ? 'text-green-500' : 'text-red-500'}>
                                                                 {formatAmount(weeklySummary.totalAmount)}
                                                             </span>
                                                         </div>
                                                         <div className="flex justify-between">
-                                                            <span className="text-muted-foreground">交易數</span>
-                                                            <span>{weeklySummary.totalTrades} 筆</span>
+                                                            <span className="text-muted-foreground">Trades</span>
+                                                            <span>{weeklySummary.totalTrades} {weeklySummary.totalTrades === 1 ? 'trade' : 'trades'}</span>
                                                         </div>
                                                         <div className="flex justify-between">
-                                                            <span className="text-muted-foreground">勝率</span>
+                                                            <span className="text-muted-foreground">winning rate</span>
                                                             <span className={weeklySummary.winRate >= 50 ? 'text-green-500' : 'text-red-500'}>
                                                                 {weeklySummary.winRate}% ({weeklySummary.wins}/{weeklySummary.totalTrades})
                                                             </span>
                                                         </div>
                                                         <div className="flex justify-between">
-                                                            <span className="text-muted-foreground">交易天數</span>
-                                                            <span>{weeklySummary.tradingDays} 天</span>
+                                                            <span className="text-muted-foreground">Trading days</span>
+                                                            <span>{weeklySummary.tradingDays} days</span>
                                                         </div>
                                                     </div>
                                                     {/* Tooltip Arrow */}
@@ -590,7 +590,7 @@ function MonthCalendar({ year, month, dailyPnL, monthlyTotal, usdTwdRate, isView
                                 >
                                     <div className="w-full flex justify-between items-start">
                                         <span className="text-[10px] text-indigo-500 dark:text-indigo-400 font-semibold">
-                                            週結
+                                            Weekend
                                         </span>
                                         <span className="text-[10px] text-muted-foreground">{day}</span>
                                     </div>
@@ -637,7 +637,7 @@ function MonthCalendar({ year, month, dailyPnL, monthlyTotal, usdTwdRate, isView
                                             {formatAmount(dayData.amount)}
                                         </span>
                                         <span className="text-[9px] md:text-[10px] text-muted-foreground mb-auto">
-                                            {isViewer ? dayData.strategicTrades : dayData.totalTrades}筆
+                                            {isViewer ? dayData.strategicTrades : dayData.totalTrades} {(isViewer ? dayData.strategicTrades : dayData.totalTrades) === 1 ? 'trade' : 'trades'}
                                         </span>
 
                                         {/* Hover Tooltip */}
@@ -645,7 +645,7 @@ function MonthCalendar({ year, month, dailyPnL, monthlyTotal, usdTwdRate, isView
                       transition-opacity duration-200 pointer-events-none">
                                             <div className="bg-popover border border-border rounded-lg shadow-lg p-3 min-w-[180px] text-sm">
                                                 <div className="font-semibold mb-2 text-center border-b pb-1">
-                                                    {month}/{day} 交易統計
+                                                    {month}/{day} Trade Statistics
                                                 </div>
                                                 {/* Market events in tooltip */}
                                                 {dayEvents.length > 0 && (
@@ -665,7 +665,7 @@ function MonthCalendar({ year, month, dailyPnL, monthlyTotal, usdTwdRate, isView
                                                                         </div>
                                                                     )}
                                                                     <div className="text-[10px] text-muted-foreground pl-3">
-                                                                        {ev.start_date.substring(5)}起{isOngoing ? ' · 進行中' : ` ~ ${ev.end_date!.substring(5)}`}
+                                                                        {ev.start_date.substring(5)}rise{isOngoing ? ' · in progress' : ` ~ ${ev.end_date!.substring(5)}`}
                                                                     </div>
                                                                 </div>
                                                             );
@@ -684,31 +684,31 @@ function MonthCalendar({ year, month, dailyPnL, monthlyTotal, usdTwdRate, isView
                                                 )}
                                                 <div className="space-y-1">
                                                     <div className="flex justify-between">
-                                                        <span className="text-muted-foreground">盈虧（點數）</span>
+                                                        <span className="text-muted-foreground">Profit and loss (Points)</span>
                                                         <span className={dayData.points >= 0 ? 'text-green-500' : 'text-red-500'}>
                                                             {formatPoints(dayData.points)}
                                                         </span>
                                                     </div>
                                                     <div className="flex justify-between">
-                                                        <span className="text-muted-foreground">盈虧（金額）</span>
+                                                        <span className="text-muted-foreground">Profit and loss (Amount)</span>
                                                         <span className={dayData.amount >= 0 ? 'text-green-500' : 'text-red-500'}>
                                                             {formatAmount(dayData.amount)}
                                                         </span>
                                                     </div>
                                                     {!isViewer && (
                                                         <div className="flex justify-between">
-                                                            <span className="text-muted-foreground">總勝率</span>
+                                                            <span className="text-muted-foreground">Overall winning rate</span>
                                                             <span>{dayData.winRate}% ({dayData.wins}/{dayData.totalTrades})</span>
                                                         </div>
                                                     )}
                                                     <div className="flex justify-between">
-                                                        <span className="text-muted-foreground">{isViewer ? '勝率' : '策略勝率'}</span>
+                                                        <span className="text-muted-foreground">{isViewer ? 'winning rate' : 'Strategy winning rate'}</span>
                                                         <span>{dayData.strategicWinRate}% ({dayData.strategicWins}/{dayData.strategicTrades})</span>
                                                     </div>
                                                 </div>
                                                 {!isViewer && (
                                                     <div className="text-xs text-muted-foreground text-center mt-2 pt-1 border-t">
-                                                        點擊查看交易紀錄
+                                                        Click to view Trades
                                                     </div>
                                                 )}
                                                 {/* Tooltip Arrow */}
@@ -740,7 +740,7 @@ function MonthCalendar({ year, month, dailyPnL, monthlyTotal, usdTwdRate, isView
                                                                     </div>
                                                                 )}
                                                                 <div className="text-[10px] text-muted-foreground pl-3">
-                                                                    {ev.start_date.substring(5)}起{isOngoing ? ' · 進行中' : ` ~ ${ev.end_date!.substring(5)}`}
+                                                                    {ev.start_date.substring(5)}rise{isOngoing ? ' · in progress' : ` ~ ${ev.end_date!.substring(5)}`}
                                                                 </div>
                                                             </div>
                                                         );
@@ -753,7 +753,7 @@ function MonthCalendar({ year, month, dailyPnL, monthlyTotal, usdTwdRate, isView
                                                         {holiday.name}
                                                     </div>
                                                     <div className="text-xs text-muted-foreground text-center mt-1">
-                                                        {holiday.status === 'closed' ? '休市' : '提早收盤'}
+                                                        {holiday.status === 'closed' ? 'Market closed' : 'close early'}
                                                         <br />
                                                         {holiday.details}
                                                     </div>

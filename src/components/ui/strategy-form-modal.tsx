@@ -36,7 +36,7 @@ export function StrategyFormModal({ strategy, onClose, onSave }: StrategyFormMod
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      setError('策略名稱不得為空');
+      setError('Strategy name is required');
       return;
     }
     setSaving(true);
@@ -51,7 +51,7 @@ export function StrategyFormModal({ strategy, onClose, onSave }: StrategyFormMod
       });
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : '儲存失敗');
+      setError(err instanceof Error ? err.message : 'Save failed');
     } finally {
       setSaving(false);
     }
@@ -61,22 +61,22 @@ export function StrategyFormModal({ strategy, onClose, onSave }: StrategyFormMod
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="bg-[#0F1117] border border-white/[0.08] rounded-xl shadow-2xl w-full max-w-md p-6">
         <h2 className="text-lg font-semibold mb-5 text-[#EDEDEF]">
-          {isEdit ? '編輯策略' : '新增策略'}
+          {isEdit ? 'Edit strategy' : 'Add strategy'}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="strategy-name">策略名稱</Label>
+            <Label htmlFor="strategy-name">Strategy name</Label>
             <Input
               id="strategy-name"
               value={name}
               onChange={e => setName(e.target.value)}
-              placeholder="例：STAR"
+              placeholder="example: STAR"
               disabled={saving}
             />
           </div>
 
           <div>
-            <Label>顏色</Label>
+            <Label>Color</Label>
             <div className="flex gap-2 mt-1.5 flex-wrap">
               {STRATEGY_COLOR_PALETTE.map(c => (
                 <button
@@ -96,7 +96,7 @@ export function StrategyFormModal({ strategy, onClose, onSave }: StrategyFormMod
           </div>
 
           <div>
-            <Label htmlFor="sort-order">排序</Label>
+            <Label htmlFor="sort-order">Order</Label>
             <Input
               id="sort-order"
               type="number"
@@ -116,9 +116,9 @@ export function StrategyFormModal({ strategy, onClose, onSave }: StrategyFormMod
               className="w-4 h-4 rounded accent-[#5E6AD2]"
             />
             <Label htmlFor="is-default" className="cursor-pointer">
-              設為預設策略
+              Set as default strategy
               {isDefault && (
-                <span className="ml-2 text-xs text-[#F59E0B]">（會取消其他策略的預設）</span>
+                <span className="ml-2 text-xs text-[#F59E0B]"> (Clears the default on other strategies)</span>
               )}
             </Label>
           </div>
@@ -133,7 +133,7 @@ export function StrategyFormModal({ strategy, onClose, onSave }: StrategyFormMod
                 disabled={saving}
                 className="w-4 h-4 rounded accent-[#5E6AD2]"
               />
-              <Label htmlFor="enabled" className="cursor-pointer">啟用策略</Label>
+              <Label htmlFor="enabled" className="cursor-pointer">Enable strategy</Label>
             </div>
           )}
 
@@ -143,10 +143,10 @@ export function StrategyFormModal({ strategy, onClose, onSave }: StrategyFormMod
 
           <div className="flex gap-3 pt-2">
             <Button type="submit" disabled={saving} className="flex-1">
-              {saving ? '儲存中...' : '儲存'}
+              {saving ? 'Saving...' : 'Save'}
             </Button>
             <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
-              取消
+              Cancel
             </Button>
           </div>
         </form>

@@ -42,7 +42,7 @@ export function TimePatterns({ className, usdTwdRate = 31.5 }: TimePatternsProps
       const patterns = response.timePatterns as TimePatternData[];
       setTimePatterns(patterns);
     } catch (err) {
-      setError('載入時段分析失敗');
+      setError('Loading period analysis failed');
       console.error('Error fetching time patterns:', err);
     } finally {
       setLoading(false);
@@ -76,9 +76,9 @@ export function TimePatterns({ className, usdTwdRate = 31.5 }: TimePatternsProps
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>時段分析 Time Patterns</CardTitle>
+            <CardTitle>Time-of-day analysis</CardTitle>
             <CardDescription>
-              各時段交易表現統計 ({days}天)
+              Trading performance statistics for each time window ({days} days)
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
@@ -87,14 +87,14 @@ export function TimePatterns({ className, usdTwdRate = 31.5 }: TimePatternsProps
               size="sm"
               onClick={() => setViewMode('points')}
             >
-              點數
+              Points
             </Button>
             <Button
               variant={viewMode === 'amount' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('amount')}
             >
-              金額
+              Amount
             </Button>
           </div>
         </div>
@@ -104,28 +104,28 @@ export function TimePatterns({ className, usdTwdRate = 31.5 }: TimePatternsProps
             size="sm"
             onClick={() => setDays(7)}
           >
-            7天
+            7 days
           </Button>
           <Button
             variant={days === 30 ? 'default' : 'outline'}
             size="sm"
             onClick={() => setDays(30)}
           >
-            30天
+            30 days
           </Button>
           <Button
             variant={days === 90 ? 'default' : 'outline'}
             size="sm"
             onClick={() => setDays(90)}
           >
-            90天
+            90 days
           </Button>
         </div>
       </CardHeader>
       <CardContent>
         {loading && (
           <div className="h-40 flex items-center justify-center">
-            <div className="text-muted-foreground">載入中...</div>
+            <div className="text-muted-foreground">loading...</div>
           </div>
         )}
 
@@ -137,7 +137,7 @@ export function TimePatterns({ className, usdTwdRate = 31.5 }: TimePatternsProps
 
         {!loading && !error && timePatterns.length === 0 && (
           <div className="h-40 flex items-center justify-center">
-            <div className="text-muted-foreground">暫無時段資料</div>
+            <div className="text-muted-foreground">No time period information yet</div>
           </div>
         )}
 
@@ -148,11 +148,11 @@ export function TimePatterns({ className, usdTwdRate = 31.5 }: TimePatternsProps
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-200 dark:border-gray-700">
-                    <th className="text-left pb-2 font-medium">時段</th>
-                    <th className="text-center pb-2 font-medium">交易次數</th>
-                    <th className="text-center pb-2 font-medium">勝率</th>
-                    <th className="text-right pb-2 font-medium">總盈虧</th>
-                    <th className="text-right pb-2 font-medium">平均</th>
+                    <th className="text-left pb-2 font-medium">Time window</th>
+                    <th className="text-center pb-2 font-medium">Trades</th>
+                    <th className="text-center pb-2 font-medium">Win rate</th>
+                    <th className="text-right pb-2 font-medium">Total profit and loss</th>
+                    <th className="text-right pb-2 font-medium">average</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -168,7 +168,7 @@ export function TimePatterns({ className, usdTwdRate = 31.5 }: TimePatternsProps
                         <td className="py-3 text-center">
                           <div>{pattern.count}</div>
                           <div className="text-xs text-muted-foreground">
-                            {pattern.wins}勝 {pattern.losses}敗
+                            {pattern.wins} wins, {pattern.losses} losses
                           </div>
                         </td>
                         <td className="py-3 text-center">
@@ -206,7 +206,7 @@ export function TimePatterns({ className, usdTwdRate = 31.5 }: TimePatternsProps
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                   <h4 className="font-medium text-green-800 dark:text-green-200 mb-2">
-                    最佳時段
+                    best time
                   </h4>
                   {(() => {
                     const best = timePatterns.reduce((prev, current) => {
@@ -221,7 +221,7 @@ export function TimePatterns({ className, usdTwdRate = 31.5 }: TimePatternsProps
                           {formatHour(best.hour)} - {formatHour(best.hour + 1)}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {formatValue(viewMode === 'points' ? best.totalPnL : best.totalAmount)} | 勝率 {best.winRate}%
+                          {formatValue(viewMode === 'points' ? best.totalPnL : best.totalAmount)} | winning rate {best.winRate}%
                         </div>
                       </div>
                     );
@@ -230,7 +230,7 @@ export function TimePatterns({ className, usdTwdRate = 31.5 }: TimePatternsProps
 
                 <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
                   <h4 className="font-medium text-red-800 dark:text-red-200 mb-2">
-                    最差時段
+                    worst time
                   </h4>
                   {(() => {
                     const worst = timePatterns.reduce((prev, current) => {
@@ -245,7 +245,7 @@ export function TimePatterns({ className, usdTwdRate = 31.5 }: TimePatternsProps
                           {formatHour(worst.hour)} - {formatHour(worst.hour + 1)}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {formatValue(viewMode === 'points' ? worst.totalPnL : worst.totalAmount)} | 勝率 {worst.winRate}%
+                          {formatValue(viewMode === 'points' ? worst.totalPnL : worst.totalAmount)} | winning rate {worst.winRate}%
                         </div>
                       </div>
                     );

@@ -12,21 +12,21 @@ export interface StrategyPerformanceRow {
   avgLossPoints: number;
   avgWinUsd: number;
   avgLossUsd: number;
-  profitFactor: number | null;   // null 代表 lossSampleCount=0
+  profitFactor: number | null;   // null represent lossSampleCount=0
   lossSampleCount: number;
   expectancyUsd: number;
-  avgRR: number | null;          // null 代表 rrSampleCount=0
+  avgRR: number | null;          // null represent rrSampleCount=0
   rrSampleCount: number;
-  rrTotal: number;               // 該策略 group 總數，作為樣本覆蓋率分母
+  rrTotal: number;               // The strategy group total, as the sample coverage denominator
   maxWinStreak: number;
   maxLossStreak: number;
-  maxDrawdownUsd: number;        // 正值（負值絕對值），0 代表沒回撤
+  maxDrawdownUsd: number;        // Positive value (negative absolute value), 0 It means no retracement
 }
 
 export interface StrategyPerformanceResponse {
   allTimeStats: StrategyPerformanceRow[];
   rangeStats: StrategyPerformanceRow[];
-  rangeLabel: string;            // 例如 "近 90 天" / "2026-01-01 → 2026-05-07" / "全部"
+  rangeLabel: string;            // For example "close 90 sky" / "2026-01-01 → 2026-05-07" / "all"
 }
 
 export interface StrategyTradeGroup {
@@ -42,7 +42,7 @@ export interface StrategyTradeGroup {
   sl_price: number | null;
   pnl_points: number | null;
   pnl_usd: number | null;
-  rr: number | null;             // 實際 R:R，null=無 sl_price
+  rr: number | null;             // actual R:R, null=none sl_price
   notes: string | null;
 }
 

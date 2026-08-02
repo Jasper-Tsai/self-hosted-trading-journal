@@ -1,5 +1,5 @@
 /**
- * 共用的交易計算工具，供 API routes 使用
+ * Shared trading calculator, for API routes use
  */
 import { getPointValue, getFeeByBroker } from '@/lib/utils';
 import { Trade, Symbol } from '@/types';

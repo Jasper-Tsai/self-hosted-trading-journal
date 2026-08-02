@@ -22,7 +22,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { role } = await verifyRequest(req);
-    if (role !== 'owner') return NextResponse.json({ error: '無寫入權限' }, { status: 403 });
+    if (role !== 'owner') return NextResponse.json({ error: 'No write permission' }, { status: 403 });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 401 });
   }
@@ -88,7 +88,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { role } = await verifyRequest(req);
-    if (role !== 'owner') return NextResponse.json({ error: '無寫入權限' }, { status: 403 });
+    if (role !== 'owner') return NextResponse.json({ error: 'No write permission' }, { status: 403 });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 401 });
   }
@@ -99,51 +99,51 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: '無效的 JSON body' }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
-  // 必須至少提供其中一個 key（用 'in' 判斷是否出現，而非看值是否 truthy）
+  // At least one of these must be provided key (use 'in' Determine whether it Exits, Rather than looking at whether the value truthy)
   const hasStrategy = 'strategy' in body;
   const hasNotes = 'notes' in body;
   if (!hasStrategy && !hasNotes) {
-    return NextResponse.json({ error: '需提供 strategy 或 notes' }, { status: 400 });
+    return NextResponse.json({ error: 'Need to provide strategy or notes' }, { status: 400 });
   }
 
-  // 驗證 strategy 欄位（若有提供）
+  // verify strategy field (If provided)
   let strategy: string | null | undefined;
   if (hasStrategy) {
     const rawStrategy = body.strategy;
     if (rawStrategy !== undefined && rawStrategy !== null && typeof rawStrategy !== 'string') {
-      return NextResponse.json({ error: 'strategy 必須是字串或 null' }, { status: 400 });
+      return NextResponse.json({ error: 'strategy Must be a string or null' }, { status: 400 });
     }
     if (typeof rawStrategy === 'string' && rawStrategy.length > 100) {
-      return NextResponse.json({ error: 'strategy 長度上限 100 字元' }, { status: 400 });
+      return NextResponse.json({ error: 'strategy Maximum length 100 character' }, { status: 400 });
     }
-    // 空字串正規化為 null
+    // The empty string is normalized to null
     strategy =
       typeof rawStrategy === 'string' && rawStrategy.trim() !== ''
         ? rawStrategy.trim()
         : null;
   }
 
-  // 驗證 notes 欄位（若有提供）
+  // verify notes field (If provided)
   let notes: string | null | undefined;
   if (hasNotes) {
     const rawNotes = body.notes;
     if (rawNotes !== undefined && rawNotes !== null && typeof rawNotes !== 'string') {
-      return NextResponse.json({ error: 'notes 必須是字串或 null' }, { status: 400 });
+      return NextResponse.json({ error: 'notes Must be a string or null' }, { status: 400 });
     }
     if (typeof rawNotes === 'string' && rawNotes.length > 2000) {
-      return NextResponse.json({ error: 'notes 長度上限 2000 字元' }, { status: 400 });
+      return NextResponse.json({ error: 'notes Maximum length 2000 character' }, { status: 400 });
     }
-    // 空字串正規化為 null
+    // The empty string is normalized to null
     notes =
       typeof rawNotes === 'string' && rawNotes.trim() !== ''
         ? rawNotes.trim()
         : null;
   }
 
-  // 動態組 setObj：只更新 body 中實際出現的 key，避免覆蓋未提供的欄位
+  // dynamic group setObj: Update only body actually Exit in key, Avoid overwriting unprovided fields
   const buildSetObj = (now: string) => {
     const setObj: Record<string, unknown> = { updated_at: now };
     if (hasStrategy) setObj.strategy = strategy;
@@ -158,7 +158,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       const now = new Date().toISOString();
       const setObj = buildSetObj(now);
 
-      // 嘗試直接更新 trade_groups
+      // Try updating directly trade_groups
       const updateResult = tx
         .update(trade_groups)
         .set(setObj)
@@ -170,7 +170,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         return;
       }
 
-      // group row 不存在（舊資料）— 先 rebuild 建立，再 UPDATE（同一份 setObj）
+      // group row does not exist (old information)— First rebuild Establish, Again UPDATE (same copy setObj)
       rebuildTradeGroup(tx, id);
 
       const retryResult = tx
@@ -182,7 +182,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       if ((retryResult.changes ?? 0) > 0) {
         found = true;
       }
-      // 若仍 0 rows 表示此 id 根本無對應 trades，found 維持 false
+      // If still 0 rows means this id No correspondence at all trades, found maintain false
     });
 
     if (!found) {

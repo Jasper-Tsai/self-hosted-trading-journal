@@ -1,7 +1,7 @@
 /**
- * Server-only: 從 DB broker_fees 表查詢手續費
- * 取代 PRODUCTS[symbol].fees[brokerName] 的靜態查詢
- * 只能在 server components、API routes、server actions 中呼叫
+ * Server-only: from DB broker_fees Table query fee
+ * replace PRODUCTS[symbol].fees[brokerName] static query
+ * can only be server components, API routes, server actions mid call
  */
 import { db } from '@/lib/db';
 import { brokers, broker_fees } from '@/lib/db/schema';

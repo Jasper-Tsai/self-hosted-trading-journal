@@ -26,7 +26,7 @@ export async function createTrade(data: Omit<Trade, 'id' | 'created_at' | 'updat
     });
     return result;
   } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : '無法創建交易記錄' };
+    return { success: false, error: e instanceof Error ? e.message : 'Unable to create trade' };
   }
 }
 
@@ -37,7 +37,7 @@ export async function updateTrade(id: string, data: Partial<Trade>) {
     await apiPut(`/api/trades/${id}`, updateData);
     return { success: true };
   } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : '無法更新交易記錄' };
+    return { success: false, error: e instanceof Error ? e.message : 'Unable to update Trades' };
   }
 }
 
@@ -46,7 +46,7 @@ export async function deleteTrade(id: string) {
     await apiDelete(`/api/trades/${id}`);
     return { success: true };
   } catch {
-    return { success: false, error: '刪除交易記錄失敗' };
+    return { success: false, error: 'Failed to delete trade' };
   }
 }
 
@@ -58,7 +58,7 @@ export async function getDashboardStats(date: string, isViewerMode: boolean = fa
     totalPnL: number; totalPnLAmount: number; tradeCount: number;
     avgPnL: number; maxHoldTime: number; trades: Trade[];
   }>(`/api/stats/dashboard?date=${encodeURIComponent(date)}`);
-  // isViewerMode 篩選已在 API 側完成
+  // isViewerMode Filter already in API Side finish
   return data;
 }
 

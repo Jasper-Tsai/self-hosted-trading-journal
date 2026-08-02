@@ -29,19 +29,19 @@ export async function POST(req: NextRequest) {
   try {
     const { role } = await verifyRequest(req);
     if (role !== 'owner') {
-      return NextResponse.json({ error: '無寫入權限' }, { status: 403 });
+      return NextResponse.json({ error: 'No write permission' }, { status: 403 });
     }
 
     const body = await req.json();
     const { name, color, sort_order, is_default } = body;
 
     if (!name || typeof name !== 'string' || name.trim() === '') {
-      return NextResponse.json({ error: '策略名稱不得為空' }, { status: 400 });
+      return NextResponse.json({ error: 'Strategy name is required' }, { status: 400 });
     }
 
     const now = new Date().toISOString();
 
-    // 若設為 default，先清掉其他筆的 is_default
+    // If set to default, Clear other pens first is_default
     if (is_default) {
       await db
         .update(strategies)
@@ -67,14 +67,14 @@ export async function POST(req: NextRequest) {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes('UNIQUE') || msg.includes('unique')) {
-        return NextResponse.json({ error: '策略名稱已存在' }, { status: 409 });
+      return NextResponse.json({ error: 'Strategy name already exists' }, { status: 409 });
       }
       throw err;
     }
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    if (msg === '無寫入權限') return NextResponse.json({ error: msg }, { status: 403 });
-    if (msg === '未登入' || msg === '無權限') return NextResponse.json({ error: msg }, { status: 401 });
+    if (msg === 'No write permission') return NextResponse.json({ error: msg }, { status: 403 });
+    if (msg === 'Not logged in' || msg === 'No permission') return NextResponse.json({ error: msg }, { status: 401 });
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

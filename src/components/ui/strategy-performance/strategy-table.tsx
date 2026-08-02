@@ -109,7 +109,7 @@ export function StrategyTable({ rows, enabledStrategies, unit, usdTwd }: Strateg
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">策略績效對照表</CardTitle>
+        <CardTitle className="text-base">Strategy performance comparison table</CardTitle>
       </CardHeader>
       <CardContent className="p-0 pb-2">
         <div className="overflow-x-auto">
@@ -117,18 +117,18 @@ export function StrategyTable({ rows, enabledStrategies, unit, usdTwd }: Strateg
             <thead>
               <tr className="border-b border-white/[0.06]">
                 <th className="sticky left-0 bg-[#050506] px-3 py-2.5 text-xs font-medium text-[#8A8F98] text-left whitespace-nowrap z-10">
-                  策略
+                  Strategy
                 </th>
-                {thCell('trades', '筆數', sortKey, sortDir, handleSort, true)}
-                <th className="px-3 py-2.5 text-xs font-medium text-[#8A8F98] text-right whitespace-nowrap">勝/敗/平</th>
-                {thCell('winRate', '勝率', sortKey, sortDir, handleSort, true)}
-                {thCell('totalPnLPoints', '總點數', sortKey, sortDir, handleSort, true)}
-                {thCell('totalPnLUsd', '總USD', sortKey, sortDir, handleSort, true)}
-                {thCell('avgWinPoints', '均獲利(pts)', sortKey, sortDir, handleSort, true)}
-                {thCell('avgLossPoints', '均虧損(pts)', sortKey, sortDir, handleSort, true)}
+                {thCell('trades', 'Trades', sortKey, sortDir, handleSort, true)}
+                <th className="px-3 py-2.5 text-xs font-medium text-[#8A8F98] text-right whitespace-nowrap">win/defeat/flat</th>
+                {thCell('winRate', 'winning rate', sortKey, sortDir, handleSort, true)}
+                {thCell('totalPnLPoints', 'Total points', sortKey, sortDir, handleSort, true)}
+                {thCell('totalPnLUsd', 'totalUSD', sortKey, sortDir, handleSort, true)}
+                {thCell('avgWinPoints', 'All profit(pts)', sortKey, sortDir, handleSort, true)}
+                {thCell('avgLossPoints', 'All losses(pts)', sortKey, sortDir, handleSort, true)}
                 {thCell('avgRR', 'R:R', sortKey, sortDir, handleSort, true)}
                 {thCell('profitFactor', 'PF', sortKey, sortDir, handleSort, true)}
-                {thCell('expectancyUsd', 'EV/筆', sortKey, sortDir, handleSort, true)}
+                {thCell('expectancyUsd', 'EV/trades', sortKey, sortDir, handleSort, true)}
                 {thCell('maxDrawdownUsd', 'MaxDD', sortKey, sortDir, handleSort, true)}
               </tr>
             </thead>
@@ -137,7 +137,7 @@ export function StrategyTable({ rows, enabledStrategies, unit, usdTwd }: Strateg
                 <tr
                   key={row.strategy}
                   onClick={() => {
-                    const encoded = row.strategy === '無' ? '__none__' : encodeURIComponent(row.strategy);
+                    const encoded = row.strategy === 'none' ? '__none__' : encodeURIComponent(row.strategy);
                     router.push(`/strategy-performance/${encoded}`);
                   }}
                   className="border-b border-white/[0.04] cursor-pointer hover:bg-white/[0.03] transition-colors duration-150"
@@ -206,7 +206,7 @@ export function StrategyTable({ rows, enabledStrategies, unit, usdTwd }: Strateg
               {sorted.length === 0 && (
                 <tr>
                   <td colSpan={13} className="px-3 py-8 text-center text-[#8A8F98] text-sm">
-                    暫無資料
+                    No information yet
                   </td>
                 </tr>
               )}

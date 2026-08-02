@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     await verifyRequest(req);
     const start = req.nextUrl.searchParams.get('start');
     const end = req.nextUrl.searchParams.get('end');
-    if (!start || !end) return NextResponse.json({ error: '缺少 start/end 參數' }, { status: 400 });
+    if (!start || !end) return NextResponse.json({ error: 'Lack start/end parameter' }, { status: 400 });
 
     const result = await selectTradesWithGroupAttrs()
       .where(and(gte(trades.date, start), lte(trades.date, end)))

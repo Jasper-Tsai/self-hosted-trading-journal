@@ -53,10 +53,10 @@ export async function GET(
 
     const { name: rawName } = await params;
     const strategyName = decodeURIComponent(rawName);
-    // '' or '__none__' → treat as '無' (no strategy)
-    const resolvedName = (strategyName === '' || strategyName === '__none__') ? '無' : strategyName;
+    // '' or '__none__' → treat as 'none' (no strategy)
+    const resolvedName = (strategyName === '' || strategyName === '__none__') ? 'none' : strategyName;
     // null used internally to mean "no strategy label"
-    const filterStrategy = resolvedName === '無' ? null : resolvedName;
+    const filterStrategy = resolvedName === 'none' ? null : resolvedName;
 
     const [allTradesRaw, dbStrategies] = await Promise.all([
       selectTradesWithGroupAttrs(),
@@ -73,7 +73,7 @@ export async function GET(
     const summaryRow = allTimeStats.find(r => r.strategy === resolvedName);
 
     if (!summaryRow) {
-      return NextResponse.json({ error: `策略不存在：${resolvedName}` }, { status: 404 });
+      return NextResponse.json({ error: `Strategy not found: ${resolvedName}` }, { status: 404 });
     }
 
     // Apply optional filter for groups/monthly views
@@ -83,8 +83,8 @@ export async function GET(
 
     const filteredTrades = hasFilter ? applyTradeFilter(allTrades, filter) : allTrades;
 
-    const groups  = buildTradeGroups(filteredTrades, filterStrategy === null ? '無' : filterStrategy);
-    const monthly = buildMonthlyAgg(filteredTrades, filterStrategy === null ? '無' : filterStrategy);
+    const groups  = buildTradeGroups(filteredTrades, filterStrategy === null ? 'none' : filterStrategy);
+    const monthly = buildMonthlyAgg(filteredTrades, filterStrategy === null ? 'none' : filterStrategy);
 
     const colorMap = new Map(dbStrategies.map(s => [s.name, s.color]));
     const color = colorMap.get(resolvedName) ?? '#8A8F98';

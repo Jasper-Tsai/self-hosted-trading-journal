@@ -15,9 +15,9 @@ interface StrategyTimeHeatmapProps {
 type MetricType = 'winRate' | 'avgPnl' | 'count';
 
 const METRIC_OPTIONS: { value: MetricType; label: string }[] = [
-  { value: 'winRate', label: '勝率' },
-  { value: 'avgPnl', label: '均損益' },
-  { value: 'count', label: '筆數' },
+  { value: 'winRate', label: 'winning rate' },
+  { value: 'avgPnl', label: 'Average profit and loss' },
+  { value: 'count', label: 'Trades' },
 ];
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i); // CT 0-23
@@ -145,10 +145,10 @@ export function StrategyTimeHeatmap({
     const hourMap = heatData.get(strategy);
     if (!hourMap) return '';
     const cell = hourMap.get(hour);
-    if (!cell || cell.total === 0) return `CT${hour}:00 — 無資料`;
+    if (!cell || cell.total === 0) return `CT${hour}:00 — No information`;
     const wr = ((cell.wins / cell.total) * 100).toFixed(1);
     const avg = (cell.sumPnl / cell.total).toFixed(2);
-    return `CT ${hour}:00 | ${strategy} | ${cell.total}筆 | 勝率${wr}% | 均損益$${avg}`;
+    return `CT ${hour}:00 | ${strategy} | ${cell.total}trades | winning rate${wr}% | Average profit and loss$${avg}`;
   }
 
   return (
@@ -156,8 +156,8 @@ export function StrategyTimeHeatmap({
       <CardHeader>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <CardTitle>時段 Heatmap（CT 時區）</CardTitle>
-            <CardDescription>策略 × 小時的績效分布</CardDescription>
+            <CardTitle>time period Heatmap (CT time zone)</CardTitle>
+            <CardDescription>Strategy × Hourly performance distribution</CardDescription>
           </div>
           <div className="flex gap-1">
             {METRIC_OPTIONS.map(opt => (
@@ -177,12 +177,12 @@ export function StrategyTimeHeatmap({
       <CardContent>
         {loading && (
           <div className="h-40 flex items-center justify-center">
-            <div className="text-[#8A8F98] text-sm">載入中...</div>
+            <div className="text-[#8A8F98] text-sm">loading...</div>
           </div>
         )}
         {!loading && visibleRows.length === 0 && (
           <div className="h-40 flex items-center justify-center">
-            <div className="text-[#8A8F98] text-sm">暫無資料</div>
+            <div className="text-[#8A8F98] text-sm">No information yet</div>
           </div>
         )}
         {!loading && visibleRows.length > 0 && (
@@ -264,29 +264,29 @@ export function StrategyTimeHeatmap({
             {metric === 'winRate' && (
               <>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: 'hsl(0,70%,40%)' }} /> 低勝率
+                  <span className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: 'hsl(0,70%,40%)' }} /> low win rate
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: 'hsl(45,70%,50%)' }} /> 50%
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: 'hsl(120,65%,42%)' }} /> 高勝率
+                  <span className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: 'hsl(120,65%,42%)' }} /> High winning rate
                 </div>
               </>
             )}
             {metric === 'avgPnl' && (
               <>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-sm inline-block bg-red-500/60" /> 均虧損
+                  <span className="w-3 h-3 rounded-sm inline-block bg-red-500/60" /> All losses
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-sm inline-block bg-green-500/60" /> 均獲利
+                  <span className="w-3 h-3 rounded-sm inline-block bg-green-500/60" /> All profit
                 </div>
               </>
             )}
             {metric === 'count' && (
               <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: 'rgba(94,106,210,0.6)' }} /> 交易筆數（深 = 多）
+                <span className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: 'rgba(94,106,210,0.6)' }} /> Trades (darker = more)
               </div>
             )}
           </div>

@@ -1,5 +1,5 @@
 /**
- * Phase 3.B — trade-form 分段 TP submit logic unit tests
+ * Phase 3.B — trade-form segmentation TP submit logic unit tests
  *
  * Tests the pure helper functions extracted from trade-form.tsx:
  *   - generateTradeGroupId: format validation

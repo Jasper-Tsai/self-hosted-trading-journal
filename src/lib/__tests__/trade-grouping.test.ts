@@ -1,15 +1,15 @@
 /**
  * Trade Grouping Algorithm — Unit Tests
- * Phase 1.A — 6 cases (case 7 手動 trade 待 Phase 3)
+ * Phase 1.A — 6 cases (case 7 Manual trade treat Phase 3)
  *
- * Case 1: 純滑價（同 externalOrderId 多 fills）
- * Case 2: 分段 TP（不同 externalOrderId → 同 group，因為是 exits）
- * Case 3: 反轉強制斷（reversal → 2 groups）
- * Case 4: 平倉到 0 後再開（即使時間/價位近 → 2 groups）
- * Case 5: 跨午夜不切（同方向 entry 跨午夜 < 3s/1pt → 1 group）
- * Case 6: 3s/5pt 邊界（5 sub-cases）
- * Case 7: 手動 trade 獨立 group — 手動 trade group 由 form action 直接建立，
- *          不參與 groupFills() 演算法，待 Phase 3 trade-form integration tests 覆蓋。
+ * Case 1: Pure sliding price (same externalOrderId many fills)
+ * Case 2: segmentation TP (different externalOrderId → same group, because it is exits)
+ * Case 3: Reverse forced break (reversal → 2 groups)
+ * Case 4: Close position to 0 Open again later (Even if time/Close price → 2 groups)
+ * Case 5: Do not cut it across midnight (Same direction entry across midnight < 3s/1pt → 1 group)
+ * Case 6: 3s/5pt boundary (5 sub-cases)
+ * Case 7: Manual trade independent group — Manual trade group Depend on form action Create directly,
+ *          Not participating groupFills() algorithm, treat Phase 3 trade-form integration tests cover.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -36,9 +36,9 @@ function fill(
   return { externalTradeId, externalOrderId, symbol: 'MNQ', side, fillTime, fillPrice, qty, fee };
 }
 
-// ─── Case 1: 純滑價（同 externalOrderId 多 fills） ───────────────────────────────
+// ─── Case 1: Pure sliding price (same externalOrderId many fills) ───────────────────────────────
 
-describe('Case 1: 純滑價 — 同 externalOrderId 多 fills → 1 group, 4 legs', () => {
+describe('Case 1: Pure sliding price — same externalOrderId many fills → 1 group, 4 legs', () => {
   /**
    * 1 entry order (O1) with 3 fills (slippage)
    * 1 exit order (O2) with 1 fill
@@ -99,9 +99,9 @@ describe('Case 1: 純滑價 — 同 externalOrderId 多 fills → 1 group, 4 leg
   });
 });
 
-// ─── Case 2: 分段 TP ──────────────────────────────────────────────────────────
+// ─── Case 2: segmentation TP ──────────────────────────────────────────────────────────
 
-describe('Case 2: 分段 TP — 3 separate exit orders → 1 group, is_closed=true', () => {
+describe('Case 2: segmentation TP — 3 separate exit orders → 1 group, is_closed=true', () => {
   /**
    * entry: O1, 1 fill, BUY 3 qty @ 24350
    * exit1: O2, SELL 1 qty @ 24380
@@ -141,9 +141,9 @@ describe('Case 2: 分段 TP — 3 separate exit orders → 1 group, is_closed=tr
   });
 });
 
-// ─── Case 3: 反轉強制斷 ───────────────────────────────────────────────────────
+// ─── Case 3: Reverse forced break ───────────────────────────────────────────────────────
 
-describe('Case 3: 反轉強制斷 — reversal → 2 groups', () => {
+describe('Case 3: Reverse forced break — reversal → 2 groups', () => {
   /**
    * O1: BUY 1 @ 24350 09:15:00 → LONG group g1
    * O2: SELL 2 @ 24351 09:15:01 → close 1 from g1, open SHORT 1 for g2
@@ -198,9 +198,9 @@ describe('Case 3: 反轉強制斷 — reversal → 2 groups', () => {
   });
 });
 
-// ─── Case 4: 平倉到 0 後再開 ──────────────────────────────────────────────────
+// ─── Case 4: Close position to 0 Open again later ──────────────────────────────────────────────────
 
-describe('Case 4: 平倉到 0 後再開 → 2 groups (even if < 3s/2pt)', () => {
+describe('Case 4: Close position to 0 Open again later → 2 groups (even if < 3s/2pt)', () => {
   /**
    * O1: BUY 1 @ 24350 09:15:00
    * O2: SELL 1 @ 24351 09:15:01 → closes to flat
@@ -243,9 +243,9 @@ describe('Case 4: 平倉到 0 後再開 → 2 groups (even if < 3s/2pt)', () => 
   });
 });
 
-// ─── Case 5: 跨午夜不切 ───────────────────────────────────────────────────────
+// ─── Case 5: Do not cut it across midnight ───────────────────────────────────────────────────────
 
-describe('Case 5: 跨午夜不切 — same-direction entries across midnight → 1 group', () => {
+describe('Case 5: Do not cut it across midnight — same-direction entries across midnight → 1 group', () => {
   /**
    * O1: BUY 1 @ 24350 2026-04-27T23:59:58
    * O2: BUY 1 @ 24351 2026-04-28T00:00:01  (3s later, 1pt diff → cluster)
@@ -282,9 +282,9 @@ describe('Case 5: 跨午夜不切 — same-direction entries across midnight →
   });
 });
 
-// ─── Case 6: 3s/5pt 邊界 ─────────────────────────────────────────────────────
+// ─── Case 6: 3s/5pt boundary ─────────────────────────────────────────────────────
 
-describe('Case 6: 3s/5pt 邊界', () => {
+describe('Case 6: 3s/5pt boundary', () => {
   /**
    * Baseline: O1 entry BUY 1 @ 24350.000 at T+0
    * After O1's group, try O2 entry BUY 1 at various time/price offsets.
@@ -354,7 +354,7 @@ describe('Case 6: 3s/5pt 邊界', () => {
   );
 });
 
-// ─── Case 8: SIL pointValue 正確套用 ─────────────────────────────────────────
+// ─── Case 8: SIL pointValue Correct application ─────────────────────────────────────────
 
 describe('Case 8: SIL pointValue = 10 (not 5000)', () => {
   /**
@@ -430,7 +430,7 @@ describe('Case 9: distributeQty largest-remainder', () => {
   });
 });
 
-// ─── Case 10: openGroups — 多 same-direction open groups ─────────────────────
+// ─── Case 10: openGroups — many same-direction open groups ─────────────────────
 
 describe('Case 10: openGroups — Codex repro: BUY 1, BUY 1 outside cluster, SELL 2', () => {
   /**
@@ -557,7 +557,7 @@ describe('Case 10d: BUY 1, BUY 1 outside, SELL 1 → group1 closed, group2 still
   });
 });
 
-// ─── Case 11A: per-fill qty conservation — SELL 1 order 跨 3 groups ──────────
+// ─── Case 11A: per-fill qty conservation — SELL 1 order across 3 groups ──────────
 
 describe('Case 11A: per-fill qty conservation — SELL 3 (fills [2,1]) closes 3 groups', () => {
   /**
@@ -567,8 +567,8 @@ describe('Case 11A: per-fill qty conservation — SELL 3 (fills [2,1]) closes 3 
    *
    * Expected:
    * - 3 exit legs, sum(legs.qty) === 3
-   * - T_S1 (fill0) appears in exactly 2 exit legs (total qty 2)
-   * - T_S2 (fill1) appears in exactly 1 exit leg  (total qty 1)
+   * - T_S1 (fill0) Exits in exactly 2 exit legs (total qty 2)
+   * - T_S2 (fill1) Exits in exactly 1 exit leg  (total qty 1)
    */
   const fills: RawFill[] = [
     fill('B1', 'O1', 'BUY',  '2026-04-23T09:15:00', 24350.0, 1),
@@ -607,7 +607,7 @@ describe('Case 11A: per-fill qty conservation — SELL 3 (fills [2,1]) closes 3 
     expect(ts2Total).toBe(1);
   });
 
-  it('both tradeIds appear in exit legs (neither tradeId is orphaned)', () => {
+  it('both tradeIds Exit in exit legs (neither tradeId is orphaned)', () => {
     const tradeIds = new Set(exitLegs.map(l => l.externalTradeId));
     expect(tradeIds.has('T_S1')).toBe(true);
     expect(tradeIds.has('T_S2')).toBe(true);
@@ -633,7 +633,7 @@ describe('Case 11B: reversal per-fill conservation — SELL 3 (fills [2,1]) clos
    * - 3 groups (2 LONG closed + 1 SHORT open)
    * - 2 LONG exit legs (qty 1+1=2) + 1 SHORT entry leg (qty 1)
    * - sum of all qty attributed to SELL order fills === 3
-   * - both T_S1 and T_S2 appear (no fill orphaned)
+   * - both T_S1 and T_S2 Exit (no fill orphaned)
    */
   const fills: RawFill[] = [
     fill('B1', 'O1', 'BUY',  '2026-04-23T09:15:00', 24350.0, 1),
@@ -667,7 +667,7 @@ describe('Case 11B: reversal per-fill conservation — SELL 3 (fills [2,1]) clos
     expect(total).toBe(3);
   });
 
-  it('both T_S1 and T_S2 appear in SELL order legs (no fill orphaned)', () => {
+  it('both T_S1 and T_S2 Exit in SELL order legs (no fill orphaned)', () => {
     const tradeIds = new Set(sellLegs.map(l => l.externalTradeId));
     expect(tradeIds.has('T_S1')).toBe(true);
     expect(tradeIds.has('T_S2')).toBe(true);
@@ -680,19 +680,19 @@ describe('Case 11B: reversal per-fill conservation — SELL 3 (fills [2,1]) clos
   });
 });
 
-// ─── Case 7: 手動 trade 獨立 group ────────────────────────────────────────────
+// ─── Case 7: Manual trade independent group ────────────────────────────────────────────
 
 /**
- * Case 7: 手動 trade 獨立 group（D6）
+ * Case 7: Manual trade independent group (D6)
  *
- * 手動 trade group 由 form action 直接建立（createTradeGroup()），
- * 不參與 groupFills() 演算法。D6 的規則是「永遠獨立 group」，
- * 但這個行為在 trade-form.tsx + server action 層面實作，
- * 不在 groupFills() 的職責範圍內。
+ * Manual trade group Depend on form action Create directly (createTradeGroup()),
+ * Not participating groupFills() algorithm. D6 The rule isalways independent group,
+ * But this behavior is trade-form.tsx + server action level implementation,
+ * Not here groupFills() within the scope of responsibilities.
  *
- * 將在 Phase 3 trade-form integration tests 中完整覆蓋。
+ * will be in Phase 3 trade-form integration tests medium full coverage.
  */
-describe('Case 7: 手動 trade 獨立 group (placeholder)', () => {
+describe('Case 7: Manual trade independent group (placeholder)', () => {
   it.skip('manual trade groups built directly by form action, not by groupFills() — covered separately in trade-form integration tests Phase 3', () => {
     // Intentionally skipped: manual trades bypass groupFills() entirely.
     // D6 rule enforced at the form action layer.

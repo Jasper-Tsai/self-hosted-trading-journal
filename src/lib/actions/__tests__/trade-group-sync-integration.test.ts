@@ -110,7 +110,7 @@ describe('rebuildTradeGroup — real SQLite integration', () => {
 
   beforeAll(() => {
     // Insert 2 trades sharing gid via raw SQL (avoids importing schema module
-    // which would pull in local app setup that isn't available in test env)
+    // which would pull in local app setup that is not available in test env)
     sqlite.prepare(
       `INSERT INTO trades
          (id, date, symbol, side, entry_time, entry_price, qty, broker, fee, strategy, trade_group_id, created_at, updated_at)
@@ -160,41 +160,41 @@ describe('rebuildTradeGroup — real SQLite integration', () => {
   });
 });
 
-// ─── 備注保留不變式 integration 測試 ────────────────────────────────────────────
+// ─── Note: retain the invariant integration test ────────────────────────────────────────────
 
-describe('rebuildTradeGroup — 備注保留不變式 (real SQLite, SPEC §4.2)', () => {
+describe('rebuildTradeGroup — Note: retain the invariant (real SQLite, SPEC §4.2)', () => {
   const now = new Date().toISOString();
 
-  it('重建保留既有 trade_groups.notes：不被 first.notes 覆蓋', () => {
+  it('Rebuild and preserve existing trade_groups.notes: not be first.notes cover', () => {
     const s_notes = new Database(':memory:');
     s_notes.exec(DDL);
     const testDbNotes = drizzle(s_notes);
 
     const gid = 'notes-preserve-test';
 
-    // 插入 trade（notes = '種子備注'）
+    // insert trade (notes = 'Seed remarks')
     s_notes.prepare(
       `INSERT INTO trades (id, date, symbol, side, entry_time, entry_price, qty, broker, fee, notes, trade_group_id, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run('t-np-1', '2026-05-21', 'MNQ', 'LONG', '2026-05-21T14:00:00', 21000, 1, 'IB', 1.70, '種子備注', gid, now, now);
+    ).run('t-np-1', '2026-05-21', 'MNQ', 'LONG', '2026-05-21T14:00:00', 21000, 1, 'IB', 1.70, 'Seed remarks', gid, now, now);
 
-    // 第一次 rebuild → 從 first.notes 種子建立
+    // first rebuild → from first.notes Seed establishment
     testDbNotes.transaction((tx) => { rebuildTradeGroup(tx, gid); });
 
     const afterFirst = s_notes.prepare('SELECT notes FROM trade_groups WHERE id = ?').get(gid) as Record<string, unknown>;
-    expect(afterFirst.notes).toBe('種子備注');
+    expect(afterFirst.notes).toBe('Seed remarks');
 
-    // 模擬使用者在卡片上編輯備注
-    s_notes.prepare('UPDATE trade_groups SET notes=? WHERE id=?').run('使用者手動改的備注', gid);
+    // Simulate a user editing notes on a card
+    s_notes.prepare('UPDATE trade_groups SET notes=? WHERE id=?').run('Notes manually modified by the user', gid);
 
-    // 第二次 rebuild（模擬 trade 被更新觸發 rebuild）→ 應保留使用者編輯的備注
+    // second time rebuild (simulation trade triggered by update rebuild)→ User-edited comments should be retained
     testDbNotes.transaction((tx) => { rebuildTradeGroup(tx, gid); });
 
     const afterSecond = s_notes.prepare('SELECT notes FROM trade_groups WHERE id = ?').get(gid) as Record<string, unknown>;
-    expect(afterSecond.notes).toBe('使用者手動改的備注');
+    expect(afterSecond.notes).toBe('Notes manually modified by the user');
   });
 
-  it('群組 notes 為 null 時：重建後保留 null，不被 first.notes 覆蓋', () => {
+  it('group notes for null hour: retained after rebuilding null, not be first.notes cover', () => {
     const s_notes2 = new Database(':memory:');
     s_notes2.exec(DDL);
     const testDbNotes2 = drizzle(s_notes2);
@@ -204,22 +204,22 @@ describe('rebuildTradeGroup — 備注保留不變式 (real SQLite, SPEC §4.2)'
     s_notes2.prepare(
       `INSERT INTO trades (id, date, symbol, side, entry_time, entry_price, qty, broker, fee, notes, trade_group_id, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run('t-nn-1', '2026-05-21', 'MNQ', 'LONG', '2026-05-21T15:00:00', 21100, 1, 'IB', 1.70, '有種子備注', gid, now, now);
+    ).run('t-nn-1', '2026-05-21', 'MNQ', 'LONG', '2026-05-21T15:00:00', 21100, 1, 'IB', 1.70, 'There are seed notes', gid, now, now);
 
-    // 第一次 rebuild → 從 first.notes 種子建立
+    // first rebuild → from first.notes Seed establishment
     testDbNotes2.transaction((tx) => { rebuildTradeGroup(tx, gid); });
 
-    // 模擬使用者把備注清空（設為 null）
+    // Simulate user to clear notes (set to null)
     s_notes2.prepare('UPDATE trade_groups SET notes=NULL WHERE id=?').run(gid);
 
-    // 第二次 rebuild → 應保留 null，不被 first.notes='有種子備注' 蓋回來
+    // second time rebuild → should be retained null, not be first.notes='There are seed notes' cover back
     testDbNotes2.transaction((tx) => { rebuildTradeGroup(tx, gid); });
 
     const afterSecond = s_notes2.prepare('SELECT notes FROM trade_groups WHERE id = ?').get(gid) as Record<string, unknown>;
     expect(afterSecond.notes).toBeNull();
   });
 
-  it('首次建立（無既有 group row）：從 first.notes 種子帶入', () => {
+  it('Created for the first time (nothing existing group row): from first.notes Bring in seeds', () => {
     const s_notes3 = new Database(':memory:');
     s_notes3.exec(DDL);
     const testDbNotes3 = drizzle(s_notes3);
@@ -229,52 +229,52 @@ describe('rebuildTradeGroup — 備注保留不變式 (real SQLite, SPEC §4.2)'
     s_notes3.prepare(
       `INSERT INTO trades (id, date, symbol, side, entry_time, entry_price, qty, broker, fee, notes, trade_group_id, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run('t-ns-1', '2026-05-21', 'MNQ', 'LONG', '2026-05-21T16:00:00', 21200, 1, 'IB', 1.70, '首次種子備注', gid, now, now);
+    ).run('t-ns-1', '2026-05-21', 'MNQ', 'LONG', '2026-05-21T16:00:00', 21200, 1, 'IB', 1.70, 'First seed notes', gid, now, now);
 
-    // 首次 rebuild（無既有 group row）→ 應從 first.notes 帶入
+    // first rebuild (nothing existing group row)→ Should follow first.notes bring in
     testDbNotes3.transaction((tx) => { rebuildTradeGroup(tx, gid); });
 
     const row = s_notes3.prepare('SELECT notes FROM trade_groups WHERE id = ?').get(gid) as Record<string, unknown>;
-    expect(row.notes).toBe('首次種子備注');
+    expect(row.notes).toBe('First seed notes');
   });
 });
 
-// ─── 策略保留不變式 integration 測試 ────────────────────────────────────────────
+// ─── Strategy preservation invariants integration test ─────────────────────────────────────────
 
-describe('rebuildTradeGroup — 策略保留不變式 (real SQLite)', () => {
+describe('rebuildTradeGroup — strategy preservation invariants (real SQLite)', () => {
   const now = new Date().toISOString();
 
-  it('重建保留既有 trade_groups.strategy：不被 first.strategy 覆蓋', () => {
-    // 用獨立 :memory: DB 避免與其他 suite 衝突
+  it('Rebuild and preserve existing trade_groups.strategy: not be first.strategy cover', () => {
+    // Use independent :memory: DB avoid interacting with other suite conflict
     const s2 = new Database(':memory:');
     s2.exec(DDL);
     const testDb2 = drizzle(s2);
 
     const gid = 'strategy-preserve-test';
 
-    // 插入 trade（strategy = 'STAR'）
+    // insert trade (strategy = 'STAR')
     s2.prepare(
       `INSERT INTO trades (id, date, symbol, side, entry_time, entry_price, qty, broker, fee, strategy, trade_group_id, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run('t-sp-1', '2026-05-20', 'MNQ', 'LONG', '2026-05-20T14:00:00', 21000, 1, 'IB', 1.70, 'STAR', gid, now, now);
 
-    // 第一次 rebuild → 從 first.strategy 種子建立，strategy='STAR'
+    // first rebuild → from first.strategy Seed establishment, strategy='STAR'
     testDb2.transaction((tx) => { rebuildTradeGroup(tx, gid); });
 
     const afterFirst = s2.prepare('SELECT strategy FROM trade_groups WHERE id = ?').get(gid) as Record<string, unknown>;
     expect(afterFirst.strategy).toBe('STAR');
 
-    // 模擬使用者編輯策略為 'COW'
+    // The simulated user editing strategy is 'COW'
     s2.prepare('UPDATE trade_groups SET strategy=? WHERE id=?').run('COW', gid);
 
-    // 第二次 rebuild（模擬 trade 被更新觸發 rebuild）→ 應保留 'COW'
+    // second time rebuild (simulation trade triggered by update rebuild)→ should be retained 'COW'
     testDb2.transaction((tx) => { rebuildTradeGroup(tx, gid); });
 
     const afterSecond = s2.prepare('SELECT strategy FROM trade_groups WHERE id = ?').get(gid) as Record<string, unknown>;
     expect(afterSecond.strategy).toBe('COW');
   });
 
-  it('首次建立（無既有 group row）：從 first.strategy 種子帶入', () => {
+  it('Created for the first time (nothing existing group row): from first.strategy Bring in seeds', () => {
     const s3 = new Database(':memory:');
     s3.exec(DDL);
     const testDb3 = drizzle(s3);
@@ -286,7 +286,7 @@ describe('rebuildTradeGroup — 策略保留不變式 (real SQLite)', () => {
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run('t-ss-1', '2026-05-20', 'MNQ', 'LONG', '2026-05-20T15:00:00', 21100, 1, 'IB', 1.70, 'COW', gid, now, now);
 
-    // 首次 rebuild（無既有 group row）
+    // first rebuild (nothing existing group row)
     testDb3.transaction((tx) => { rebuildTradeGroup(tx, gid); });
 
     const row = s3.prepare('SELECT strategy FROM trade_groups WHERE id = ?').get(gid) as Record<string, unknown>;

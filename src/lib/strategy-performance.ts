@@ -1,5 +1,5 @@
 /**
- * 策略績效計算邏輯 — 供 /api/stats/strategy 及 /api/stats/strategy/[name] 共用
+ * Strategy performance calculation logic — for /api/stats/strategy and /api/stats/strategy/[name] share
  */
 import { Trade } from '@/types';
 import { getPointValue } from '@/lib/utils';
@@ -59,11 +59,11 @@ export function buildRangeLabel(filter: TradeFilter): string {
     const f = filter.from ?? '';
     const t = filter.to ?? '';
     if (f && t) return `${f} → ${t}`;
-    if (f) return `${f} 起`;
-    return `至 ${t}`;
+    if (f) return `${f} rise`;
+    return `to ${t}`;
   }
-  if (!filter.days || filter.days === 'all') return '全部';
-  return `近 ${filter.days} 天`;
+  if (!filter.days || filter.days === 'all') return 'all';
+  return `Closed trades, last ${filter.days} days`;
 }
 
 // ---------------------------------------------------------------------------
@@ -219,13 +219,13 @@ export function computeStrategyStats(
   const accMap = new Map<string, StratAcc>();
 
   // Pre-initialize DB strategies
-  accMap.set('無', { closedGroups: [], totalGroupCount: 0 });
+  accMap.set('none', { closedGroups: [], totalGroupCount: 0 });
   for (const s of dbStrategies) accMap.set(s.name, { closedGroups: [], totalGroupCount: 0 });
 
   const groups = groupTrades(tradeList);
 
   for (const g of groups) {
-    const key = g.strategy ?? '無';
+    const key = g.strategy ?? 'none';
     if (!accMap.has(key)) accMap.set(key, { closedGroups: [], totalGroupCount: 0 });
     const acc = accMap.get(key)!;
     acc.totalGroupCount += 1;
@@ -345,10 +345,10 @@ export function computeStrategyStats(
     };
   });
 
-  // Sort: DB order → unknown strategies → '無' last
+  // Sort: DB order → unknown strategies → 'none' last
   result.sort((a, b) => {
-    if (a.strategy === '無') return 1;
-    if (b.strategy === '無') return -1;
+    if (a.strategy === 'none') return 1;
+    if (b.strategy === 'none') return -1;
     const ai = dbOrder.indexOf(a.strategy);
     const bi = dbOrder.indexOf(b.strategy);
     return (ai === -1 ? 9999 : ai) - (bi === -1 ? 9999 : bi);
@@ -366,11 +366,11 @@ export function buildTradeGroups(
   strategyName: string | null
 ): StrategyTradeGroup[] {
   const groups = groupTrades(tradeList);
-  const targetStrategy = strategyName === null || strategyName === '無' ? null : strategyName;
+  const targetStrategy = strategyName === null || strategyName === 'none' ? null : strategyName;
 
   return groups
     .filter(g => {
-      if (strategyName === '無') return g.strategy === null;
+      if (strategyName === 'none') return g.strategy === null;
       return g.strategy === targetStrategy;
     })
     .sort((a, b) => {
@@ -410,10 +410,10 @@ export function buildMonthlyAgg(
   strategyName: string | null
 ): StrategyMonthlyAgg[] {
   const groups = groupTrades(tradeList);
-  const targetStrategy = strategyName === null || strategyName === '無' ? null : strategyName;
+  const targetStrategy = strategyName === null || strategyName === 'none' ? null : strategyName;
 
   const filtered = groups.filter(g => {
-    if (strategyName === '無') return g.strategy === null;
+    if (strategyName === 'none') return g.strategy === null;
     return g.strategy === targetStrategy;
   });
 

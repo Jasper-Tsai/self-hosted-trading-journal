@@ -45,8 +45,8 @@ export function rebuildTradeGroup(tx: Tx, groupId: string): void {
     )
     .all();
 
-  // 2. 刪除前先讀出既有 group 的 strategy 與 notes（保留使用者編輯結果）
-  //    注意：undefined 表示 group row 不存在（首次建立），null 表示 group 存在但欄位為空
+  // 2. Before deleting, read the existing group of strategy and notes (Keep user edits)
+  //    Notice: undefined express group row does not exist (Created for the first time), null express group Exists but the field is empty
   const existingGroup: { strategy: string | null; notes: string | null } | undefined = tx
     .select({ strategy: trade_groups.strategy, notes: trade_groups.notes })
     .from(trade_groups)
@@ -128,9 +128,9 @@ export function rebuildTradeGroup(tx: Tx, groupId: string): void {
     fuel: first.fuel ?? null,
     broker: first.broker ?? null,
     fee_total: Math.round(matched.reduce((s, t) => s + (t.fee ?? 0), 0) * 100) / 100,
-    // 群組已存在就保留既有備注（使用者編輯結果），只有首次建立（無 group row）才從種子帶入（SPEC §4.2）
+    // If the group already exists, keep the existing notes. (User edit results), Only created for the first time (none group row)brought in from seeds (SPEC §4.2)
     notes: existingGroup !== undefined ? existingGroup.notes : (first.notes ?? null),
-    // 群組已存在就保留既有策略（使用者編輯結果），只有首次建立（無 group row）才從種子帶入（SPEC §4.1）
+    // Preserve a user-edited group strategy; seed it only when the group is first created (SPEC §4.1).
     strategy: existingGroup !== undefined ? existingGroup.strategy : (first.strategy ?? null),
     created_at: now,
     updated_at: now,

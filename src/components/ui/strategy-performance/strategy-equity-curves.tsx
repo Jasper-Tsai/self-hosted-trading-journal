@@ -114,23 +114,23 @@ export function StrategyEquityCurves({
   const hasData = curves.length > 0;
   const loading = visibleRows.some(r => !drilldownCache.has(r.strategy));
 
-  const unitLabel = unit === 'points' ? '點' : unit === 'twd' ? 'TWD' : 'USD';
+  const unitLabel = unit === 'points' ? 'point' : unit === 'twd' ? 'TWD' : 'USD';
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>策略資金曲線</CardTitle>
-        <CardDescription>各策略累積損益走勢（{unitLabel}）</CardDescription>
+        <CardTitle>Strategy equity curves</CardTitle>
+        <CardDescription>Cumulative profit and loss trend of each strategy ({unitLabel})</CardDescription>
       </CardHeader>
       <CardContent>
         {loading && (
           <div className="h-[360px] flex items-center justify-center">
-            <div className="text-[#8A8F98] text-sm">載入中...</div>
+            <div className="text-[#8A8F98] text-sm">loading...</div>
           </div>
         )}
         {!loading && !hasData && (
           <div className="h-[360px] flex items-center justify-center">
-            <div className="text-[#8A8F98] text-sm">暫無資料</div>
+            <div className="text-[#8A8F98] text-sm">No information yet</div>
           </div>
         )}
         {!loading && hasData && (
