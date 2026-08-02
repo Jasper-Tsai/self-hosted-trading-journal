@@ -61,13 +61,16 @@
     "baseline-browser-mapping": "^2.10.0",
     "eslint": "^9",
     "eslint-config-next": "^16.2.6",
-    "postcss": "^8.5.15",
+    "postcss": "8.5.25",
     "tailwindcss": "^4",
     "tsx": "^4.19.2",
     "typescript": "^5",
     "vitest": "^4.0.14"
   },
   "overrides": {
-    "postcss": "$postcss"
+    "postcss": "8.5.25",
+    "sharp": "0.35.3",
+    "vite": "8.2.0",
+    "esbuild": "0.28.1"
   }
 }
