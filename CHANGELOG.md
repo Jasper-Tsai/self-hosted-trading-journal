@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Manual P&L records for broker-reported results when individual fills are not available
+- A standalone Prop Firm journal for evaluation/funded trades and payout records
+- Daily review templates for session scenarios, discipline checks, error tags, and lessons
+
+### Security and scope
+
+- All new records use the existing local session authentication and local SQLite database
+- This release adds no broker integration, order execution, copy trading, or external account access
+
 ## 0.1.0 - 2026-06-02
 
 Initial public release.

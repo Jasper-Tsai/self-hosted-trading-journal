@@ -176,3 +176,33 @@ export const trade_legs = sqliteTable('trade_legs', {
   index('trade_legs_external_order_idx').on(t.external_order_id),
   index('trade_legs_fill_time_idx').on(t.fill_time),
 ]));
+
+// Broker-reported P&L when individual fills are unavailable.
+export const direct_pnl_trades = sqliteTable('direct_pnl_trades', {
+  id: text('id').primaryKey(), date: text('date').notNull(), symbol: text('symbol').notNull(),
+  side: text('side').notNull(), entry_time: text('entry_time').notNull(), exit_time: text('exit_time').notNull(),
+  qty: integer('qty').notNull(), broker: text('broker').notNull(), gross_pnl_usd: real('gross_pnl_usd').notNull(),
+  fee: real('fee').notNull().default(0), point_value_snapshot: real('point_value_snapshot').notNull(),
+  strategy: text('strategy'), notes: text('notes'), created_at: text('created_at').notNull(), updated_at: text('updated_at').notNull(),
+}, (t) => ([index('direct_pnl_trades_date_exit_time_idx').on(t.date, t.exit_time)]));
+
+// Separate prop-firm ledger; it never contributes to the standard journal's stats.
+export const prop_firm_payouts = sqliteTable('prop_firm_payouts', {
+  id: text('id').primaryKey(), date: text('date').notNull(), amount_usd: real('amount_usd').notNull(), notes: text('notes'),
+  created_at: text('created_at').notNull(), updated_at: text('updated_at').notNull(),
+}, (t) => ([index('prop_firm_payouts_date_idx').on(t.date)]));
+
+export const prop_firm_trades = sqliteTable('prop_firm_trades', {
+  id: text('id').primaryKey(), date: text('date').notNull(), phase: text('phase').notNull(), symbol: text('symbol').notNull(),
+  side: text('side').notNull(), entry_time: text('entry_time').notNull(), exit_time: text('exit_time').notNull(), qty: integer('qty').notNull(),
+  pnl_points: real('pnl_points').notNull(), pnl_usd: real('pnl_usd').notNull(), fee: real('fee').notNull().default(0),
+  strategy: text('strategy'), exit_reason: text('exit_reason'), notes: text('notes'), created_at: text('created_at').notNull(), updated_at: text('updated_at').notNull(),
+}, (t) => ([index('prop_firm_trades_date_exit_time_idx').on(t.date, t.exit_time), index('prop_firm_trades_phase_date_idx').on(t.phase, t.date)]));
+
+// Per-session qualitative reflection, separate from P&L.
+export const daily_reviews = sqliteTable('daily_reviews', {
+  date: text('date').primaryKey(), status: text('status').notNull().default('draft'), structure: text('structure'),
+  scenario_a: text('scenario_a'), scenario_b: text('scenario_b'), scenario_c: text('scenario_c'),
+  rule_followed: integer('rule_followed', { mode: 'boolean' }), error_tags: text('error_tags').notNull().default('[]'),
+  lesson: text('lesson'), next_action: text('next_action'), created_at: text('created_at').notNull(), updated_at: text('updated_at').notNull(),
+});

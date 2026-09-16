@@ -130,3 +130,10 @@ export interface HeatmapData {
   value: number; // PnL for the day
   count: number; // number of trades
 }
+
+export interface DirectPnlTrade { id: string; date: string; symbol: string; side: TradeSide; entry_time: string; exit_time: string; qty: number; broker: string; gross_pnl_usd: number; fee: number; point_value_snapshot: number; strategy: string | null; notes: string | null; created_at: string; updated_at: string; }
+export type PropFirmPhase = 'evaluation' | 'funded';
+export type PropFirmExitReason = 'TP' | 'SL' | 'BE' | 'manual' | 'time' | 'other';
+export interface PropFirmTrade { id: string; date: string; phase: PropFirmPhase; symbol: string; side: TradeSide; entry_time: string; exit_time: string; qty: number; pnl_points: number; pnl_usd: number; fee: number; strategy: string | null; exit_reason: PropFirmExitReason | null; notes: string | null; created_at: string; updated_at: string; }
+export interface PropFirmPayout { id: string; date: string; amount_usd: number; notes: string | null; created_at: string; updated_at: string; }
+export interface DailyReview { date: string; status: 'draft' | 'completed'; structure: string | null; scenario_a: string | null; scenario_b: string | null; scenario_c: string | null; rule_followed: boolean | null; error_tags: string[]; lesson: string | null; next_action: string | null; created_at: string; updated_at: string; }

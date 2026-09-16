@@ -168,6 +168,42 @@ CREATE INDEX IF NOT EXISTS trade_legs_group_idx ON trade_legs(trade_group_id);
 CREATE INDEX IF NOT EXISTS trade_legs_external_trade_idx ON trade_legs(external_trade_id);
 CREATE INDEX IF NOT EXISTS trade_legs_external_order_idx ON trade_legs(external_order_id);
 CREATE INDEX IF NOT EXISTS trade_legs_fill_time_idx ON trade_legs(fill_time);
+
+CREATE TABLE IF NOT EXISTS direct_pnl_trades (
+  id TEXT PRIMARY KEY, date TEXT NOT NULL, symbol TEXT NOT NULL,
+  side TEXT NOT NULL CHECK (side IN ('LONG', 'SHORT')), entry_time TEXT NOT NULL,
+  exit_time TEXT NOT NULL CHECK (exit_time >= entry_time), qty INTEGER NOT NULL CHECK (qty BETWEEN 1 AND 100000),
+  broker TEXT NOT NULL, gross_pnl_usd REAL NOT NULL CHECK (abs(gross_pnl_usd) <= 1000000),
+  fee REAL NOT NULL DEFAULT 0 CHECK (fee BETWEEN 0 AND 1000000),
+  point_value_snapshot REAL NOT NULL CHECK (point_value_snapshot > 0 AND point_value_snapshot <= 1000000),
+  strategy TEXT, notes TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS direct_pnl_trades_date_exit_time_idx ON direct_pnl_trades(date, exit_time);
+
+CREATE TABLE IF NOT EXISTS prop_firm_payouts (
+  id TEXT PRIMARY KEY, date TEXT NOT NULL, amount_usd REAL NOT NULL CHECK (amount_usd >= 0.01 AND amount_usd <= 1000000),
+  notes TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS prop_firm_payouts_date_idx ON prop_firm_payouts(date);
+
+CREATE TABLE IF NOT EXISTS prop_firm_trades (
+  id TEXT PRIMARY KEY, date TEXT NOT NULL, phase TEXT NOT NULL CHECK (phase IN ('evaluation', 'funded')),
+  symbol TEXT NOT NULL, side TEXT NOT NULL CHECK (side IN ('LONG', 'SHORT')), entry_time TEXT NOT NULL,
+  exit_time TEXT NOT NULL CHECK (exit_time >= entry_time), qty INTEGER NOT NULL CHECK (qty BETWEEN 1 AND 100000),
+  pnl_points REAL NOT NULL CHECK (abs(pnl_points) <= 1000000), pnl_usd REAL NOT NULL CHECK (abs(pnl_usd) <= 1000000),
+  fee REAL NOT NULL DEFAULT 0 CHECK (fee BETWEEN 0 AND 1000000), strategy TEXT,
+  exit_reason TEXT CHECK (exit_reason IS NULL OR exit_reason IN ('TP', 'SL', 'BE', 'manual', 'time', 'other')),
+  notes TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS prop_firm_trades_date_exit_time_idx ON prop_firm_trades(date, exit_time);
+CREATE INDEX IF NOT EXISTS prop_firm_trades_phase_date_idx ON prop_firm_trades(phase, date);
+
+CREATE TABLE IF NOT EXISTS daily_reviews (
+  date TEXT PRIMARY KEY, status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'completed')),
+  structure TEXT, scenario_a TEXT, scenario_b TEXT, scenario_c TEXT,
+  rule_followed INTEGER CHECK (rule_followed IN (0, 1)), error_tags TEXT NOT NULL DEFAULT '[]',
+  lesson TEXT, next_action TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
 `);
 
 const now = new Date().toISOString();

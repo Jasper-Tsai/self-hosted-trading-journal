@@ -49,6 +49,24 @@ const ALL_NAV_ITEMS: NavItem[] = [
     labelKey: 'csv',
     descriptionKey: 'csvDescription',
   },
+  {
+    href: '/manual-pnl',
+    pageKey: 'manualPnl',
+    labelKey: 'manualPnl',
+    descriptionKey: 'manualPnlDescription',
+  },
+  {
+    href: '/prop-firm',
+    pageKey: 'propFirm',
+    labelKey: 'propFirm',
+    descriptionKey: 'propFirmDescription',
+  },
+  {
+    href: '/daily-review',
+    pageKey: 'dailyReview',
+    labelKey: 'dailyReview',
+    descriptionKey: 'dailyReviewDescription',
+  },
 ];
 
 const OWNER_ONLY_NAV_ITEMS: NavItem[] = [

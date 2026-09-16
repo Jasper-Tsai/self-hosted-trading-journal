@@ -20,7 +20,7 @@ This roadmap keeps the public edition focused on self-hosted trading journal wor
 
 ## v0.4 - Review Workflow
 
-- Trade review checklist templates
+- Daily review templates for plans, rule adherence, error tags, and lessons (implemented)
 - Strategy tag quality checks
 - Session/day notes
 - Weekly and monthly review exports

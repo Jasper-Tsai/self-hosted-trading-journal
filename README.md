@@ -35,6 +35,9 @@ The screenshots below use synthetic demo data only.
 - Product and broker configuration from the UI
 - P&L, R multiple, win rate, heatmap, calendar, best/worst trades, and strategy performance views
 - CSV import/export for portable trade data
+- Manual P&L entries for broker statements that do not expose individual fills
+- A separate Prop Firm journal for evaluation/funded trades and payouts, without mixing them into the main journal
+- Daily review templates for scenarios, rule adherence, errors, and lessons
 - Screenshot/file upload to a local or NAS-mounted volume
 - SQLite persistence with automatic first-run schema creation
 - Local username/password authentication with signed HTTP-only cookies
@@ -177,6 +180,7 @@ In scope:
 - CSV import/export
 - Docker/NAS deployment
 - Strategy and performance review
+- Manual P&L, Prop Firm recordkeeping, and qualitative daily reviews
 
 Out of scope:
 

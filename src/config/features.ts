@@ -5,7 +5,10 @@ export type PageKey =
   | 'trades'
   | 'review'
   | 'calendar'
-  | 'csv';
+  | 'csv'
+  | 'manualPnl'
+  | 'propFirm'
+  | 'dailyReview';
 
 const ALL_PAGES: PageKey[] = [
   'dashboard',
@@ -13,6 +16,9 @@ const ALL_PAGES: PageKey[] = [
   'review',
   'calendar',
   'csv',
+  'manualPnl',
+  'propFirm',
+  'dailyReview',
 ];
 
 function parseEnabledPages(raw: string | undefined): Set<PageKey> {
@@ -40,6 +46,9 @@ export const PAGE_ROUTES: Record<PageKey, string> = {
   review: '/review',
   calendar: '/calendar',
   csv: '/csv',
+  manualPnl: '/manual-pnl',
+  propFirm: '/prop-firm',
+  dailyReview: '/daily-review',
 };
 
 export function notEnabled(): NextResponse {

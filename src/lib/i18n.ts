@@ -46,7 +46,13 @@ export type TranslationKey =
   | 'strategyPerformanceTitle'
   | 'strategyPerformanceDescription'
   | 'noStrategyData'
-  | 'loadingFailed';
+  | 'loadingFailed'
+  | 'manualPnl'
+  | 'manualPnlDescription'
+  | 'propFirm'
+  | 'propFirmDescription'
+  | 'dailyReview'
+  | 'dailyReviewDescription';
 
 type TranslationValue = string | ((params: Record<string, string | number>) => string);
 
@@ -93,6 +99,12 @@ const EN: Record<TranslationKey, TranslationValue> = {
   strategyPerformanceTitle: 'Strategy Performance',
   noStrategyData: 'No strategy performance data yet',
   loadingFailed: 'Loading failed',
+  manualPnl: 'Manual P&L',
+  manualPnlDescription: 'Record broker-reported P&L without fill prices',
+  propFirm: 'Prop Firm Journal',
+  propFirmDescription: 'Separate evaluation, funded, and payout records',
+  dailyReview: 'Daily Review',
+  dailyReviewDescription: 'Capture your session plan and lessons',
 };
 
 const ZH_TW: Partial<Record<TranslationKey, TranslationValue>> = {
@@ -135,6 +147,12 @@ const ZH_TW: Partial<Record<TranslationKey, TranslationValue>> = {
   strategyPerformanceTitle: '策略績效',
   noStrategyData: '尚無策略績效資料',
   loadingFailed: '載入失敗',
+  manualPnl: '直接損益',
+  manualPnlDescription: '記錄券商提供的損益，不需逐筆成交價',
+  propFirm: 'PropFirm 日誌',
+  propFirmDescription: '獨立記錄考核、資助帳號與出金',
+  dailyReview: '每日復盤',
+  dailyReviewDescription: '記錄交易計畫與當日反思',
 };
 
 export function getTranslation(
