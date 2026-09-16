@@ -12,6 +12,7 @@
 
 - All new records use the existing local session authentication and local SQLite database
 - This release adds no broker integration, order execution, copy trading, or external account access
+- Updated the dependency lockfile to patched Next.js, Sharp, Vitest, ESLint, and related transitive versions; `npm audit` now reports no vulnerabilities
 
 ## 0.1.0 - 2026-06-02
 
